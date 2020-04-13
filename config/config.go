@@ -21,7 +21,6 @@ type Config struct {
 }
 
 type DBConfig struct {
-	ProjectDBPort     string `json:"projectdb_port"`
 	ProjectDBUrl      string `json:"projectdb_url"`
 	ProjectDBUser     string `json:"projectdb_user"`
 	ProjectDBPassword string `json:"projectdb_password"`

@@ -26,26 +26,26 @@ type ApiTestRecord struct {
 	TestResult int //0 test failed, 1 test success
 }
 
-type APIInfo struct {
-	ApiId       uint `gorm:"primary_key"`
-	ApiLogo     string
-	ApiName     string
-	ApiProvider string
-	ApiUrl      string
-	ApiPrice    string
-	ApiDesc     string
-	ApiBuyAmt   string
-	ApiExtra    models.APIExtra
+type ApiBasicInfo struct {
+	ApiId          uint `gorm:"primary_key"`
+	ApiLogo        string
+	ApiName        string
+	ApiProvider    string
+	ApiUrl         string
+	ApiPrice       string
+	ApiDesc        string
+	Specifications int
+	ApiExtra       models.ApiExtra
 }
 
-type APIInterfaceInfo struct {
+type ApiDetailInfo struct {
 	ID                   uint `gorm:"primary_key"`
 	Mark                 string
 	RequestParam         string
 	ResponseParam        string
 	ResponseExample      string
 	ParamErrorCode       string
-	APIDetailInstruction models.APIDetailInstruction
+	APIDetailInstruction models.ApiDetailInstruction
 }
 
 type APIKey struct {

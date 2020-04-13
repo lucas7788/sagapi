@@ -6,15 +6,15 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/ontio/saga/models/tables"
 	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/models/tables"
 	"github.com/stretchr/testify/assert"
 )
 
 var TestDB *SagaDB
 
 func Init(t *testing.T) {
-	config.DefConfig.DbConfig.ProjectDBUrl = "127.0.0.1:30336"
+	config.DefConfig.DbConfig.ProjectDBUrl = "127.0.0.1:3306"
 	config.DefConfig.DbConfig.ProjectDBName = "saga"
 	config.DefConfig.DbConfig.ProjectDBUser = "root"
 	config.DefConfig.DbConfig.ProjectDBPassword = "111111"
@@ -58,16 +58,16 @@ func TestSagaDB_QueryRequestNum(t *testing.T) {
 
 func TestSagaDB_SearchApi(t *testing.T) {
 	Init(t)
-	//info := &tables.APIInfo{
-	//	ApiDesc:"abcdefg",
-	//}
-	//info2 := &tables.APIInfo{
-	//	ApiDesc:"cdefgty",
-	//}
-	//err := TestDB.InsertApiInfo(info)
-	//assert.Nil(t, err)
-	//err = TestDB.InsertApiInfo(info2)
-	//assert.Nil(t, err)
+	info := &tables.ApiBasicInfo{
+		ApiDesc: "abcdefg",
+	}
+	info2 := &tables.ApiBasicInfo{
+		ApiDesc: "cdefgty",
+	}
+	err := TestDB.InsertApiInfo(info)
+	assert.Nil(t, err)
+	err = TestDB.InsertApiInfo(info2)
+	assert.Nil(t, err)
 	infos, err := TestDB.SearchApi("cdefgty")
 	assert.Nil(t, err)
 	fmt.Println(infos)
