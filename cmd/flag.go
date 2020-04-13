@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/ontio/saga/config"
+	"github.com/ontio/sagapi/config"
 	"github.com/urfave/cli"
 	"strings"
 )

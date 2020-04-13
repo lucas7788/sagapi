@@ -2,8 +2,8 @@ package nasa
 
 import (
 	"fmt"
-	"github.com/ontio/saga/config"
-	"github.com/ontio/saga/core/http"
+	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/core/http"
 )
 
 var (
