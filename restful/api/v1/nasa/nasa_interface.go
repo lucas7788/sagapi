@@ -2,9 +2,9 @@ package nasa
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core/nasa"
 )
 
@@ -14,9 +14,9 @@ func Apod(c *gin.Context) {
 
 	res, err := nasa.Apod()
 	if err != nil {
-		c.String(http.StatusNotFound, "")
+		common.WriteResponse(c, nil, common.INTER_ERROR, err)
 	} else {
-		c.String(http.StatusOK, string(res))
+		common.WriteResponse(c, res, common.SUCCESS, nil)
 	}
 }
 
@@ -26,9 +26,10 @@ func Feed(c *gin.Context) {
 
 	fmt.Printf("startdate: %s, enddate: %s\n", startdate, enddate)
 	res, err := nasa.Feed(startdate, enddate)
+
 	if err != nil {
-		c.String(http.StatusNotFound, "")
+		common.WriteResponse(c, nil, common.INTER_ERROR, err)
 	} else {
-		c.String(http.StatusOK, string(res))
+		common.WriteResponse(c, res, common.SUCCESS, nil)
 	}
 }
