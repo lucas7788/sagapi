@@ -16,10 +16,10 @@ type SagaDB struct {
 var DefDB *SagaDB
 
 func NewDB() (*SagaDB, error) {
-	db, dberr := gorm.Open("mysql", config.DefConfig.ProjectDBUser+
-		":"+config.DefConfig.ProjectDBPassword+
-		"@tcp("+config.DefConfig.ProjectDBUrl+
-		")/"+config.DefConfig.ProjectDBName+
+	db, dberr := gorm.Open("mysql", config.DefConfig.DbConfig.ProjectDBUser+
+		":"+config.DefConfig.DbConfig.ProjectDBPassword+
+		"@tcp("+config.DefConfig.DbConfig.ProjectDBUrl+
+		")/"+config.DefConfig.DbConfig.ProjectDBName+
 		"?charset=utf8")
 	if dberr != nil {
 		return nil, fmt.Errorf("[NewSagaDB] open db error: %s", dberr)
