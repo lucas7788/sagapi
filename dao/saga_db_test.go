@@ -31,7 +31,7 @@ func TestSagaDB_Init(t *testing.T) {
 
 	Init(t)
 
-	br := &tables.BuyRecord{
+	br := &tables.Order{
 		OntId: "111",
 	}
 	err := TestDB.InsertBuyRecord(br)

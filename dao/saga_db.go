@@ -33,7 +33,7 @@ func NewDB() (*SagaDB, error) {
 
 func initTables() []interface{} {
 	return []interface{}{
-		&tables.BuyRecord{},
+		&tables.Order{},
 		&tables.ApiBasicInfo{},
 		&tables.APIKey{},
 		&tables.ApiDetailInfo{},
@@ -79,7 +79,7 @@ func (this *SagaDB) QueryPriceByApiId(ApiId int) (string, error) {
 	return info.ApiPrice, nil
 }
 
-func (this *SagaDB) InsertBuyRecord(buyRecord *tables.BuyRecord) error {
+func (this *SagaDB) InsertBuyRecord(buyRecord *tables.Order) error {
 	db := this.db.Create(buyRecord)
 	if db.Error != nil {
 		return db.Error
