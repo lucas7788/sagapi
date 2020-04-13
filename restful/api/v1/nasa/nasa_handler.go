@@ -3,9 +3,9 @@ package nasa
 import (
 	"fmt"
 
+	"github.com/candybox-sig/log"
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/sagapi/core/nasa"
-	"github.com/candybox-sig/log"
 	"github.com/ontio/sagapi/restful/api/common"
 )
 
@@ -17,7 +17,7 @@ func Apod(c *gin.Context) {
 	if err != nil {
 		log.Errorf("[nasa_handler] apod error: %s", err)
 	}
-	common.WriteResponse(c, res, common.INTER_ERROR, err)
+	common.WriteResponse(c, res, err)
 }
 
 func Feed(c *gin.Context) {
@@ -29,5 +29,5 @@ func Feed(c *gin.Context) {
 	if err != nil {
 		log.Errorf("[nasa_handler] apod error: %s", err)
 	}
-	common.WriteResponse(c, res, common.INTER_ERROR, err)
+	common.WriteResponse(c, res, err)
 }

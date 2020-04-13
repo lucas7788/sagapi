@@ -8,5 +8,6 @@ import (
 func RoutesV1(parent *gin.RouterGroup) {
 	v1Route := parent.Group("/v1")
 	nasa.RoutesNasa(v1Route)
-	parent.POST("/pay")
+	parent.POST("/takeOrder", TakeOrder)
+	parent.POST("/payOrder", PayOrder)
 }

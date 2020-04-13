@@ -14,10 +14,10 @@ type ResponseResult struct {
 	Version string      `json:"version"`
 }
 
-func WriteResponse(c *gin.Context, res interface{}, errCode int64, err error) error {
+func WriteResponse(c *gin.Context, res interface{}, err error) error {
 	var response *ResponseResult
 	if err != nil {
-		response = ResponseFailed(errCode, err)
+		response = ResponseFailed(INTER_ERROR, err)
 	} else {
 		response = ResponseSuccess(res)
 	}
