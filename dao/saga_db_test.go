@@ -34,7 +34,7 @@ func TestSagaDB_Init(t *testing.T) {
 	br := &tables.Order{
 		OntId: "111",
 	}
-	err := TestDB.InsertBuyRecord(br)
+	err := TestDB.InsertOrder(br)
 	assert.Nil(t, err)
 
 	key := &tables.APIKey{
@@ -64,9 +64,9 @@ func TestSagaDB_SearchApi(t *testing.T) {
 	info2 := &tables.ApiBasicInfo{
 		ApiDesc: "cdefgty",
 	}
-	err := TestDB.InsertApiInfo(info)
+	err := TestDB.InsertApiBasicInfo(info)
 	assert.Nil(t, err)
-	err = TestDB.InsertApiInfo(info2)
+	err = TestDB.InsertApiBasicInfo(info2)
 	assert.Nil(t, err)
 	infos, err := TestDB.SearchApi("cdefgty")
 	assert.Nil(t, err)
@@ -74,7 +74,7 @@ func TestSagaDB_SearchApi(t *testing.T) {
 	infos, err = TestDB.QueryApiInfoByPage(2, 2)
 	assert.Nil(t, err)
 	fmt.Println(infos)
-	info3, err := TestDB.QueryApiInfoByApiId(100)
+	info3, err := TestDB.QueryApiBasicInfoByApiId(100)
 	assert.Nil(t, err)
 	fmt.Println(info3)
 	TestDB.Close()

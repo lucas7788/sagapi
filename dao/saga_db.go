@@ -61,7 +61,7 @@ func (this *SagaDB) DeleteTable() {
 	}
 }
 
-func (this *SagaDB) InsertApiInfo(apiInfo *tables.ApiBasicInfo) error {
+func (this *SagaDB) InsertApiBasicInfo(apiInfo *tables.ApiBasicInfo) error {
 	db := this.db.Create(apiInfo)
 	if db.Error != nil {
 		return db.Error
@@ -79,7 +79,7 @@ func (this *SagaDB) QueryPriceByApiId(ApiId int) (string, error) {
 	return info.ApiPrice, nil
 }
 
-func (this *SagaDB) InsertBuyRecord(buyRecord *tables.Order) error {
+func (this *SagaDB) InsertOrder(buyRecord *tables.Order) error {
 	db := this.db.Create(buyRecord)
 	if db.Error != nil {
 		return db.Error
@@ -115,7 +115,7 @@ func (this *SagaDB) QueryApiInfoByPage(start, pageSize int) (infos []tables.ApiB
 	return
 }
 
-func (this *SagaDB) QueryApiInfoByApiId(apiId uint) (*tables.ApiBasicInfo, error) {
+func (this *SagaDB) QueryApiBasicInfoByApiId(apiId uint) (*tables.ApiBasicInfo, error) {
 	info := tables.ApiBasicInfo{}
 	db := this.db.Table("api_basic_infos").Find(&info, "api_id=?", apiId)
 	if db.Error != nil && db.Error.Error() != "record not found" {
