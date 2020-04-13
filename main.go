@@ -73,8 +73,8 @@ func initDB(ctx *cli.Context) error {
 		if err != nil {
 			return fmt.Errorf("getDBPassword failed, error: %s", err)
 		}
-		config.DefConfig.ProjectDBUser = userName
-		config.DefConfig.ProjectDBPassword = string(pwd)
+		config.DefConfig.DbConfig.ProjectDBUser = userName
+		config.DefConfig.DbConfig.ProjectDBPassword = string(pwd)
 	}
 	db, err := dao.NewDB()
 	if err != nil {

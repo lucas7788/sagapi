@@ -6,18 +6,18 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/ontio/saga/config"
 	"github.com/ontio/saga/models/tables"
+	"github.com/ontio/sagapi/config"
 	"github.com/stretchr/testify/assert"
 )
 
 var TestDB *SagaDB
 
 func Init(t *testing.T) {
-	config.DefConfig.ProjectDBHost = "127.0.0.1:30336"
-	config.DefConfig.ProjectDBName = "saga"
-	config.DefConfig.ProjectDBUser = "root"
-	config.DefConfig.ProjectDBPassword = "111111"
+	config.DefConfig.DbConfig.ProjectDBUrl = "127.0.0.1:30336"
+	config.DefConfig.DbConfig.ProjectDBName = "saga"
+	config.DefConfig.DbConfig.ProjectDBUser = "root"
+	config.DefConfig.DbConfig.ProjectDBPassword = "111111"
 
 	db, err := NewDB()
 	assert.Nil(t, err)
