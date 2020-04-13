@@ -5,8 +5,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/ontio/saga/models/tables"
 	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/models/tables"
 )
 
 type SagaDB struct {

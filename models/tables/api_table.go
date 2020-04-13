@@ -1,8 +1,8 @@
 package tables
 
 import (
-	"github.com/ontio/saga/config"
-	"github.com/ontio/saga/models"
+	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/models"
 	"time"
 )
 

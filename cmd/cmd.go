@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/saga/config"
+	"github.com/ontio/sagapi/config"
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"os"
