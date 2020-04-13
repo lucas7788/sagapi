@@ -1,4 +1,4 @@
-package v1
+package order
 
 import "github.com/gin-gonic/gin"
 
