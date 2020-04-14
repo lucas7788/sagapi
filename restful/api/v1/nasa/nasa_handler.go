@@ -16,8 +16,10 @@ func Apod(c *gin.Context) {
 	res, err := nasa.Apod()
 	if err != nil {
 		log.Errorf("[nasa_handler] apod error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
 	}
-	common.WriteResponse(c, res, err)
+	common.WriteResponse(c, common.ResponseSuccess(res))
 }
 
 func Feed(c *gin.Context) {
@@ -28,6 +30,8 @@ func Feed(c *gin.Context) {
 	res, err := nasa.Feed(startdate, enddate)
 	if err != nil {
 		log.Errorf("[nasa_handler] apod error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
 	}
-	common.WriteResponse(c, res, err)
+	common.WriteResponse(c, common.ResponseSuccess(res))
 }
