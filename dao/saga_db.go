@@ -88,8 +88,29 @@ func (this *SagaDB) InsertOrder(buyRecord *tables.Order) error {
 	return nil
 }
 
+func (this *SagaDB) UpdateTxInfoByOrderId(orderId string, txHash string, status config.OrderStatus) error {
+	return this.db.Table("orders").Where("order_id=?", orderId).Update("tx_hash=?,order_status=?", txHash, status).Error
+}
+
+func (this *SagaDB) QueryOrderStatusByOrderId(orderId string) (config.OrderStatus, error) {
+	order := &tables.Order{}
+	err := this.db.Table("orders").Find(order, "order_id=?", orderId).Error
+	if err != nil {
+		return config.Processing, err
+	}
+	return order.OrderStatus, nil
+}
+
 func (this *SagaDB) InsertQrCode(code *tables.QrCode) error {
 	return this.db.Create(code).Error
+}
+
+func (this *SagaDB) QueryOrderIdByQrCodeId(qrCodeId string) (string, error) {
+	code, err := this.QueryQrCodeById(qrCodeId)
+	if err != nil {
+		return "", err
+	}
+	return code.OrderId, nil
 }
 
 func (this *SagaDB) QueryQrCodeById(id string) (*tables.QrCode, error) {

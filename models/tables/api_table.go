@@ -66,6 +66,7 @@ type QrCode struct {
 	QrCodeId  uint               `gorm:"primary_key"`
 	Ver       string             `json:"ver"`
 	Id        string             `json:"id"`
+	OrderId   string             `json:"orderId"`
 	Requester string             `json:"requester"`
 	Signature string             `json:"signature"`
 	Signer    string             `json:"signer"`

@@ -5,11 +5,13 @@ import (
 	"github.com/candybox-sig/log"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/core/types"
+	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/dao"
 )
 
-func SendTX(txHex string) error {
-	txHexBs, err := common.HexToBytes(txHex)
+func SendTX(param *common2.SendTxParam) error {
+	txHexBs, err := common.HexToBytes(param.SignedTx)
 	if err != nil {
 		return err
 	}
@@ -22,11 +24,19 @@ func SendTX(txHex string) error {
 	if err != nil {
 		return err
 	}
+	orderId, err := dao.DefDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
+	if err != nil {
+		return err
+	}
 	hash, err := config.DefConfig.OntSdk.SendTransaction(mutTx)
 	if err != nil {
 		return err
 	}
-	return verifyTx(hash.ToHexString())
+	err = verifyTx(hash.ToHexString())
+	if err != nil {
+		return err
+	}
+	return dao.DefDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), config.Completed)
 }
 
 func verifyTx(txHash string) error {

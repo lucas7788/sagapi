@@ -6,12 +6,22 @@ import (
 	"io/ioutil"
 )
 
+type ReqParam struct {
+	Id      int         `json:"id"`
+	Jsonrpc string      `json:"jsonrpc"`
+	Method  string      `json:"method"`
+	Params  interface{} `json:"params"`
+}
+
 func ParsePostParam(r io.Reader, paramStruct interface{}) error {
 	paramsBs, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(paramsBs, paramStruct)
+	rp := &ReqParam{
+		Params:paramStruct,
+	}
+	err = json.Unmarshal(paramsBs, rp)
 	if err != nil {
 		return err
 	}
