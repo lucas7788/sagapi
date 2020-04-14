@@ -9,3 +9,9 @@ type TakeOrderParam struct {
 	ApiId          int    `json:"apiId"`
 	Specifications int    `json:"specifications"`
 }
+
+type GetPayQrCode struct {
+	OrderId  string `json:"orderId"`
+	OntId    string `json:"ontId"`
+	UserName string `json:"userName"`
+}

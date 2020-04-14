@@ -61,3 +61,17 @@ type APIKey struct {
 	OntId    string
 	UserName string
 }
+
+type QrCode struct {
+	QrCodeId  uint               `gorm:"primary_key"`
+	Ver       string             `json:"ver"`
+	Id        string             `json:"id"`
+	Requester string             `json:"requester"`
+	Signature string             `json:"signature"`
+	Signer    string             `json:"signer"`
+	Data      *models.QrCodeData `json:"data"`
+	Callback  string             `json:"callback"`
+	Exp       int64              `json:"exp"`
+	Chain     string             `json:"chain"`
+	Desc      string             `json:"desc"`
+}

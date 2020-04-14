@@ -18,13 +18,13 @@ func TakeOrder(c *gin.Context) {
 		return
 	}
 	fmt.Println(param)
-	err = core.DefSagaApi.TakeOrder(param)
+	code, err := core.DefSagaApi.TakeOrder(param)
 	if err != nil {
 		log.Errorf("[TakeOrder] TakeOrder failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(nil))
+	common.WriteResponse(c, common.ResponseSuccess(code))
 }
 
 func PayOrder(c *gin.Context) {

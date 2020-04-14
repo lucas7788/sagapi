@@ -32,7 +32,7 @@ func TestSagaDB_Init(t *testing.T) {
 
 	Init(t)
 
-	tt:=time.Now().Unix()
+	tt := time.Now().Unix()
 	br := &tables.Order{
 		OntId:     "111",
 		OrderTime: tt,

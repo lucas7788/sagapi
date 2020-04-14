@@ -37,7 +37,7 @@ func initTables() []interface{} {
 		&tables.ApiBasicInfo{},
 		&tables.APIKey{},
 		&tables.ApiDetailInfo{},
-		&tables.ApiTestRecord{},
+		&tables.QrCode{},
 	}
 }
 func (this *SagaDB) Init() error {
@@ -86,6 +86,19 @@ func (this *SagaDB) InsertOrder(buyRecord *tables.Order) error {
 	}
 	this.db = db
 	return nil
+}
+
+func (this *SagaDB) InsertQrCode(code *tables.QrCode) error {
+	return this.db.Create(code).Error
+}
+
+func (this *SagaDB) QueryQrCodeById(id string) (*tables.QrCode, error) {
+	code := &tables.QrCode{}
+	err := this.db.Table("qr_codes").Find(code, "id=?", id).Error
+	if err != nil {
+		return nil, err
+	}
+	return code, nil
 }
 
 func (this *SagaDB) InsertApiKey(apiKey *tables.APIKey) error {
