@@ -50,8 +50,9 @@ var ErrMap = map[int64]string{
 }
 
 const (
-	SUCCESS     = 1
-	PARA_ERROR  = 40000
-	INTER_ERROR = 40001
-	SQL_ERROR   = 40002
+	SUCCESS            = 1
+	PARA_ERROR         = 40000
+	INTER_ERROR        = 40001
+	SQL_ERROR          = 40002
+	VERIFY_TOKEN_ERROR = 40003
 )
