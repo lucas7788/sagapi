@@ -24,7 +24,7 @@ func buildQrCode(chain, requester, payer string, from, to, value string) *tables
 	exp := time.Now().Unix() + config.QrCodeExp
 	data := &models.QrCodeData{
 		Action: "transfer",
-		Params: models.Param{
+		Params: models.QrCodeParam{
 			InvokeConfig: models.InvokeConfig{
 				ContractHash: "",
 				Functions: []models.Function{

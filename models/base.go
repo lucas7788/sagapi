@@ -14,11 +14,11 @@ type ApiDetailInstruction struct {
 }
 
 type QrCodeData struct {
-	Action string `json:"action"`
-	Params Param  `json:"params"`
+	Action string      `json:"action"`
+	Params QrCodeParam `json:"params"`
 }
 
-type Param struct {
+type QrCodeParam struct {
 	InvokeConfig InvokeConfig `json:"invokeConfig"`
 }
 

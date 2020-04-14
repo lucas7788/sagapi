@@ -15,3 +15,14 @@ type GetPayQrCode struct {
 	OntId    string `json:"ontId"`
 	UserName string `json:"userName"`
 }
+
+type SendTxParam struct {
+	Signer    string    `json:"signer"`
+	SignedTx  string    `json:"signedTx"`
+	ExtraData ExtraData `json:"extraData"`
+}
+
+type ExtraData struct {
+	Id        string `json:"id"`
+	PublicKey string `json:"publickey"`
+}
