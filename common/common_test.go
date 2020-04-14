@@ -10,7 +10,7 @@ func TestGenerateOrderId(t *testing.T) {
 	orderId := make([]string, 0)
 	for i := 0; i < 10; i++ {
 		orderId = append(orderId, GenerateOrderId())
-		fmt.Printf("orderId: %s, i:%d", orderId, i)
+		fmt.Println(orderId)
 	}
 
 	for i := 0; i < 10; i++ {

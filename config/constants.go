@@ -38,3 +38,7 @@ const (
 	ApiOrder  = "Api"
 	DataOrder = "Data"
 )
+
+const (
+	QrCodeExp = 10 * 60
+)

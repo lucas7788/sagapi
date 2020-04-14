@@ -15,14 +15,15 @@ var DefSagaApi *SagaApi
 type SagaApi struct {
 }
 
-func (this *SagaApi) TakeOrder(param *common.TakeOrderParam) error {
+func (this *SagaApi) TakeOrder(param *common.TakeOrderParam) (*tables.QrCode, error) {
 	info, err := dao.DefDB.QueryApiBasicInfoByApiId(uint(param.ApiId))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	price := utils.ToIntByPrecise(info.ApiPrice, config.ONG_DECIMALS)
 	specifications := new(big.Int).SetUint64(uint64(param.Specifications))
 	amount := new(big.Int).Mul(price, specifications)
+	amountStr := utils.ToStringByPrecise(amount, config.ONG_DECIMALS)
 	orderId := common.GenerateOrderId()
 	order := &tables.Order{
 		OrderId:     orderId,
@@ -30,12 +31,24 @@ func (this *SagaApi) TakeOrder(param *common.TakeOrderParam) error {
 		Type:        config.ApiOrder,
 		OrderTime:   time.Now().Unix(),
 		OrderStatus: config.Processing,
-		Amount:      utils.ToStringByPrecise(amount, config.ONG_DECIMALS),
+		Amount:      amountStr,
 		OntId:       param.OntId,
 		UserName:    param.UserName,
 		Price:       info.ApiPrice,
 		ApiId:       info.ApiId,
-		ApiKey:      "",
 	}
-	return dao.DefDB.InsertOrder(order)
+	err = dao.DefDB.InsertOrder(order)
+	if err != nil {
+		return nil, err
+	}
+	code := common.BuildTestNetQrCode("", "", param.OntId, "", amountStr)
+	err = dao.DefDB.InsertQrCode(code)
+	if err != nil {
+		return nil, err
+	}
+	return code, nil
+}
+
+func (this *SagaApi) GetPayQrCode(id string) (*tables.QrCode, error) {
+	return dao.DefDB.QueryQrCodeById(id)
 }

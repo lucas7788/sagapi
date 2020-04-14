@@ -12,3 +12,30 @@ type ApiDetailInstruction struct {
 	DataSource          string
 	ApplicationScenario string
 }
+
+type QrCodeData struct {
+	Action string `json:"action"`
+	Params Param  `json:"params"`
+}
+
+type Param struct {
+	InvokeConfig InvokeConfig `json:"invokeConfig"`
+}
+
+type InvokeConfig struct {
+	ContractHash string     `json:"contractHash"`
+	Functions    []Function `json:"functions"`
+	Payer        string     `json:"payer"`
+	GasLimit     uint64     `json:"gasLimit"`
+	GasPrice     uint64     `json:"gasPrice"`
+}
+
+type Function struct {
+	Operation string `json:"operation"`
+	Args      []Arg  `json:"args"`
+}
+
+type Arg struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
