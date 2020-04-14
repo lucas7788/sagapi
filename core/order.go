@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-var DefSagaApi *SagaApi
+var DefSagaOrder *SagaOrder
 
-type SagaApi struct {
+type SagaOrder struct {
 }
 
-func (this *SagaApi) TakeOrder(param *common.TakeOrderParam) (*tables.QrCode, error) {
+func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*tables.QrCode, error) {
 	info, err := dao.DefDB.QueryApiBasicInfoByApiId(uint(param.ApiId))
 	if err != nil {
 		return nil, err
@@ -49,6 +49,6 @@ func (this *SagaApi) TakeOrder(param *common.TakeOrderParam) (*tables.QrCode, er
 	return code, nil
 }
 
-func (this *SagaApi) GetPayQrCode(id string) (*tables.QrCode, error) {
+func (this *SagaOrder) GetPayQrCode(id string) (*tables.QrCode, error) {
 	return dao.DefDB.QueryQrCodeById(id)
 }
