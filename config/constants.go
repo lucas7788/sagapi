@@ -27,6 +27,7 @@ type OrderStatus uint8
 const (
 	Processing OrderStatus = iota
 	Canceled
+	Failed
 	Completed
 )
 

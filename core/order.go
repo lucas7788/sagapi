@@ -41,7 +41,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*tables.QrCode, 
 	if err != nil {
 		return nil, err
 	}
-	code := common.BuildTestNetQrCode("", "", param.OntId, "", amountStr)
+	code := common.BuildTestNetQrCode(orderId, "", "", param.OntId, "", amountStr)
 	err = dao.DefDB.InsertQrCode(code)
 	if err != nil {
 		return nil, err
@@ -49,6 +49,6 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*tables.QrCode, 
 	return code, nil
 }
 
-func (this *SagaOrder) GetPayQrCode(id string) (*tables.QrCode, error) {
+func (this *SagaOrder) GetPayQrCodeById(id string) (*tables.QrCode, error) {
 	return dao.DefDB.QueryQrCodeById(id)
 }

@@ -82,3 +82,10 @@ func TestSagaDB_SearchApi(t *testing.T) {
 	fmt.Println(info3)
 	TestDB.Close()
 }
+
+func TestSagaDB_QueryOrderStatusByOrderId(t *testing.T) {
+	Init(t)
+	status, err := TestDB.QueryOrderStatusByOrderId("1")
+	assert.Nil(t, err)
+	fmt.Println("status:", status)
+}

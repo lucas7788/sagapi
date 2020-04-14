@@ -15,11 +15,11 @@ func GenerateOrderId() string {
 	return u1.String()
 }
 
-func BuildTestNetQrCode(requester, payer string, from, to, value string) *tables.QrCode {
-	return buildQrCode("Testnet", requester, payer, from, to, value)
+func BuildTestNetQrCode(orderId, requester, payer string, from, to, value string) *tables.QrCode {
+	return buildQrCode("Testnet", orderId, requester, payer, from, to, value)
 }
 
-func buildQrCode(chain, requester, payer string, from, to, value string) *tables.QrCode {
+func buildQrCode(chain, orderId, requester, payer string, from, to, value string) *tables.QrCode {
 	now := time.Now().Nanosecond()
 	exp := time.Now().Unix() + config.QrCodeExp
 	data := &models.QrCodeData{
@@ -56,6 +56,7 @@ func buildQrCode(chain, requester, payer string, from, to, value string) *tables
 	return &tables.QrCode{
 		Ver:       "1.0.0",
 		Id:        id,
+		OrderId:   orderId,
 		Requester: requester,
 		Signature: "",
 		Signer:    "",

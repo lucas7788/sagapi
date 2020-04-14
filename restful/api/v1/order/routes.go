@@ -5,7 +5,10 @@ import (
 )
 
 func RoutesOrder(parent *gin.RouterGroup) {
-	nasaRouteGroup := parent.Group("/order")
-	nasaRouteGroup.POST("/takeOrder", TakeOrder)
-	nasaRouteGroup.POST("/payOrder", PayOrder)
+	orderRouteGroup := parent.Group("/order")
+	orderRouteGroup.POST("/takeOrder", TakeOrder)
+	orderRouteGroup.POST("/getQrCode", GetQrCodeById)
+	orderRouteGroup.POST("/sendTx", SendTx)
+	orderRouteGroup.POST("/payOrder", PayOrder)
+	orderRouteGroup.GET("/queryOrderStatus/:orderId", QueryOrderStatus)
 }
