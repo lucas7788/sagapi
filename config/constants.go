@@ -29,3 +29,12 @@ const (
 	Canceled
 	Completed
 )
+
+const (
+	ONG_DECIMALS = 9
+)
+
+const (
+	ApiOrder  = "Api"
+	DataOrder = "Data"
+)

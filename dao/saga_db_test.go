@@ -9,6 +9,7 @@ import (
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/stretchr/testify/assert"
+	"time"
 )
 
 var TestDB *SagaDB
@@ -31,8 +32,10 @@ func TestSagaDB_Init(t *testing.T) {
 
 	Init(t)
 
+	tt:=time.Now().Unix()
 	br := &tables.Order{
-		OntId: "111",
+		OntId:     "111",
+		OrderTime: tt,
 	}
 	err := TestDB.InsertOrder(br)
 	assert.Nil(t, err)

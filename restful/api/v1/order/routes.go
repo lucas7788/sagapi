@@ -5,7 +5,7 @@ import (
 )
 
 func RoutesOrder(parent *gin.RouterGroup) {
-	nasaRouteGroup := parent.Group("/nasa")
-	nasaRouteGroup.POST("/order/takeOrder", TakeOrder)
-	nasaRouteGroup.GET("/order/payOrder", PayOrder)
+	nasaRouteGroup := parent.Group("/order")
+	nasaRouteGroup.POST("/takeOrder", TakeOrder)
+	nasaRouteGroup.POST("/payOrder", PayOrder)
 }

@@ -3,22 +3,22 @@ package tables
 import (
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models"
-	"time"
 )
 
 type Order struct {
-	OrderId     uint `gorm:"primary_key"`
+	Id          uint `gorm:"primary_key"`
+	OrderId     string
 	ProductName string
 	Type        string
-	OrderTime   time.Time
-	PaiedTime   time.Time
+	OrderTime   int64
+	PaiedTime   int64
 	OrderStatus config.OrderStatus
-	Amount      int
+	Amount      string
 	OntId       string
 	UserName    string
 	TxHash      string
 	Price       string
-	ApiId       string
+	ApiId       uint
 	ApiKey      string
 }
 
