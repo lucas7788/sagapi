@@ -30,3 +30,7 @@ type ExtraData struct {
 type GetQrCodeParam struct {
 	Id string `json:"id"`
 }
+
+type OrderIdParam struct {
+	OrderId string
+}

@@ -19,11 +19,15 @@ func ParsePostParam(r io.Reader, paramStruct interface{}) error {
 		return err
 	}
 	rp := &ReqParam{
-		Params:paramStruct,
+		Params: paramStruct,
 	}
 	err = json.Unmarshal(paramsBs, rp)
 	if err != nil {
 		return err
 	}
-	return nil
+	bs, err := json.Marshal(rp.Params)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bs, paramStruct)
 }

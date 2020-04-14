@@ -9,6 +9,7 @@ func RoutesOrder(parent *gin.RouterGroup) {
 	orderRouteGroup.POST("/takeOrder", TakeOrder)
 	orderRouteGroup.POST("/getQrCode", GetQrCodeById)
 	orderRouteGroup.POST("/sendTx", SendTx)
-	orderRouteGroup.POST("/payOrder", PayOrder)
+	orderRouteGroup.POST("/cancelOrder", CancelOrder)
+	orderRouteGroup.POST("/deleteOrder", DeleteOrder)
 	orderRouteGroup.GET("/queryOrderStatus/:orderId", QueryOrderStatus)
 }

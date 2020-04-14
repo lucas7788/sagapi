@@ -52,3 +52,10 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*tables.QrCode, 
 func (this *SagaOrder) GetPayQrCodeById(id string) (*tables.QrCode, error) {
 	return dao.DefDB.QueryQrCodeById(id)
 }
+
+func (this *SagaOrder) CancelOrder(param *common.OrderIdParam) error {
+	return dao.DefDB.UpdateOrderStatus(param.OrderId, config.Canceled)
+}
+func (this *SagaOrder) DeleteOrderByOrderId(param *common.OrderIdParam) error {
+	return dao.DefDB.DeleteOrderByOrderId(param.OrderId)
+}

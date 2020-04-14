@@ -45,7 +45,38 @@ func GetQrCodeById(c *gin.Context) {
 	common.WriteResponse(c, common.ResponseSuccess(code))
 }
 
-func PayOrder(c *gin.Context) {
+func CancelOrder(c *gin.Context) {
+	param := &common2.OrderIdParam{}
+	err := common.ParsePostParam(c.Request.Body, param)
+	if err != nil {
+		log.Errorf("[CancelOrder] ParsePostParam failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	err = core.DefSagaOrder.CancelOrder(param)
+	if err != nil {
+		log.Errorf("[CancelOrder] CancelOrder failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(nil))
+}
+
+func DeleteOrder(c *gin.Context) {
+	param := &common2.OrderIdParam{}
+	err := common.ParsePostParam(c.Request.Body, param)
+	if err != nil {
+		log.Errorf("[CancelOrder] ParsePostParam failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	err = core.DefSagaOrder.DeleteOrderByOrderId(param)
+	if err != nil {
+		log.Errorf("[CancelOrder] CancelOrder failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(nil))
 }
 
 func SendTx(c *gin.Context) {

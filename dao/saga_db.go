@@ -113,6 +113,10 @@ func (this *SagaDB) QueryOrderIdByQrCodeId(qrCodeId string) (string, error) {
 	return code.OrderId, nil
 }
 
+func (this *SagaDB) UpdateOrderStatus(orderId string, status config.OrderStatus) error {
+	return this.db.Table("orders").Where("order_id=?", orderId).Update("order_status=?", status).Error
+}
+
 func (this *SagaDB) QueryQrCodeById(id string) (*tables.QrCode, error) {
 	code := &tables.QrCode{}
 	err := this.db.Table("qr_codes").Find(code, "id=?", id).Error
@@ -120,6 +124,10 @@ func (this *SagaDB) QueryQrCodeById(id string) (*tables.QrCode, error) {
 		return nil, err
 	}
 	return code, nil
+}
+
+func (this *SagaDB) DeleteOrderByOrderId(orderId string) error {
+	return this.db.Table("orders").Where("order_id=?", orderId).Delete(&tables.Order{}).Error
 }
 
 func (this *SagaDB) InsertApiKey(apiKey *tables.APIKey) error {
