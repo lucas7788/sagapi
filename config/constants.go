@@ -22,10 +22,10 @@ const (
 	NETWORK_ID_SOLO_NET    = 3
 )
 
-type TxStatus uint8
+type OrderStatus uint8
 
 const (
-	Paying TxStatus = iota
-	PayFailed
-	PaySuccess
+	Processing OrderStatus = iota
+	Canceled
+	Completed
 )

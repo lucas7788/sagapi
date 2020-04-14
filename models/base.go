@@ -1,13 +1,13 @@
 package models
 
-type APIExtra struct {
+type ApiExtra struct {
 	Popularity      int
 	Delay           int
 	SuccessRate     int
 	InvokeFrequency int
 }
 
-type APIDetailInstruction struct {
+type ApiDetailInstruction struct {
 	DataDesc            string
 	DataSource          string
 	ApplicationScenario string

@@ -33,10 +33,10 @@ func NewDB() (*SagaDB, error) {
 
 func initTables() []interface{} {
 	return []interface{}{
-		&tables.BuyRecord{},
-		&tables.APIInfo{},
+		&tables.Order{},
+		&tables.ApiBasicInfo{},
 		&tables.APIKey{},
-		&tables.APIInterfaceInfo{},
+		&tables.ApiDetailInfo{},
 		&tables.ApiTestRecord{},
 	}
 }
@@ -61,7 +61,7 @@ func (this *SagaDB) DeleteTable() {
 	}
 }
 
-func (this *SagaDB) InsertApiInfo(apiInfo *tables.APIInfo) error {
+func (this *SagaDB) InsertApiBasicInfo(apiInfo *tables.ApiBasicInfo) error {
 	db := this.db.Create(apiInfo)
 	if db.Error != nil {
 		return db.Error
@@ -71,15 +71,15 @@ func (this *SagaDB) InsertApiInfo(apiInfo *tables.APIInfo) error {
 }
 
 func (this *SagaDB) QueryPriceByApiId(ApiId int) (string, error) {
-	info := &tables.APIInfo{}
-	db := this.db.Table("api_infos").Find(info, "api_id=?", ApiId)
+	info := &tables.ApiBasicInfo{}
+	db := this.db.Table("api_basic_infos").Find(info, "api_id=?", ApiId)
 	if db.Error != nil {
 		return "", db.Error
 	}
 	return info.ApiPrice, nil
 }
 
-func (this *SagaDB) InsertBuyRecord(buyRecord *tables.BuyRecord) error {
+func (this *SagaDB) InsertOrder(buyRecord *tables.Order) error {
 	db := this.db.Create(buyRecord)
 	if db.Error != nil {
 		return db.Error
@@ -107,27 +107,27 @@ func (this *SagaDB) QueryRequestNum(apiKey string) (int, error) {
 	return key.UsedNum, nil
 }
 
-func (this *SagaDB) QueryApiInfoByPage(start, pageSize int) (infos []tables.APIInfo, err error) {
-	db := this.db.Table("api_infos").Limit(pageSize).Find(&infos, "api_id>=?", start)
+func (this *SagaDB) QueryApiInfoByPage(start, pageSize int) (infos []tables.ApiBasicInfo, err error) {
+	db := this.db.Table("api_basic_infos").Limit(pageSize).Find(&infos, "api_id>=?", start)
 	if db.Error != nil {
 		return nil, db.Error
 	}
 	return
 }
 
-func (this *SagaDB) QueryApiInfoByApiId(apiId uint) (*tables.APIInfo, error) {
-	info := tables.APIInfo{}
-	db := this.db.Table("api_infos").Find(&info, "api_id=?", apiId)
+func (this *SagaDB) QueryApiBasicInfoByApiId(apiId uint) (*tables.ApiBasicInfo, error) {
+	info := tables.ApiBasicInfo{}
+	db := this.db.Table("api_basic_infos").Find(&info, "api_id=?", apiId)
 	if db.Error != nil && db.Error.Error() != "record not found" {
 		return nil, db.Error
 	}
 	return &info, nil
 }
 
-func (this *SagaDB) SearchApi(key string) ([]tables.APIInfo, error) {
-	var info []tables.APIInfo
+func (this *SagaDB) SearchApi(key string) ([]tables.ApiBasicInfo, error) {
+	var info []tables.ApiBasicInfo
 	k := "%" + key + "%"
-	db := this.db.Table("api_infos").Where("api_desc like ?", k).Find(&info)
+	db := this.db.Table("api_basic_infos").Where("api_desc like ?", k).Find(&info)
 	if db.Error != nil {
 		return nil, db.Error
 	}
