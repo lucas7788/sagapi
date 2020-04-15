@@ -20,7 +20,7 @@ type Nasa struct {
 
 func NewNasa() *Nasa {
 	return &Nasa{
-		apiKeyCache:new(sync.Map),
+		apiKeyCache: new(sync.Map),
 	}
 }
 

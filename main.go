@@ -12,9 +12,9 @@ import (
 	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/cmd"
 	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/restful"
-	"github.com/ontio/sagapi/core"
 )
 
 func setupAPP() *cli.App {

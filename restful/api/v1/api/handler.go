@@ -69,3 +69,19 @@ func GetApiDetailByApiId(c *gin.Context) {
 	}
 	common.WriteResponse(c, common.ResponseSuccess(info))
 }
+
+func SearchApiByKey(c *gin.Context) {
+	param, err := common.ParseGetParamByParamName(c, "key")
+	if err != nil {
+		log.Errorf("[GetApiDetailByApiId] ParseGetParam error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	infos, err := dao.DefDB.SearchApi(param[0])
+	if err != nil {
+		log.Errorf("[GetApiDetailByApiId] SearchApi error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(infos))
+}

@@ -63,12 +63,12 @@ type ErrorCode struct {
 }
 
 type APIKey struct {
-	Id       uint `gorm:"primary_key"`
-	ApiKey   string
-	ApiId    uint
-	Limit    int
-	UsedNum  int
-	OntId    string
+	Id      uint `gorm:"primary_key"`
+	ApiKey  string
+	ApiId   uint
+	Limit   int
+	UsedNum int
+	OntId   string
 }
 
 type QrCode struct {
