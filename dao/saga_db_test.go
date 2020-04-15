@@ -62,10 +62,14 @@ func TestSagaDB_QueryRequestNum(t *testing.T) {
 func TestSagaDB_SearchApi(t *testing.T) {
 	Init(t)
 	info := &tables.ApiBasicInfo{
-		ApiDesc: "abcdefg",
+		ApiDesc:        "abcdefg",
+		ApiPrice:       "0.1",
+		Specifications: 1,
 	}
 	info2 := &tables.ApiBasicInfo{
-		ApiDesc: "cdefgty",
+		ApiDesc:        "cdefgty",
+		ApiPrice:       "0.1",
+		Specifications: 1,
 	}
 	err := TestDB.InsertApiBasicInfo(info)
 	assert.Nil(t, err)
@@ -74,7 +78,7 @@ func TestSagaDB_SearchApi(t *testing.T) {
 	infos, err := TestDB.SearchApi("cdefgty")
 	assert.Nil(t, err)
 	fmt.Println(infos)
-	infos, err = TestDB.QueryApiInfoByPage(2, 2)
+	infos, err = TestDB.QueryApiBasicInfoByPage(2, 2)
 	assert.Nil(t, err)
 	fmt.Println(infos)
 	info3, err := TestDB.QueryApiBasicInfoByApiId(100)

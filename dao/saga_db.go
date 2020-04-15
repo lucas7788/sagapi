@@ -158,7 +158,7 @@ func (this *SagaDB) QueryRequestNum(apiKey string) (int, error) {
 	return key.UsedNum, nil
 }
 
-func (this *SagaDB) QueryApiInfoByPage(start, pageSize int) (infos []tables.ApiBasicInfo, err error) {
+func (this *SagaDB) QueryApiBasicInfoByPage(start, pageSize int) (infos []tables.ApiBasicInfo, err error) {
 	db := this.db.Table("api_basic_infos").Limit(pageSize).Find(&infos, "api_id>=?", start)
 	if db.Error != nil {
 		return nil, db.Error

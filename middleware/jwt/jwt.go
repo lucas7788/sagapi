@@ -21,7 +21,7 @@ func JWT() gin.HandlerFunc {
 		header := map[string][]string(c.Request.Header)
 		token := header["Authorization"]
 		var ontid string
-		if token[0] == "" {
+		if token == nil || token[0] == "" {
 			err = fmt.Errorf("token is nil")
 		} else {
 			ontid, err = validateToken(token[0])

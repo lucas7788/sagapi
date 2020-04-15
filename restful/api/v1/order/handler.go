@@ -50,7 +50,7 @@ func GetQrCodeDataByQrCodeId(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	code, err := core.DefSagaOrder.GetPayQrCodeById(param.Id)
+	code, err := core.DefSagaOrder.GetQrCodeDataById(param.Id)
 	if err != nil {
 		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))

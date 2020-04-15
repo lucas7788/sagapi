@@ -1,12 +1,10 @@
 package common
 
 import (
-	"encoding/hex"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/satori/go.uuid"
-	"strconv"
 	"time"
 )
 
@@ -29,7 +27,6 @@ func BuildTestNetQrCode(orderId, requester, payer string, from, to, value string
 }
 
 func buildQrCode(chain, orderId, requester, payer string, from, to, value string) *tables.QrCode {
-	now := time.Now().Nanosecond()
 	exp := time.Now().Unix() + config.QrCodeExp
 	data := &models.QrCodeData{
 		Action: "transfer",
@@ -61,7 +58,7 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 			},
 		},
 	}
-	id := hex.EncodeToString([]byte(strconv.Itoa(now)))
+	id := GenerateOrderId()
 	return &tables.QrCode{
 		Ver:       "1.0.0",
 		Id:        id,
@@ -70,7 +67,7 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 		Signature: "",
 		Signer:    "",
 		Data:      data,
-		Callback:  "http://127.0.0.1:8080/api/v1/sendtx",
+		Callback:  config.DefConfig.QrCodeCallback,
 		Exp:       exp,
 		Chain:     chain,
 		Desc:      "",
