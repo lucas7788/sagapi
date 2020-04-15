@@ -2,12 +2,12 @@ package core
 
 import (
 	"fmt"
-	"github.com/candybox-sig/log"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/core/types"
 	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/dao"
+	"github.com/ontio/ontology/common/log"
 )
 
 func SendTX(param *common2.SendTxParam) error {

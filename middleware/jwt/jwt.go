@@ -3,7 +3,6 @@ package jwt
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/candybox-sig/log"
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology-crypto/keypair"
 	common2 "github.com/ontio/ontology/common"

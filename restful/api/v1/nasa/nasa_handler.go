@@ -2,11 +2,10 @@ package nasa
 
 import (
 	"fmt"
-
-	"github.com/candybox-sig/log"
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/restful/api/common"
+	"github.com/ontio/ontology/common/log"
 )
 
 func Apod(c *gin.Context) {

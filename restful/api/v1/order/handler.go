@@ -2,12 +2,12 @@ package order
 
 import (
 	"fmt"
-	"github.com/candybox-sig/log"
 	"github.com/gin-gonic/gin"
 	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/restful/api/common"
+	"github.com/ontio/ontology/common/log"
 )
 
 func TakeOrder(c *gin.Context) {
