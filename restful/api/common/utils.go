@@ -2,7 +2,8 @@ package common
 
 import (
 	"encoding/json"
-	"io"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"io/ioutil"
 )
 
@@ -13,8 +14,13 @@ type ReqParam struct {
 	Params  interface{} `json:"params"`
 }
 
-func ParsePostParam(r io.Reader, paramStruct interface{}) error {
-	paramsBs, err := ioutil.ReadAll(r)
+func ParsePostParam(c *gin.Context, paramStruct interface{}) error {
+	ontid, ok := c.Get("Ontid")
+	if !ok || ontid == nil {
+		return fmt.Errorf("ontid is nil")
+	}
+	fmt.Println("ontid:", ontid)
+	paramsBs, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		return err
 	}

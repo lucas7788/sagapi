@@ -2,16 +2,17 @@ package jwt
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology-crypto/keypair"
 	common2 "github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/ontology/core/signature"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/restful/api/common"
 	"net/http"
 	"strings"
-	"github.com/ontio/ontology/common/log"
 )
 
 func JWT() gin.HandlerFunc {
@@ -19,10 +20,11 @@ func JWT() gin.HandlerFunc {
 		var err error
 		header := map[string][]string(c.Request.Header)
 		token := header["Authorization"]
+		var ontid string
 		if token[0] == "" {
 			err = fmt.Errorf("token is nil")
 		} else {
-			err = validateToken(token[0])
+			ontid, err = validateToken(token[0])
 		}
 		if err != nil {
 			log.Errorf("jwt error:%s", err)
@@ -30,29 +32,43 @@ func JWT() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		c.Set("Ontid", ontid)
 		c.Next()
 	}
 }
 
-func validateToken(token string) error {
+func validateToken(token string) (string, error) {
 	//header.payloadBs.sig
 	arr := strings.Split(token, ".")
 	if len(arr) != 3 {
-		return fmt.Errorf("wrong token: %s", token)
+		return "", fmt.Errorf("wrong token: %s", token)
 	}
 	sig, err := base64.RawURLEncoding.DecodeString(arr[2])
 	if err != nil {
-		return err
+		return "", err
 	}
 	pubKeyStr, _ := common2.HexToBytes(config.DefConfig.OperatorPublicKey)
 	pubKey, err := keypair.DeserializePublicKey(pubKeyStr)
 	if err != nil {
-		return err
+		return "", err
 	}
 	data := arr[0] + "." + arr[1]
 	sig, err = common2.HexToBytes(string(sig))
 	if err != nil {
-		return err
+		return "", err
 	}
-	return signature.Verify(pubKey, []byte(data), sig)
+	err = signature.Verify(pubKey, []byte(data), sig)
+	if err != nil {
+		return "", err
+	}
+	payloadBs, err := base64.RawURLEncoding.DecodeString(arr[1])
+	if err != nil {
+		return "", err
+	}
+	pl := &Payload{}
+	err = json.Unmarshal(payloadBs, pl)
+	if err != nil {
+		return "", err
+	}
+	return pl.Content.OntId, nil
 }

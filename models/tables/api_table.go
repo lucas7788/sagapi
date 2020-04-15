@@ -63,7 +63,7 @@ type APIKey struct {
 }
 
 type QrCode struct {
-	QrCodeId  uint               `gorm:"primary_key"`
+	Index     uint               `gorm:"primary_key"`
 	Ver       string             `json:"ver"`
 	Id        string             `json:"id"`
 	OrderId   string             `json:"orderId"`

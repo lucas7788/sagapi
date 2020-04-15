@@ -85,7 +85,7 @@ func TestSagaDB_SearchApi(t *testing.T) {
 
 func TestSagaDB_QueryOrderStatusByOrderId(t *testing.T) {
 	Init(t)
-	status, err := TestDB.QueryOrderStatusByOrderId("1")
+	status, err := TestDB.QueryOrderByOrderId("1")
 	assert.Nil(t, err)
 	fmt.Println("status:", status)
 }

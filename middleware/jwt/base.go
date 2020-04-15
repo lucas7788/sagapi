@@ -8,8 +8,8 @@ type Header struct {
 type Payload struct {
 	Aud     string  `json:"aud"`
 	Iss     string  `json:"iss"`
-	Exp     string  `json:"exp"`
-	Iat     string  `json:"iat"`
+	Exp     int     `json:"exp"`
+	Iat     int     `json:"iat"`
 	Jti     string  `json:"jti"`
 	Content Content `json:"content"`
 }

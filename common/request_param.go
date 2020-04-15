@@ -34,3 +34,6 @@ type GetQrCodeParam struct {
 type OrderIdParam struct {
 	OrderId string
 }
+type QrCodeIdParam struct {
+	QrCodeId string
+}

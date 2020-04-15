@@ -1,36 +1,50 @@
 package order
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/ontio/ontology/common/log"
 	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core"
-	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/restful/api/common"
-	"github.com/ontio/ontology/common/log"
 )
 
 func TakeOrder(c *gin.Context) {
 	param := &common2.TakeOrderParam{}
-	err := common.ParsePostParam(c.Request.Body, param)
+	err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[TakeOrder] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	fmt.Println(param)
-	code, err := core.DefSagaOrder.TakeOrder(param)
+	res, err := core.DefSagaOrder.TakeOrder(param)
 	if err != nil {
 		log.Errorf("[TakeOrder] TakeOrder failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(code))
+	common.WriteResponse(c, common.ResponseSuccess(res))
 }
 
-func GetQrCodeById(c *gin.Context) {
+func GetQrCodeByOrderId(c *gin.Context) {
+	param := &common2.OrderIdParam{}
+	err := common.ParsePostParam(c, param)
+	if err != nil {
+		log.Errorf("[GetQrCodeByOrderId] ParsePostParam failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	res, err := core.DefSagaOrder.GetQrCodeByOrderId(param.OrderId)
+	if err != nil {
+		log.Errorf("[TakeOrGetQrCodeByOrderIdder] GetQrCodeByOrderId failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(res))
+}
+
+func GetQrCodeDataByQrCodeId(c *gin.Context) {
 	param := &common2.GetQrCodeParam{}
-	err := common.ParsePostParam(c.Request.Body, param)
+	err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -47,7 +61,7 @@ func GetQrCodeById(c *gin.Context) {
 
 func CancelOrder(c *gin.Context) {
 	param := &common2.OrderIdParam{}
-	err := common.ParsePostParam(c.Request.Body, param)
+	err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[CancelOrder] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -64,7 +78,7 @@ func CancelOrder(c *gin.Context) {
 
 func DeleteOrder(c *gin.Context) {
 	param := &common2.OrderIdParam{}
-	err := common.ParsePostParam(c.Request.Body, param)
+	err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[CancelOrder] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -81,7 +95,7 @@ func DeleteOrder(c *gin.Context) {
 
 func SendTx(c *gin.Context) {
 	param := &common2.SendTxParam{}
-	err := common.ParsePostParam(c.Request.Body, param)
+	err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -93,16 +107,16 @@ func SendTx(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(nil))
+	common.WriteResponse(c, common.ResponseSuccess("SUCCESS"))
 }
 
-func QueryOrderStatus(c *gin.Context) {
+func GetTxResult(c *gin.Context) {
 	orderId := c.Param("orderId")
-	status, err := dao.DefDB.QueryOrderStatusByOrderId(orderId)
+	res, err := core.DefSagaOrder.GetTxResult(orderId)
 	if err != nil {
-		log.Errorf("[QueryOrderStatus] QueryOrderStatusByOrderId failed: %s", err)
+		log.Errorf("[GetTxResult] QueryOrderByOrderId failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(status))
+	common.WriteResponse(c, common.ResponseSuccess(res))
 }

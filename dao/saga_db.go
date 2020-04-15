@@ -92,13 +92,13 @@ func (this *SagaDB) UpdateTxInfoByOrderId(orderId string, txHash string, status 
 	return this.db.Table("orders").Where("order_id=?", orderId).Update("tx_hash=?,order_status=?", txHash, status).Error
 }
 
-func (this *SagaDB) QueryOrderStatusByOrderId(orderId string) (config.OrderStatus, error) {
+func (this *SagaDB) QueryOrderByOrderId(orderId string) (*tables.Order, error) {
 	order := &tables.Order{}
 	err := this.db.Table("orders").Find(order, "order_id=?", orderId).Error
 	if err != nil {
-		return config.Processing, err
+		return nil, err
 	}
-	return order.OrderStatus, nil
+	return order, nil
 }
 
 func (this *SagaDB) InsertQrCode(code *tables.QrCode) error {
@@ -106,7 +106,7 @@ func (this *SagaDB) InsertQrCode(code *tables.QrCode) error {
 }
 
 func (this *SagaDB) QueryOrderIdByQrCodeId(qrCodeId string) (string, error) {
-	code, err := this.QueryQrCodeById(qrCodeId)
+	code, err := this.QueryQrCodeByQrCodeId(qrCodeId)
 	if err != nil {
 		return "", err
 	}
@@ -117,7 +117,16 @@ func (this *SagaDB) UpdateOrderStatus(orderId string, status config.OrderStatus)
 	return this.db.Table("orders").Where("order_id=?", orderId).Update("order_status=?", status).Error
 }
 
-func (this *SagaDB) QueryQrCodeById(id string) (*tables.QrCode, error) {
+func (this *SagaDB) QueryQrCodeByOrderId(orderId string) (*tables.QrCode, error) {
+	code := &tables.QrCode{}
+	err := this.db.Table("qr_codes").Find(code, "order_id=?", orderId).Error
+	if err != nil {
+		return nil, err
+	}
+	return code, nil
+}
+
+func (this *SagaDB) QueryQrCodeByQrCodeId(id string) (*tables.QrCode, error) {
 	code := &tables.QrCode{}
 	err := this.db.Table("qr_codes").Find(code, "id=?", id).Error
 	if err != nil {

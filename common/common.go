@@ -15,6 +15,15 @@ func GenerateOrderId() string {
 	return u1.String()
 }
 
+func BuildQrCodeResult(id string) *QrCodeResult {
+	return &QrCodeResult{
+		QrCode: QrCode{
+			ONTAuthScanProtocol: config.DefConfig.ONTAuthScanProtocol,
+		},
+		Id: id,
+	}
+}
+
 func BuildTestNetQrCode(orderId, requester, payer string, from, to, value string) *tables.QrCode {
 	return buildQrCode("Testnet", orderId, requester, payer, from, to, value)
 }
