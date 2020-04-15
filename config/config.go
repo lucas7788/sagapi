@@ -44,9 +44,9 @@ var DefDBConfigMap = map[int]*DBConfig{
 }
 
 var DefConfig = &Config{
-	RestPort:  DEFAULT_REST_PORT,
-	Version:   "1.0.0",
-	NetWorkId: NETWORK_ID_SOLO_NET,
-	DbConfig:  DefDBConfigMap[NETWORK_ID_SOLO_NET],
-	OperatorPublicKey:"02b8fcf42deecc7cccb574ba145f2f627339fbd3ba2b63fda99af0a26a8d5a01da",
+	RestPort:          DEFAULT_REST_PORT,
+	Version:           "1.0.0",
+	NetWorkId:         NETWORK_ID_SOLO_NET,
+	DbConfig:          DefDBConfigMap[NETWORK_ID_SOLO_NET],
+	OperatorPublicKey: "02b8fcf42deecc7cccb574ba145f2f627339fbd3ba2b63fda99af0a26a8d5a01da",
 }

@@ -1,16 +1,17 @@
 package jwt
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/ontio/sagapi/restful/api/common"
-	"strings"
-	"fmt"
 	"encoding/base64"
-	"github.com/ontio/sagapi/config"
+	"fmt"
+	"github.com/candybox-sig/log"
+	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology-crypto/keypair"
 	common2 "github.com/ontio/ontology/common"
-	"net/http"
 	"github.com/ontio/ontology/core/signature"
+	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/restful/api/common"
+	"net/http"
+	"strings"
 )
 
 func JWT() gin.HandlerFunc {
@@ -24,10 +25,8 @@ func JWT() gin.HandlerFunc {
 			err = validateToken(token[0])
 		}
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code":common.VERIFY_TOKEN_ERROR,
-				"msg":err.Error(),
-			})
+			log.Errorf("jwt error:%s", err)
+			c.JSON(http.StatusUnauthorized, common.ResponseFailed(common.VERIFY_TOKEN_ERROR, err))
 			c.Abort()
 			return
 		}
@@ -43,17 +42,15 @@ func validateToken(token string) error {
 	}
 	sig, err := base64.RawURLEncoding.DecodeString(arr[2])
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	pubKeyStr,_ := common2.HexToBytes(config.DefConfig.OperatorPublicKey)
-	pubKey,err := keypair.DeserializePublicKey(pubKeyStr)
+	pubKeyStr, _ := common2.HexToBytes(config.DefConfig.OperatorPublicKey)
+	pubKey, err := keypair.DeserializePublicKey(pubKeyStr)
 	if err != nil {
 		return err
 	}
-	data := arr[0]+"."+arr[1]
-	fmt.Println("sig:",string(sig))
-	sig,err = common2.HexToBytes(string(sig))
+	data := arr[0] + "." + arr[1]
+	sig, err = common2.HexToBytes(string(sig))
 	if err != nil {
 		return err
 	}
