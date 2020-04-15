@@ -11,6 +11,7 @@ import (
 	"github.com/ontio/sagapi/restful/api/common"
 	"net/http"
 	"strings"
+	"github.com/ontio/ontology/common/log"
 )
 
 func JWT() gin.HandlerFunc {
