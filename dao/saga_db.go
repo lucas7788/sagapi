@@ -148,14 +148,17 @@ func (this *SagaDB) InsertApiKey(apiKey *tables.APIKey) error {
 	return nil
 }
 
-func (this *SagaDB) QueryRequestNum(apiKey string) (int, error) {
+func (this *SagaDB) UpdateApiKey(key *tables.APIKey) error {
+	return this.db.Table("api_keys").Where("id=?", key.Id).Update("used_num=?", key.UsedNum).Error
+}
+
+func (this *SagaDB) QueryApiKeyInfo(apiKey string) (*tables.APIKey, error) {
 	key := &tables.APIKey{}
-	db := this.db.Table("api_keys").Find(key, "api_key=?", apiKey)
-	if db.Error != nil {
-		return 0, db.Error
+	err := this.db.Table("api_keys").Find(key, "api_key=?", apiKey).Error
+	if err != nil {
+		return nil, err
 	}
-	this.db = db
-	return key.UsedNum, nil
+	return key, nil
 }
 
 func (this *SagaDB) QueryApiBasicInfoByPage(start, pageSize int) (infos []tables.ApiBasicInfo, err error) {

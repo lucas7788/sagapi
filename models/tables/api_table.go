@@ -6,28 +6,21 @@ import (
 )
 
 type Order struct {
-	Id          uint `gorm:"primary_key"`
-	OrderId     string
-	ProductName string
-	Type        string
-	OrderTime   int64
-	PaiedTime   int64
-	OrderStatus config.OrderStatus
-	Amount      string
-	OntId       string
-	UserName    string
-	TxHash      string
-	Price       string
-	ApiId       uint
-	ApiKey      string
-}
-
-type ApiTestRecord struct {
-	ID         uint `gorm:"primary_key"`
-	OntId      string
-	UserName   string
-	ApiId      int
-	TestResult int //0 test failed, 1 test success
+	Id             uint `gorm:"primary_key"`
+	OrderId        string
+	ProductName    string
+	Type           string
+	OrderTime      int64
+	PaiedTime      int64
+	OrderStatus    config.OrderStatus
+	Amount         string
+	OntId          string
+	UserName       string
+	TxHash         string
+	Price          string
+	ApiId          uint
+	ApiKey         string
+	Specifications int
 }
 
 type ApiBasicInfo struct {
@@ -43,23 +36,39 @@ type ApiBasicInfo struct {
 }
 
 type ApiDetailInfo struct {
-	ID                   uint `gorm:"primary_key"`
+	Id                   uint `gorm:"primary_key"`
+	ApiId                uint
 	Mark                 string
-	RequestParam         string
+	RequestParamId       uint
 	ResponseParam        string
 	ResponseExample      string
-	ParamErrorCode       string
+	ErrorCodeId          uint
 	APIDetailInstruction models.ApiDetailInstruction
 }
 
+type RequestParam struct {
+	Id              uint `gorm:"primary_key"`
+	ApiDetailInfoId uint
+	Name            string
+	Required        bool
+	Type            string
+	Note            string
+}
+
+type ErrorCode struct {
+	Id              uint `gorm:"primary_key"`
+	ApiDetailInfoId uint
+	ErrorCode       int
+	ErrorDesc       string
+}
+
 type APIKey struct {
-	ID       uint `gorm:"primary_key"`
+	Id       uint `gorm:"primary_key"`
 	ApiKey   string
-	ApiId    int
+	ApiId    uint
 	Limit    int
 	UsedNum  int
 	OntId    string
-	UserName string
 }
 
 type QrCode struct {

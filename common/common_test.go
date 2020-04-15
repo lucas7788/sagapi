@@ -9,7 +9,7 @@ import (
 func TestGenerateOrderId(t *testing.T) {
 	orderId := make([]string, 0)
 	for i := 0; i < 10; i++ {
-		orderId = append(orderId, GenerateOrderId())
+		orderId = append(orderId, GenerateUUId())
 		fmt.Println(orderId)
 	}
 

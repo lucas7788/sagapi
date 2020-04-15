@@ -23,6 +23,7 @@ type SendTxParam struct {
 type ExtraData struct {
 	Id        string `json:"id"`
 	PublicKey string `json:"publickey"`
+	OntId     string `json:"ontId"`
 }
 
 type GetQrCodeParam struct {

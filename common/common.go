@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func GenerateOrderId() string {
+func GenerateUUId() string {
 	u1 := uuid.Must(uuid.NewV4())
 	return u1.String()
 }
@@ -58,7 +58,7 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 			},
 		},
 	}
-	id := GenerateOrderId()
+	id := GenerateUUId()
 	return &tables.QrCode{
 		Ver:       "1.0.0",
 		Id:        id,

@@ -14,6 +14,7 @@ import (
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/restful"
+	"github.com/ontio/sagapi/core"
 )
 
 func setupAPP() *cli.App {
@@ -51,7 +52,7 @@ func startSaga(ctx *cli.Context) {
 		log.Errorf("[initDB] error: %s", err)
 		return
 	}
-
+	core.DefSagaApi = core.NewSagaApi()
 	startServer()
 	waitToExit()
 }

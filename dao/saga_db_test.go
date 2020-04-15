@@ -47,14 +47,14 @@ func TestSagaDB_Init(t *testing.T) {
 	}
 	err = TestDB.InsertApiKey(key)
 	assert.Nil(t, err)
-	usedNum, err := TestDB.QueryRequestNum("key")
+	usedNum, err := TestDB.QueryApiKeyInfo("key")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, usedNum)
 }
 
 func TestSagaDB_QueryRequestNum(t *testing.T) {
 	Init(t)
-	usedNum, err := TestDB.QueryRequestNum("key")
+	usedNum, err := TestDB.QueryApiKeyInfo("key")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, usedNum)
 }

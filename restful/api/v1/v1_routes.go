@@ -2,9 +2,9 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/ontio/sagapi/restful/api/v1/api"
 	"github.com/ontio/sagapi/restful/api/v1/nasa"
 	"github.com/ontio/sagapi/restful/api/v1/order"
-	"github.com/ontio/sagapi/restful/api/v1/api"
 )
 
 func RoutesV1(parent *gin.RouterGroup) {

@@ -15,6 +15,10 @@ var DefSagaOrder *SagaOrder
 type SagaOrder struct {
 }
 
+func NewSagaOrder() *SagaOrder {
+	return &SagaOrder{}
+}
+
 func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResult, error) {
 	info, err := dao.DefDB.QueryApiBasicInfoByApiId(uint(param.ApiId))
 	if err != nil {
@@ -24,18 +28,19 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	specifications := new(big.Int).SetUint64(uint64(param.Specifications))
 	amount := new(big.Int).Mul(price, specifications)
 	amountStr := utils.ToStringByPrecise(amount, config.ONG_DECIMALS)
-	orderId := common.GenerateOrderId()
+	orderId := common.GenerateUUId()
 	order := &tables.Order{
-		OrderId:     orderId,
-		ProductName: param.ProductName,
-		Type:        config.ApiOrder,
-		OrderTime:   time.Now().Unix(),
-		OrderStatus: config.Processing,
-		Amount:      amountStr,
-		OntId:       param.OntId,
-		UserName:    param.UserName,
-		Price:       info.ApiPrice,
-		ApiId:       info.ApiId,
+		OrderId:        orderId,
+		ProductName:    param.ProductName,
+		Type:           config.ApiOrder,
+		OrderTime:      time.Now().Unix(),
+		OrderStatus:    config.Processing,
+		Amount:         amountStr,
+		OntId:          param.OntId,
+		UserName:       param.UserName,
+		Price:          info.ApiPrice,
+		ApiId:          info.ApiId,
+		Specifications: param.Specifications,
 	}
 	err = dao.DefDB.InsertOrder(order)
 	if err != nil {

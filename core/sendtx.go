@@ -3,11 +3,12 @@ package core
 import (
 	"fmt"
 	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/ontology/core/types"
 	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/dao"
-	"github.com/ontio/ontology/common/log"
+	"github.com/ontio/sagapi/models/tables"
 )
 
 func SendTX(param *common2.SendTxParam) error {
@@ -36,7 +37,23 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	return dao.DefDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), config.Completed)
+	err = dao.DefDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), config.Completed)
+	if err != nil {
+		return err
+	}
+	order, err := dao.DefDB.QueryOrderByOrderId(orderId)
+	if err != nil {
+		return err
+	}
+	id := common2.GenerateUUId()
+	apiKey := &tables.APIKey{
+		ApiKey:  id,
+		ApiId:   order.ApiId,
+		Limit:   order.Specifications,
+		UsedNum: 0,
+		OntId:   param.ExtraData.OntId,
+	}
+	return dao.DefDB.InsertApiKey(apiKey)
 }
 
 func verifyTx(txHash string) error {
