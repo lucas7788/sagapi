@@ -62,8 +62,7 @@ create table tbl_error_code (
 
 
 create table tbl_order (
-  Id int(11) NOT NULL AUTO_INCREMENT COMMENT '',
-  OrderId varchar(50) not null COMMENT '',
+  OrderId varchar(50) unique not null COMMENT '',
   ProductName varchar(50) not null default '' COMMENT '',
   OrderType varchar(50) not null default ''  COMMENT '',
   OrderTime int(11) not null default 0 COMMENT '下单时间',
@@ -76,7 +75,8 @@ create table tbl_order (
   Price varchar(50) not null default ''  COMMENT '',
   ApiId int(11) NOT NULL COMMENT '',
   Specifications int(11) NOT NULL COMMENT '规格',
-  PRIMARY KEY (Id)
+  PRIMARY KEY (OrderId),
+  CONSTRAINT FK_tbl_order_id FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId)
 );
 
 
@@ -89,7 +89,7 @@ create table tbl_api_key (
   UsedNum int(11) not null default 0,
   OntId varchar(50) not null default '',
   PRIMARY KEY (Id),
-  foreign key(Id) references tbl_order(Id)
+  foreign key(OrderId) references tbl_order(OrderId)
 );
 
 CREATE TABLE `tbl_qr_code` (
@@ -106,5 +106,5 @@ CREATE TABLE `tbl_qr_code` (
   Chain varchar(50) not null default '',
   QrCodeDesc varchar(50) not null default '',
   PRIMARY KEY (Id),
-  foreign key(Id) references tbl_order(Id)
+  foreign key(OrderId) references tbl_order(OrderId)
 );

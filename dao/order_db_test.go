@@ -24,9 +24,11 @@ func TestMain(m *testing.M) {
 	fmt.Println("end")
 }
 
-func TestSagaDB_Init(t *testing.T) {
+func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
 	br := &tables.Order{
+		ApiId:1,
+		OrderId:   "abc",
 		OntId:     "111",
 		OrderTime: tt,
 	}
@@ -38,7 +40,7 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 	key := &tables.APIKey{
 		ApiId:        1,
 		OrderId:      "abc",
-		ApiKey:       "key",
+		ApiKey:       "apikey",
 		RequestLimit: 2,
 		UsedNum:      1,
 	}
@@ -48,13 +50,13 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 }
 
 func TestApiDB_QueryApiKey(t *testing.T) {
-	key, err := TestDB.ApiDB.QueryApiKey("key")
+	key, err := TestDB.ApiDB.QueryApiKey("apikey")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, key.UsedNum)
 }
 
 func TestSagaDB_QueryRequestNum(t *testing.T) {
-	key, err := TestDB.ApiDB.QueryApiKey("key")
+	key, err := TestDB.ApiDB.QueryApiKey("apikey")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, key.UsedNum)
 }
