@@ -66,7 +66,7 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 	id := GenerateUUId()
 	return &tables.QrCode{
 		Ver:        "1.0.0",
-		QrCodeId:         id,
+		QrCodeId:   id,
 		OrderId:    orderId,
 		Requester:  requester,
 		Signature:  "",

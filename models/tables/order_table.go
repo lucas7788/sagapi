@@ -16,17 +16,17 @@ type Order struct {
 	TxHash         string
 	Price          string
 	ApiId          int
-	ApiKey         string
 	Specifications int
 }
 
 type APIKey struct {
-	Id      int
-	ApiKey  string
-	ApiId   int
-	Limit   int
-	UsedNum int
-	OntId   string
+	Id           int
+	ApiKey       string
+	OrderId      string
+	ApiId        int
+	RequestLimit int
+	UsedNum      int
+	OntId        string
 }
 
 type QrCode struct {

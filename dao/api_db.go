@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ontio/sagapi/models/tables"
+	"strings"
 )
 
 type ApiDB struct {
@@ -17,18 +18,19 @@ func NewApiDB(db *sql.DB) *ApiDB {
 	}
 }
 
-func (this *ApiDB) InsertApiBasicInfo(info *tables.ApiBasicInfo) error {
-	strSql := `insert into api_basic_info (ApiLogo, ApiName, ApiProvider, ApiUrl, ApiPrice, ApiDesc,Specifications, 
-Popularity,Delay,SuccessRate,InvokeFrequency) values (?,?,?,?,?,?,?,?,?,?,?)`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
+func (this *ApiDB) InsertApiBasicInfo(infos []*tables.ApiBasicInfo) error {
+	if len(infos) == 0 {
+		return nil
 	}
-	if err != nil {
-		return err
+	sqlStrArr := make([]string, len(infos))
+	for i, info := range infos {
+		sqlStrArr[i] = fmt.Sprintf("('%s','%s','%s','%s','%s','%s','%d','%d','%d','%d','%d')", info.ApiLogo, info.ApiName, info.ApiProvider, info.ApiUrl, info.ApiPrice, info.ApiDesc,
+			info.Specifications, info.Popularity, info.Delay, info.SuccessRate, info.InvokeFrequency)
 	}
-	_, err = stmt.Exec(info.ApiLogo, info.ApiName, info.ApiProvider, info.ApiUrl, info.ApiPrice, info.ApiDesc,
-		info.Specifications, info.Popularity, info.Delay, info.SuccessRate, info.InvokeFrequency)
+	strSql := `insert into tbl_api_basic_info (ApiLogo, ApiName, ApiProvider, ApiUrl, ApiPrice, ApiDesc,Specifications, 
+Popularity,Delay,SuccessRate,InvokeFrequency) values`
+	strSql += strings.Join(sqlStrArr, ",")
+	_, err := this.db.Exec(strSql)
 	if err != nil {
 		return err
 	}
@@ -37,7 +39,7 @@ Popularity,Delay,SuccessRate,InvokeFrequency) values (?,?,?,?,?,?,?,?,?,?,?)`
 
 func (this *ApiDB) QueryApiBasicInfoByPage(start, pageSize int) (infos []*tables.ApiBasicInfo, err error) {
 	strSql := `select ApiId, ApiLogo, ApiName, ApiProvider, ApiUrl, ApiPrice, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
-InvokeFrequency from api_basic_info_tbl where order by id limit ?, ?`
+InvokeFrequency from tbl_api_basic_info where ApiId limit ?, ?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -78,7 +80,7 @@ InvokeFrequency from api_basic_info_tbl where order by id limit ?, ?`
 
 func (this *ApiDB) QueryApiBasicInfoByApiId(apiId int) (*tables.ApiBasicInfo, error) {
 	strSql := `select ApiId, ApiLogo, ApiName, ApiProvider, ApiUrl, ApiPrice, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
-InvokeFrequency from api_basic_info_tbl where order by ApiId =?`
+InvokeFrequency from tbl_api_basic_info where ApiId =?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -120,7 +122,7 @@ InvokeFrequency from api_basic_info_tbl where order by ApiId =?`
 func (this *ApiDB) SearchApi(key string) ([]*tables.ApiBasicInfo, error) {
 	k := "%" + key + "%"
 	strSql := `select ApiId, ApiLogo, ApiName, ApiProvider, ApiUrl, ApiPrice, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
-InvokeFrequency from api_basic_info where api_desc like ?`
+InvokeFrequency from tbl_api_basic_info where ApiDesc like ? limit 10`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -161,7 +163,7 @@ InvokeFrequency from api_basic_info where api_desc like ?`
 }
 
 func (this *ApiDB) InsertApiDetailInfo(info *tables.ApiDetailInfo) error {
-	strSql := `insert into api_detail_info (ApiId, Mark, ResponseParam, ResponseExample, DataDesc, DataSource,ApplicationScenario) values (?,?,?,?,?,?,?)`
+	strSql := `insert into tbl_api_detail_info (ApiId, Mark, ResponseParam, ResponseExample, DataDesc, DataSource,ApplicationScenario) values (?,?,?,?,?,?,?)`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -177,7 +179,7 @@ func (this *ApiDB) InsertApiDetailInfo(info *tables.ApiDetailInfo) error {
 }
 
 func (this *ApiDB) QueryApiDetailInfoById(apiId int) (*tables.ApiDetailInfo, error) {
-	strSql := "select Mark, ResponseParam, ResponseExample, DataDesc, DataSource,ApplicationScenario from api_detail_info where ApiId=?"
+	strSql := "select Mark, ResponseParam, ResponseExample, DataDesc, DataSource,ApplicationScenario from tbl_api_detail_info where ApiId=?"
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -211,7 +213,7 @@ func (this *ApiDB) QueryApiDetailInfoById(apiId int) (*tables.ApiDetailInfo, err
 }
 
 func (this *ApiDB) QueryPriceByApiId(ApiId int) (string, error) {
-	strSql := "select ApiPrice from api_basic_info where id=?"
+	strSql := "select ApiPrice from tbl_api_basic_info where ApiId=?"
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -236,8 +238,9 @@ func (this *ApiDB) QueryPriceByApiId(ApiId int) (string, error) {
 	return "", nil
 }
 
+//dependent on orderId
 func (this *ApiDB) InsertApiKey(key *tables.APIKey) error {
-	strSql := `insert into api_key (ApiKey, ApiId, Limit, UsedNum, OntId) values (?,?,?,?,?,?,?,?,?,?,?)`
+	strSql := `insert into tbl_api_key (ApiKey,OrderId, ApiId, RequestLimit, UsedNum, OntId) values (?,?,?,?,?,?)`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -245,15 +248,15 @@ func (this *ApiDB) InsertApiKey(key *tables.APIKey) error {
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(key.ApiKey, key.ApiId, key.Limit, key.UsedNum, key.OntId)
+	_, err = stmt.Exec(key.ApiKey, key.OrderId, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (this *ApiDB) UpdateApiKeyUsedNum(key string, usedNum int) error {
-	strSql := "update api_key_tbl set UsedNum = ? where api_key=?"
+func (this *ApiDB) UpdateApiKeyUsedNum(apiKey string, usedNum int) error {
+	strSql := "update tbl_api_key set UsedNum = ? where ApiKey=?"
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -261,12 +264,12 @@ func (this *ApiDB) UpdateApiKeyUsedNum(key string, usedNum int) error {
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(usedNum, key)
+	_, err = stmt.Exec(usedNum, apiKey)
 	return err
 }
 
 func (this *ApiDB) QueryApiKey(apiKey string) (*tables.APIKey, error) {
-	strSql := "select ApiId, Limit, UsedNum, OntId from api_key_tbl where ApiKey=?"
+	strSql := "select OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where ApiKey=?"
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -282,17 +285,18 @@ func (this *ApiDB) QueryApiKey(apiKey string) (*tables.APIKey, error) {
 		return nil, err
 	}
 	for rows.Next() {
-		var ontId string
+		var ontId, orderId string
 		var apiId, limit, usedNum int
-		if err = rows.Scan(&apiId, &limit, &usedNum, &ontId); err != nil {
+		if err = rows.Scan(&orderId, &apiId, &limit, &usedNum, &ontId); err != nil {
 			return nil, err
 		}
 		return &tables.APIKey{
-			ApiKey:  apiKey,
-			ApiId:   apiId,
-			Limit:   limit,
-			UsedNum: usedNum,
-			OntId:   ontId,
+			OrderId:      orderId,
+			ApiKey:       apiKey,
+			ApiId:        apiId,
+			RequestLimit: limit,
+			UsedNum:      usedNum,
+			OntId:        ontId,
 		}, nil
 	}
 	return nil, nil
@@ -306,8 +310,8 @@ func (this *ApiDB) VerifyApiKey(apiKey string) error {
 	if key == nil {
 		return fmt.Errorf("invalid api key: %s", apiKey)
 	}
-	if key.UsedNum >= key.Limit {
-		return fmt.Errorf("Available times:%d, has used times: %d", key.Limit, key.UsedNum)
+	if key.UsedNum >= key.RequestLimit {
+		return fmt.Errorf("available times:%d, has used times: %d", key.RequestLimit, key.UsedNum)
 	}
 	return nil
 }
