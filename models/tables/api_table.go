@@ -27,7 +27,6 @@ type ApiDetailInfo struct {
 }
 
 type RequestParam struct {
-	Id              int
 	ApiDetailInfoId int
 	ParamName       string
 	Required        int8
@@ -36,7 +35,6 @@ type RequestParam struct {
 }
 
 type ErrorCode struct {
-	Id              int
 	ApiDetailInfoId int
 	ErrorCode       int
 	ErrorDesc       string

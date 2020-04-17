@@ -14,8 +14,8 @@ func GenerateUUId() string {
 	return u1.String()
 }
 
-func BuildQrCodeResult(id string) *QrCodeResult {
-	return &QrCodeResult{
+func BuildQrCodeResult(id string) *QrCodeResponse {
+	return &QrCodeResponse{
 		QrCode: QrCode{
 			ONTAuthScanProtocol: config.DefConfig.ONTAuthScanProtocol,
 		},

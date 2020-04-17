@@ -3,7 +3,6 @@ package tables
 import "github.com/ontio/sagapi/config"
 
 type Order struct {
-	Id             int
 	OrderId        string
 	ProductName    string
 	OrderType      string

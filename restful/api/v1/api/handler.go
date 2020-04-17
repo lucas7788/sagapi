@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology/common/log"
+	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/restful/api/common"
 	"strconv"
@@ -32,14 +33,7 @@ func GetBasicApiInfoByPage(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	if pageNum < 1 {
-		pageNum = 1
-	}
-	if pageSize < 1 {
-		pageSize = 10
-	}
-	start := (pageNum - 1) * pageSize
-	infos, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByPage(start, pageSize)
+	infos, err := core.DefSagaApi.QueryBasicApiInfoByPage(pageNum, pageSize)
 	if err != nil {
 		log.Errorf("[GetBasicApiInfoByPage] QueryApiBasicInfoByPage error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
@@ -61,7 +55,7 @@ func GetApiDetailByApiId(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	info, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(apiId)
+	info, err := core.DefSagaApi.QueryApiDetailInfoByApiId(apiId)
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] QueryApiBasicInfoByApiId error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))

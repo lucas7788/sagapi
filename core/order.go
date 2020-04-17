@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-var DefSagaOrder *SagaOrder
-
 type SagaOrder struct {
 }
 
@@ -19,7 +17,7 @@ func NewSagaOrder() *SagaOrder {
 	return &SagaOrder{}
 }
 
-func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResult, error) {
+func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResponse, error) {
 	info, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(param.ApiId)
 	if err != nil {
 		return nil, err
@@ -54,7 +52,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	return common.BuildQrCodeResult(code.QrCodeId), nil
 }
 
-func (this *SagaOrder) GetQrCodeByOrderId(orderId string) (*common.QrCodeResult, error) {
+func (this *SagaOrder) GetQrCodeByOrderId(orderId string) (*common.QrCodeResponse, error) {
 	code, err := dao.DefSagaApiDB.OrderDB.QueryQrCodeByOrderId(orderId)
 	if err != nil {
 		return nil, err
@@ -73,12 +71,12 @@ func (this *SagaOrder) DeleteOrderByOrderId(param *common.OrderIdParam) error {
 	return dao.DefSagaApiDB.OrderDB.DeleteOrderByOrderId(param.OrderId)
 }
 
-func (this *SagaOrder) GetTxResult(orderId string) (*common.GetOrderResult, error) {
+func (this *SagaOrder) GetTxResult(orderId string) (*common.GetOrderResponse, error) {
 	order, err := dao.DefSagaApiDB.OrderDB.QueryOrderByOrderId(orderId)
 	if err != nil {
 		return nil, err
 	}
-	res := &common.GetOrderResult{
+	res := &common.GetOrderResponse{
 		UserName: order.UserName,
 		OntId:    order.OntId,
 	}

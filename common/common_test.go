@@ -1,7 +1,9 @@
 package common
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/ontio/sagapi/models/tables"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -18,4 +20,25 @@ func TestGenerateOrderId(t *testing.T) {
 			assert.NotEqual(t, orderId[i], orderId[j])
 		}
 	}
+}
+
+func TestBuildQrCodeResult(t *testing.T) {
+	res := ApiDetailResponse{
+		ApiId: 1,
+		RequestParams: []*tables.RequestParam{
+			&tables.RequestParam{
+				ApiDetailInfoId: 1,
+				ParamName:       "aa",
+			},
+		},
+		ErrorCodes: []*tables.ErrorCode{
+			&tables.ErrorCode{
+				ApiDetailInfoId: 1,
+				ErrorCode:       2,
+			},
+		},
+	}
+
+	bs, _ := json.Marshal(res)
+	fmt.Println(string(bs))
 }
