@@ -25,7 +25,7 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	orderId, err := dao.DefDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
+	orderId, err := dao.DefSagaApiDB.OrderDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
 	if err != nil {
 		return err
 	}
@@ -37,11 +37,11 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	err = dao.DefDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), config.Completed)
+	err = dao.DefSagaApiDB.OrderDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), config.Completed)
 	if err != nil {
 		return err
 	}
-	order, err := dao.DefDB.QueryOrderByOrderId(orderId)
+	order, err := dao.DefSagaApiDB.OrderDB.QueryOrderByOrderId(orderId)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func SendTX(param *common2.SendTxParam) error {
 		UsedNum: 0,
 		OntId:   param.ExtraData.OntId,
 	}
-	return dao.DefDB.InsertApiKey(apiKey)
+	return dao.DefSagaApiDB.ApiDB.InsertApiKey(apiKey)
 }
 
 func verifyTx(txHash string) error {

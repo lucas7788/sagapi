@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/json"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
@@ -58,18 +59,22 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 			},
 		},
 	}
+	databs, err := json.Marshal(data)
+	if err != nil {
+		//TODO
+	}
 	id := GenerateUUId()
 	return &tables.QrCode{
-		Ver:       "1.0.0",
-		Id:        id,
-		OrderId:   orderId,
-		Requester: requester,
-		Signature: "",
-		Signer:    "",
-		Data:      data,
-		Callback:  config.DefConfig.QrCodeCallback,
-		Exp:       exp,
-		Chain:     chain,
-		Desc:      "",
+		Ver:        "1.0.0",
+		QrCodeId:         id,
+		OrderId:    orderId,
+		Requester:  requester,
+		Signature:  "",
+		Signer:     "",
+		QrCodeData: string(databs),
+		Callback:   config.DefConfig.QrCodeCallback,
+		Exp:        exp,
+		Chain:      chain,
+		QrCodeDesc: "",
 	}
 }

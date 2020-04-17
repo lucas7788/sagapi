@@ -77,7 +77,7 @@ func (this *Nasa) getApiKey(apiKey string) (*tables.APIKey, error) {
 	var key *tables.APIKey
 	if !ok || keyIn == nil {
 		var err error
-		key, err = dao.DefDB.QueryApiKeyInfo(apiKey)
+		key, err = dao.DefSagaApiDB.ApiDB.QueryApiKey(apiKey)
 		if err != nil {
 			return nil, err
 		}
@@ -90,5 +90,5 @@ func (this *Nasa) getApiKey(apiKey string) (*tables.APIKey, error) {
 
 func (this *Nasa) updateApiKey(key *tables.APIKey) error {
 	this.apiKeyCache.Store(key.ApiKey, key)
-	return dao.DefDB.UpdateApiKey(key)
+	return dao.DefSagaApiDB.ApiDB.UpdateApiKeyUsedNum(key.ApiKey, key.UsedNum)
 }

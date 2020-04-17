@@ -39,7 +39,7 @@ func GetBasicApiInfoByPage(c *gin.Context) {
 		pageSize = 10
 	}
 	start := (pageNum - 1) * pageSize
-	infos, err := dao.DefDB.QueryApiBasicInfoByPage(start, pageSize)
+	infos, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByPage(start, pageSize)
 	if err != nil {
 		log.Errorf("[GetBasicApiInfoByPage] QueryApiBasicInfoByPage error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
@@ -61,7 +61,7 @@ func GetApiDetailByApiId(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	info, err := dao.DefDB.QueryApiBasicInfoByApiId(uint(apiId))
+	info, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(apiId)
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] QueryApiBasicInfoByApiId error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
@@ -77,7 +77,7 @@ func SearchApiByKey(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	infos, err := dao.DefDB.SearchApi(param[0])
+	infos, err := dao.DefSagaApiDB.ApiDB.SearchApi(param[0])
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] SearchApi error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))

@@ -77,15 +77,11 @@ func initDB(ctx *cli.Context) error {
 		config.DefConfig.DbConfig.ProjectDBUser = userName
 		config.DefConfig.DbConfig.ProjectDBPassword = string(pwd)
 	}
-	db, err := dao.NewDB()
+	db, err := dao.NewSagaApiDB()
 	if err != nil {
 		return err
 	}
-	err = db.Init()
-	if err != nil {
-		return err
-	}
-	dao.DefDB = db
+	dao.DefSagaApiDB = db
 	return nil
 }
 
@@ -128,7 +124,7 @@ func waitToExit() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	go func() {
 		for sig := range sc {
-			err := dao.DefDB.Close()
+			err := dao.DefSagaApiDB.Close()
 			if err != nil {
 				log.Errorf("close db error: %s", err)
 			}
