@@ -212,6 +212,108 @@ func (this *ApiDB) QueryApiDetailInfoById(apiId int) (*tables.ApiDetailInfo, err
 	return nil, nil
 }
 
+func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
+	if len(params) == 0 {
+		return nil
+	}
+	sqlStrArr := make([]string, len(params))
+	for i, param := range params {
+		sqlStrArr[i] = fmt.Sprintf("('%d','%s','%s','%d','%s')",
+			param.ApiDetailInfoId, param.ParamName, param.ParamType, param.Required, param.Note)
+	}
+	strSql := `insert into tbl_request_param (ApiDetailInfoId,ParamName,ParamType,Required,Note) values`
+	strSql += strings.Join(sqlStrArr, ",")
+	_, err := this.db.Exec(strSql)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *ApiDB) QueryRequestParamByApiDetailInfoId(apiDetailInfoId int) ([]*tables.RequestParam, error) {
+	strSql := "select ParamName, ParamType, Note from tbl_request_param where ApiDetailInfoId=?"
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	rows, err := stmt.Query(apiDetailInfoId)
+	if rows != nil {
+		defer rows.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*tables.RequestParam, 0)
+	for rows.Next() {
+		var paramName, paramType, note string
+		if err = rows.Scan(&paramName, &paramType, &note); err != nil {
+			return nil, err
+		}
+		rp := &tables.RequestParam{
+			ApiDetailInfoId: apiDetailInfoId,
+			ParamName:       paramName,
+			ParamType:       paramType,
+			Note:            note,
+		}
+		res = append(res, rp)
+	}
+	return res, nil
+}
+
+func (this *ApiDB) InsertErrorCode(params []*tables.ErrorCode) error {
+	if len(params) == 0 {
+		return nil
+	}
+	sqlStrArr := make([]string, len(params))
+	for i, param := range params {
+		sqlStrArr[i] = fmt.Sprintf("('%d','%d','%s')",
+			param.ApiDetailInfoId, param.ErrorCode, param.ErrorDesc)
+	}
+	strSql := `insert into tbl_error_code (ApiDetailInfoId,ErrorCode,ErrorDesc) values`
+	strSql += strings.Join(sqlStrArr, ",")
+	_, err := this.db.Exec(strSql)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *ApiDB) QueryErrorCodeByApiDetailInfoId(apiDetailInfoId int) ([]*tables.ErrorCode, error) {
+	strSql := "select ErrorCode, ErrorDesc from tbl_error_code where ApiDetailInfoId=?"
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	rows, err := stmt.Query(apiDetailInfoId)
+	if rows != nil {
+		defer rows.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*tables.ErrorCode, 0)
+	for rows.Next() {
+		var errorCode int
+		var errorDesc string
+		if err = rows.Scan(&errorCode, &errorDesc); err != nil {
+			return nil, err
+		}
+		rp := &tables.ErrorCode{
+			ApiDetailInfoId: apiDetailInfoId,
+			ErrorCode:       errorCode,
+			ErrorDesc:       errorDesc,
+		}
+		res = append(res, rp)
+	}
+	return res, nil
+}
+
 func (this *ApiDB) QueryPriceByApiId(ApiId int) (string, error) {
 	strSql := "select ApiPrice from tbl_api_basic_info where ApiId=?"
 	stmt, err := this.db.Prepare(strSql)

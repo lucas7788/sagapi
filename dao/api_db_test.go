@@ -1,32 +1,12 @@
 package dao
 
 import (
-	"database/sql"
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-var TestApiDB *ApiDB
-var TestOrderDB *OrderDB
-
-func InitApiDb(t *testing.T) {
-	db, dberr := sql.Open("mysql",
-		config.DefConfig.DbConfig.ProjectDBUser+
-			":"+config.DefConfig.DbConfig.ProjectDBPassword+
-			"@tcp("+config.DefConfig.DbConfig.ProjectDBUrl+
-			")/"+config.DefConfig.DbConfig.ProjectDBName+
-			"?charset=utf8")
-	assert.Nil(t, dberr)
-	err := db.Ping()
-	assert.Nil(t, err)
-	TestApiDB = NewApiDB(db)
-	TestOrderDB = NewOrderDB(db)
-}
-
 func TestApiDB_InsertApiBasicInfo(t *testing.T) {
-	InitApiDb(t)
 	info := &tables.ApiBasicInfo{
 		ApiLogo:         "",
 		ApiName:         "",
@@ -45,25 +25,23 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	for i := 0; i < len(infos); i++ {
 		infos[i] = info
 	}
-	assert.Nil(t, TestApiDB.InsertApiBasicInfo(infos))
+	assert.Nil(t, TestDB.ApiDB.InsertApiBasicInfo(infos))
 }
 
 func TestApiDB_QueryApiBasicInfoByApiId(t *testing.T) {
-	InitApiDb(t)
-	info, err := TestApiDB.QueryApiBasicInfoByApiId(1)
+	info, err := TestDB.ApiDB.QueryApiBasicInfoByApiId(1)
 	assert.Nil(t, err)
 	assert.Equal(t, info.ApiId, 1)
 
-	infos, err := TestApiDB.QueryApiBasicInfoByPage(1, 2)
+	infos, err := TestDB.ApiDB.QueryApiBasicInfoByPage(1, 2)
 	assert.Nil(t, err)
 	assert.Equal(t, len(infos), 2)
-	price, err := TestApiDB.QueryPriceByApiId(1)
+	price, err := TestDB.ApiDB.QueryPriceByApiId(1)
 	assert.Nil(t, err)
 	assert.Equal(t, price, "1")
 }
 
 func TestApiDB_InsertApiDetailInfo(t *testing.T) {
-	InitApiDb(t)
 	info := &tables.ApiDetailInfo{
 		ApiId:               10,
 		Mark:                "",
@@ -73,13 +51,56 @@ func TestApiDB_InsertApiDetailInfo(t *testing.T) {
 		DataSource:          "",
 		ApplicationScenario: "",
 	}
-	err := TestApiDB.InsertApiDetailInfo(info)
+	err := TestDB.ApiDB.InsertApiDetailInfo(info)
 	assert.Nil(t, err)
 }
 
 func TestApiDB_QueryApiDetailInfoById(t *testing.T) {
-	InitApiDb(t)
-	info, err := TestApiDB.QueryApiDetailInfoById(10)
+	info, err := TestDB.ApiDB.QueryApiDetailInfoById(10)
 	assert.Nil(t, err)
 	assert.Equal(t, info.ApiId, 10)
+}
+
+func TestApiDB_InsertRequestParam(t *testing.T) {
+	rp := &tables.RequestParam{
+		ApiDetailInfoId: 1,
+		ParamName:       "",
+		Required:        1,
+		ParamType:       "",
+		Note:            "",
+	}
+	l := 10
+	requestParam := make([]*tables.RequestParam, l)
+	for i := 0; i < l; i++ {
+		requestParam[i] = rp
+	}
+	err := TestDB.ApiDB.InsertRequestParam(requestParam)
+	assert.Nil(t, err)
+}
+
+func TestApiDB_QueryRequestParamByApiDetailInfoId(t *testing.T) {
+	param, err := TestDB.ApiDB.QueryRequestParamByApiDetailInfoId(1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(param), 10)
+}
+
+func TestApiDB_InsertErrorCode(t *testing.T) {
+	rp := &tables.ErrorCode{
+		ApiDetailInfoId: 1,
+		ErrorCode:       1,
+		ErrorDesc:       "",
+	}
+	l := 10
+	requestParam := make([]*tables.ErrorCode, l)
+	for i := 0; i < l; i++ {
+		requestParam[i] = rp
+	}
+	err := TestDB.ApiDB.InsertErrorCode(requestParam)
+	assert.Nil(t, err)
+}
+
+func TestApiDB_QueryErrorCodeByApiDetailInfoId(t *testing.T) {
+	param, err := TestDB.ApiDB.QueryErrorCodeByApiDetailInfoId(1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(param), 10)
 }

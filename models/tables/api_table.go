@@ -27,12 +27,12 @@ type ApiDetailInfo struct {
 }
 
 type RequestParam struct {
-	Id               int
-	ApiDetailInfoId  int
-	Name             string
-	Required         bool
-	RequestParamType string
-	Note             string
+	Id              int
+	ApiDetailInfoId int
+	ParamName       string
+	Required        int8
+	ParamType       string
+	Note            string
 }
 
 type ErrorCode struct {

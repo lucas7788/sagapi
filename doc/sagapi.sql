@@ -42,9 +42,9 @@ create table tbl_api_detail_info
 create table tbl_request_param (
   Id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   ApiDetailInfoId int(11) not null,
-  Name varchar(50) not null default '',
+  ParamName varchar(50) not null default '',
   Required  tinyint(1) not null,
-  RequestParamType varchar(10) not null default '',
+  ParamType varchar(10) not null default '',
   Note varchar(50) not null default '',
   PRIMARY KEY (Id),
   CONSTRAINT FK_request_param_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id)
