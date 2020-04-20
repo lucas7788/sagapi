@@ -29,8 +29,8 @@ func (this *Nasa) beforeCheckApiKey(apiKey string) (*tables.APIKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	if key.UsedNum >= key.Limit {
-		return nil, fmt.Errorf("apikey: %s, useNum: %d, limit:%d", apiKey, key.UsedNum, key.Limit)
+	if key.UsedNum >= key.RequestLimit {
+		return nil, fmt.Errorf("apikey: %s, useNum: %d, limit:%d", apiKey, key.UsedNum, key.RequestLimit)
 	}
 	return key, nil
 }
