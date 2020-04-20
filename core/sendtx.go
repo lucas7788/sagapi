@@ -66,9 +66,9 @@ func verifyTx(txHash string) error {
 		event, err := config.DefConfig.OntSdk.GetSmartContractEvent(txHash)
 		if err != nil {
 			log.Errorf("[verifyTx] GetSmartContractEvent failed: %s", err)
-			retry += 1
 			sleepTime := config.VERIFY_TX_RETRY - retry
 			time.Sleep(time.Duration(sleepTime) * time.Second)
+			retry += 1
 			continue
 		}
 		if event != nil && event.State == 1 {
