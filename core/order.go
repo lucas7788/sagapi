@@ -22,7 +22,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	if err != nil {
 		return nil, err
 	}
-	price := utils.ToIntByPrecise(info.ApiPrice, config.ONG_DECIMALS)
+	price := utils.ToIntByPrecise(info.Price, config.ONG_DECIMALS)
 	specifications := new(big.Int).SetUint64(uint64(param.Specifications))
 	amount := new(big.Int).Mul(price, specifications)
 	amountStr := utils.ToStringByPrecise(amount, config.ONG_DECIMALS)
@@ -30,13 +30,13 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	order := &tables.Order{
 		OrderId:        orderId,
 		ProductName:    param.ProductName,
-		OrderType:      config.ApiOrder,
+		OrderType:      config.Api,
 		OrderTime:      time.Now().Unix(),
 		OrderStatus:    config.Processing,
 		Amount:         amountStr,
 		OntId:          param.OntId,
 		UserName:       param.UserName,
-		Price:          info.ApiPrice,
+		Price:          info.Price,
 		ApiId:          info.ApiId,
 		Specifications: param.Specifications,
 	}
@@ -56,6 +56,9 @@ func (this *SagaOrder) GetQrCodeByOrderId(orderId string) (*common.QrCodeRespons
 	code, err := dao.DefSagaApiDB.OrderDB.QueryQrCodeByOrderId(orderId)
 	if err != nil {
 		return nil, err
+	}
+	if code == nil {
+		return nil, nil
 	}
 	return common.BuildQrCodeResult(code.QrCodeId), nil
 }

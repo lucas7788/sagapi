@@ -8,11 +8,11 @@ import (
 
 func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	info := &tables.ApiBasicInfo{
-		ApiLogo:         "",
-		ApiName:         "",
+		Icon:            "",
+		Title:           "",
 		ApiProvider:     "",
 		ApiUrl:          "",
-		ApiPrice:        "",
+		Price:           "",
 		ApiDesc:         "",
 		Specifications:  1,
 		Popularity:      0,
@@ -43,11 +43,11 @@ func TestApiDB_QueryApiBasicInfoByApiId(t *testing.T) {
 
 func TestApiDB_InsertApiDetailInfo(t *testing.T) {
 	info := &tables.ApiDetailInfo{
-		ApiId:               10,
+		ApiId:               1,
 		Mark:                "",
 		ResponseParam:       "",
 		ResponseExample:     "",
-		DataDesc:            "",
+		DataDesc:            "test",
 		DataSource:          "",
 		ApplicationScenario: "",
 	}

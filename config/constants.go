@@ -5,7 +5,6 @@ const (
 )
 
 const (
-	NASA_NAME    = "nasa"
 	NASA_API_KEY = "FnRwnqD0SGyf2GUbEwaAH33H4d6TeaRYYfdOEZwl"
 )
 
@@ -36,10 +35,20 @@ const (
 )
 
 const (
-	ApiOrder  = "Api"
-	DataOrder = "Data"
+	Api  = "api"
+	Data = "data"
+)
+
+//api token type
+const (
+	TOKEN_TYPE_ONG = "ONG"
+	TOKEN_TYPE_ONT = "ONT"
 )
 
 const (
 	QrCodeExp = 10 * 60
+)
+
+const (
+	QueryAmt = 3
 )

@@ -4,25 +4,59 @@ DROP TABLE IF EXISTS `tbl_order`;
 DROP TABLE IF EXISTS `tbl_error_code`;
 DROP TABLE IF EXISTS `tbl_request_param`;
 DROP TABLE IF EXISTS `tbl_api_detail_info`;
-DROP TABLE IF EXISTS `tbl_api_basic_info`;
+DROP TABLE IF EXISTS `tbl_api_tag`;
+DROP TABLE IF EXISTS `tbl_tag`;
+DROP TABLE IF EXISTS `tbl_category`;
+
+create table tbl_api_tag
+(
+ id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+ api_id int(11) not null default 0 COMMENT '',
+ tag_id int(11) not null  default 0 COMMENT '',
+ state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
+ create_time timestamp default current_timestamp,
+ PRIMARY KEY (id)
+);
+
+create table tbl_tag
+(
+ id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+ name varchar(100) not null default '' COMMENT '',
+ category_id int(11) not null  default '' COMMENT '',
+ state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
+ create_time timestamp default current_timestamp,
+ PRIMARY KEY (id)
+);
+
+create table tbl_category
+(
+ id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+ name_zh varchar(100) not null default '' COMMENT '',
+ name_en varchar(100) not null  default '' COMMENT '',
+ icon varchar(100) not null  default '' COMMENT '',
+ state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
+ PRIMARY KEY (id)
+);
 
 create table tbl_api_basic_info
 (
  ApiId int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
- ApiLogo varchar(100) not null default '' COMMENT '',
- ApiName varchar(100) not null  default '' COMMENT '',
+ Coin  varchar(10) not null default '' COMMENT '',
+ ApiType varchar(10) not null default '' COMMENT '',
+ Icon varchar(100) not null default '' COMMENT '',
+ Title varchar(100) not null  default '' COMMENT '',
  ApiProvider varchar(100) not null default '' COMMENT '',
  ApiUrl varchar(100) not null  default '' COMMENT '',
- ApiPrice varchar(100) not null  default '' COMMENT '',
+ Price varchar(100) not null  default '' COMMENT '',
  ApiDesc varchar(100) not null  default '' COMMENT '',
  Specifications int(11) not null  default 0 COMMENT '规格',
  Popularity int(11) not null default 0 COMMENT '流行度',
  Delay int(11) not null default 0 COMMENT '',
  SuccessRate int(11) not null default 0 COMMENT '',
  InvokeFrequency int(11) not null default 0 COMMENT '',
+ CreateTime timestamp default current_timestamp,
  PRIMARY KEY (ApiId)
 );
-
 
 create table tbl_api_detail_info
 (
@@ -100,7 +134,7 @@ CREATE TABLE `tbl_qr_code` (
   Requester varchar(50) not null default '',
   Signature varchar(50) not null default '',
   Signer varchar(50) not null default '',
-  QrCodeData varchar(50) not null default '',
+  QrCodeData varchar(400) not null default '',
   Callback varchar(50) not null default '',
   Exp varchar(50) not null default '',
   Chain varchar(50) not null default '',

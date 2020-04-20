@@ -30,6 +30,10 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
+	err = generateApiKey(orderId, param.ExtraData.OntId)
+	if err != nil {
+		return err
+	}
 	hash, err := config.DefConfig.OntSdk.SendTransaction(mutTx)
 	if err != nil {
 		return err
@@ -42,6 +46,10 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
+	return dao.DefSagaApiDB.OrderDB.UpdateOrderStatus(orderId, config.Completed)
+}
+
+func generateApiKey(orderId, ontId string) error {
 	order, err := dao.DefSagaApiDB.OrderDB.QueryOrderByOrderId(orderId)
 	if err != nil {
 		return err
@@ -52,7 +60,7 @@ func SendTX(param *common2.SendTxParam) error {
 		ApiId:        order.ApiId,
 		RequestLimit: order.Specifications,
 		UsedNum:      0,
-		OntId:        param.ExtraData.OntId,
+		OntId:        ontId,
 	}
 	return dao.DefSagaApiDB.ApiDB.InsertApiKey(apiKey)
 }

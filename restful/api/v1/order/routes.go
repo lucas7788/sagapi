@@ -9,10 +9,10 @@ func RoutesOrder(parent *gin.RouterGroup) {
 	orderRouteGroup := parent.Group("/order")
 	orderRouteGroup.Use(jwt.JWT())
 	orderRouteGroup.POST("/takeOrder", TakeOrder)
-	orderRouteGroup.POST("/getQrCodeByOrderId", GetQrCodeByOrderId)
-	orderRouteGroup.POST("/getQrCodeDataByQrCodeId", GetQrCodeDataByQrCodeId)
 	orderRouteGroup.POST("/sendTx", SendTx)
 	orderRouteGroup.POST("/cancelOrder", CancelOrder)
 	orderRouteGroup.POST("/deleteOrder", DeleteOrder)
+	orderRouteGroup.GET("/getQrCodeByOrderId/:orderId", GetQrCodeByOrderId)
+	orderRouteGroup.GET("/getQrCodeDataByQrCodeId/:qrCodeId", GetQrCodeDataByQrCodeId)
 	orderRouteGroup.GET("/queryOrderStatus/:orderId", GetTxResult)
 }

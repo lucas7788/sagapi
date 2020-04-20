@@ -26,6 +26,7 @@ type APIKey struct {
 	RequestLimit int
 	UsedNum      int
 	OntId        string
+	OrderStatus  config.OrderStatus
 }
 
 type QrCode struct {

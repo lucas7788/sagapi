@@ -21,7 +21,7 @@ func NewSagaApi() *SagaApi {
 	}
 }
 
-func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.ApiBasicInfo, error){
+func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.ApiBasicInfo, error) {
 	if pageNum < 1 {
 		pageNum = 1
 	}
@@ -36,6 +36,9 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 	apiDetail, err := dao.DefSagaApiDB.ApiDB.QueryApiDetailInfoById(apiId)
 	if err != nil {
 		return nil, err
+	}
+	if apiDetail == nil {
+		return nil, nil
 	}
 	requestParam, err := dao.DefSagaApiDB.ApiDB.QueryRequestParamByApiDetailInfoId(apiDetail.Id)
 	if err != nil {
@@ -56,4 +59,35 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 		RequestParams:       requestParam,
 		ErrorCodes:          errCode,
 	}, nil
+}
+
+func (this *SagaApi) SearchApiIdByCategoryId(categoryId int) ([]*tables.ApiBasicInfo, error) {
+	tagId, err := dao.DefSagaApiDB.ApiDB.QueryTagIdByCategoryId(categoryId)
+	if err != nil {
+		return nil, err
+	}
+	apiIds, err := dao.DefSagaApiDB.ApiDB.QueryApiIdByTagId(tagId)
+	if err != nil {
+		return nil, err
+	}
+	return dao.DefSagaApiDB.ApiDB.QueryApiByApiIds(apiIds)
+}
+
+//newest hot free
+func (this *SagaApi) SearchApi() (map[string][]*tables.ApiBasicInfo, error) {
+	res := make(map[string][]*tables.ApiBasicInfo)
+	//newest
+	newest, err := dao.DefSagaApiDB.ApiDB.QueryNewestApiBasicInfo()
+	if err != nil {
+		return nil, err
+	}
+	res["newest"] = newest
+	hottest, err := dao.DefSagaApiDB.ApiDB.QueryHottestApiBasicInfo()
+	if err != nil {
+		return nil, err
+	}
+	res["hottest"] = hottest
+	free, err := dao.DefSagaApiDB.ApiDB.QueryFreeApiBasicInfo()
+	res["free"] = free
+	return res, nil
 }

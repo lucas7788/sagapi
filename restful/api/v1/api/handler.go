@@ -71,9 +71,41 @@ func SearchApiByKey(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	infos, err := dao.DefSagaApiDB.ApiDB.SearchApi(param[0])
+	infos, err := dao.DefSagaApiDB.ApiDB.SearchApiByKey(param[0])
 	if err != nil {
-		log.Errorf("[GetApiDetailByApiId] SearchApi error: %s", err)
+		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(infos))
+}
+
+func SearchApiByCategoryId(c *gin.Context) {
+	param, err := common.ParseGetParamByParamName(c, "categoryId")
+	if err != nil {
+		log.Errorf("[SearchApiByCategoryId] ParseGetParam error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	id, err := strconv.Atoi(param[0])
+	if err != nil {
+		log.Errorf("[SearchApiByCategoryId] Atoi error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	infos, err := core.DefSagaApi.SearchApiIdByCategoryId(id)
+	if err != nil {
+		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(infos))
+}
+
+func SearchApi(c *gin.Context) {
+	infos, err := core.DefSagaApi.SearchApi()
+	if err != nil {
+		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}

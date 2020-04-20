@@ -27,7 +27,7 @@ func TestMain(m *testing.M) {
 func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
 	br := &tables.Order{
-		ApiId:1,
+		ApiId:     1,
 		OrderId:   "abc",
 		OntId:     "111",
 		OrderTime: tt,
@@ -64,19 +64,19 @@ func TestSagaDB_QueryRequestNum(t *testing.T) {
 func TestSagaDB_SearchApi(t *testing.T) {
 	info := &tables.ApiBasicInfo{
 		ApiDesc:        "abcdefg",
-		ApiPrice:       "0.1",
+		Price:       "0.1",
 		Specifications: 1,
 	}
 	info2 := &tables.ApiBasicInfo{
 		ApiDesc:        "cdefgty",
-		ApiPrice:       "0.1",
+		Price:       "0.1",
 		Specifications: 1,
 	}
 	err := TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info})
 	assert.Nil(t, err)
 	err = TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info2})
 	assert.Nil(t, err)
-	infos, err := TestDB.ApiDB.SearchApi("cdefgty")
+	infos, err := TestDB.ApiDB.SearchApiByKey("cdefgty")
 	assert.Nil(t, err)
 	fmt.Println(infos)
 	infos, err = TestDB.ApiDB.QueryApiBasicInfoByPage(2, 2)

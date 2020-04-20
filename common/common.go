@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
@@ -63,6 +64,7 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 	if err != nil {
 		//TODO
 	}
+	log.Errorf("qrdata length: %d", len(databs))
 	id := GenerateUUId()
 	return &tables.QrCode{
 		Ver:        "1.0.0",
@@ -76,5 +78,24 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 		Exp:        exp,
 		Chain:      chain,
 		QrCodeDesc: "",
+	}
+}
+
+func BuildApiBasicInfo(apiId int, icon, title, apiProvider, apiUrl, price, apiDesc string, specifications, popularity, delay, successRate, invokeFrequency int) *tables.ApiBasicInfo {
+	return &tables.ApiBasicInfo{
+		ApiId:           apiId,
+		Coin:            config.TOKEN_TYPE_ONG,
+		ApiType:         config.Api,
+		Icon:            icon,
+		Title:           title,
+		ApiProvider:     apiProvider,
+		ApiUrl:          apiUrl,
+		Price:           price,
+		ApiDesc:         apiDesc,
+		Specifications:  specifications,
+		Popularity:      popularity,
+		Delay:           delay,
+		SuccessRate:     successRate,
+		InvokeFrequency: invokeFrequency,
 	}
 }

@@ -49,7 +49,7 @@ func (this *OrderDB) UpdateTxInfoByOrderId(orderId string, txHash string, status
 }
 
 func (this *OrderDB) QueryOrderByOrderId(orderId string) (*tables.Order, error) {
-	strSql := `select ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
+	strSql := `select OrderId, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
 OntId,UserName,TxHash,Price,ApiId,Specifications from tbl_order where OrderId=?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
@@ -119,7 +119,19 @@ func (this *OrderDB) QueryOrderIdByQrCodeId(qrCodeId string) (string, error) {
 }
 
 func (this *OrderDB) UpdateOrderStatus(orderId string, status config.OrderStatus) error {
-	strSql := "update order_tbl set OrderStatus=? where OrderId=?"
+	strSql := "update tbl_order set OrderStatus=? where OrderId=?"
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(status, orderId)
+	return err
+}
+func (this *OrderDB) UpdateOrderStatusInApiKey(orderId string, status config.OrderStatus) error {
+	strSql := "update tbl_api_key set OrderStatus=? where OrderId=?"
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -140,7 +152,7 @@ func (this *OrderDB) QueryQrCodeByQrCodeId(qrCodeId string) (*tables.QrCode, err
 }
 
 func (this *OrderDB) DeleteOrderByOrderId(orderId string) error {
-	strSql := `delete from qr_code_tbl where OrderId=?`
+	strSql := `delete from tbl_order where OrderId=?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -167,7 +179,12 @@ func (this *OrderDB) queryQrCodeById(orderId, qrCodeId string) (*tables.QrCode, 
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(orderId)
+	var rows *sql.Rows
+	if orderId != "" {
+		rows, err = stmt.Query(orderId)
+	} else if qrCodeId != "" {
+		rows, err = stmt.Query(qrCodeId)
+	}
 	if rows != nil {
 		defer rows.Close()
 	}

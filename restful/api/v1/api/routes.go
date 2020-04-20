@@ -6,5 +6,7 @@ func RoutesApiList(parent *gin.RouterGroup) {
 	apiRouteGroup := parent.Group("/apilist")
 	apiRouteGroup.GET("/getBasicApiInfoByPage/:pageNum/:pageSize", GetBasicApiInfoByPage)
 	apiRouteGroup.GET("/getApiDetailByApiId/:apiId", GetApiDetailByApiId)
-	apiRouteGroup.GET("/SearchApiByKey/:key", SearchApiByKey)
+	apiRouteGroup.GET("/searchApiByKey/:key", SearchApiByKey)
+	apiRouteGroup.GET("/searchApiByCategory/:categoryId", SearchApiByCategoryId)
+	apiRouteGroup.GET("/searchApiByCategory/:categoryId", SearchApi) //get newest
 }

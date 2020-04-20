@@ -43,7 +43,7 @@ func updateConfigByCmd(ctx *cli.Context) error {
 		config.DefConfig.RestPort = port
 	}
 	networkId := ctx.Uint(GetFlagName(NetworkIdFlag))
-	if networkId <= 0 || networkId > 3 {
+	if networkId > 3 {
 		return fmt.Errorf("networkid should be between 1 and 3, curr: %d", networkId)
 	}
 	config.DefConfig.NetWorkId = networkId

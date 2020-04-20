@@ -26,15 +26,14 @@ func TakeOrder(c *gin.Context) {
 }
 
 func GetQrCodeByOrderId(c *gin.Context) {
-	param := &common2.OrderIdParam{}
-	_, err := common.ParsePostParam(c, param)
+	paramArr, err := common.ParseGetParamByParamName(c, "orderId")
 	if err != nil {
 		log.Errorf("[GetQrCodeByOrderId] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
 
-	res, err := core.DefSagaApi.SagaOrder.GetQrCodeByOrderId(param.OrderId)
+	res, err := core.DefSagaApi.SagaOrder.GetQrCodeByOrderId(paramArr[0])
 	if err != nil {
 		log.Errorf("[TakeOrGetQrCodeByOrderIdder] GetQrCodeByOrderId failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -44,14 +43,13 @@ func GetQrCodeByOrderId(c *gin.Context) {
 }
 
 func GetQrCodeDataByQrCodeId(c *gin.Context) {
-	param := &common2.GetQrCodeParam{}
-	_, err := common.ParsePostParam(c, param)
+	paramArr, err := common.ParseGetParamByParamName(c, "qrCodeId")
 	if err != nil {
 		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	code, err := core.DefSagaApi.SagaOrder.GetQrCodeDataById(param.Id)
+	code, err := core.DefSagaApi.SagaOrder.GetQrCodeDataById(paramArr[0])
 	if err != nil {
 		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
