@@ -9,6 +9,7 @@ import (
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"time"
 )
 
 func SendTX(param *common2.SendTxParam) error {
@@ -66,6 +67,8 @@ func verifyTx(txHash string) error {
 		if err != nil {
 			log.Errorf("[verifyTx] GetSmartContractEvent failed: %s", err)
 			retry += 1
+			sleepTime := config.VERIFY_TX_RETRY - retry
+			time.Sleep(time.Duration(sleepTime) * time.Second)
 			continue
 		}
 		if event != nil && event.State == 1 {
