@@ -22,6 +22,12 @@ var (
 		Usage: "Network id `<number>`. 1=ontology main net, 2=polaris test net, 3=testmode, and other for custom network",
 		Value: config.NETWORK_ID_SOLO_NET,
 	}
+	ConfigfileFlag = cli.StringFlag{
+		Name:   "config",
+		Usage:  "specify configfile",
+		Value:  "config.json",
+		EnvVar: "CONFIG_FILE",
+	}
 )
 
 func GetFlagName(flag cli.Flag) string {

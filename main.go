@@ -27,6 +27,7 @@ func setupAPP() *cli.App {
 		cmd.LogLevelFlag,
 		cmd.RestPortFlag,
 		cmd.NetworkIdFlag,
+		cmd.ConfigfileFlag,
 	}
 	app.Before = func(context *cli.Context) error {
 		runtime.GOMAXPROCS(runtime.NumCPU())

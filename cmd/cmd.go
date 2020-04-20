@@ -10,18 +10,19 @@ import (
 	"os"
 )
 
-const config_file = "./config.json"
-
 func SetOntologyConfig(ctx *cli.Context) error {
-	if _, err := os.Stat(config_file); os.IsNotExist(err) {
+	cf := ctx.String(GetFlagName(ConfigfileFlag))
+	if _, err := os.Stat(cf); os.IsNotExist(err) {
 		// if there's no config file, use default config
 		updateConfigByCmd(ctx)
 		return nil
 	}
-	file, err := os.Open(config_file)
+	file, err := os.Open(cf)
 	if err != nil {
 		return err
 	}
+	defer file.Close()
+
 	bs, err := ioutil.ReadAll(file)
 	if err != nil {
 		return err

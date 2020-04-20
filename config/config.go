@@ -13,14 +13,15 @@ var (
 )
 
 type Config struct {
-	NetWorkId           uint
+	NetWorkId           uint `json:"network_id"`
 	OntSdk              *ontology_go_sdk.OntologySdk
-	RestPort            uint   `json:"rest_port"`
-	Version             string `json:"version"`
-	DbConfig            *DBConfig
-	OperatorPublicKey   string
-	ONTAuthScanProtocol string
-	QrCodeCallback      string
+	RestPort            uint      `json:"rest_port"`
+	Version             string    `json:"version"`
+	DbConfig            *DBConfig `json:"db_config"`
+	OperatorPublicKey   string    `json:"operator_public_key"`
+	ONTAuthScanProtocol string    `json:"ontauth_scan_protocol"`
+	QrCodeCallback      string    `json:"qrcode_callback"`
+	NASAAPIKey          string    `json:"nasa_api_key"`
 }
 
 type DBConfig struct {
@@ -53,4 +54,5 @@ var DefConfig = &Config{
 	OperatorPublicKey:   "02b8fcf42deecc7cccb574ba145f2f627339fbd3ba2b63fda99af0a26a8d5a01da",
 	ONTAuthScanProtocol: "http://127.0.0.1:8080/api/v1/order/getQrCodeDataByQrCodeId",
 	QrCodeCallback:      "http://127.0.0.1:8080/api/v1/sendtx",
+	NASAAPIKey:          NASA_API_KEY,
 }
