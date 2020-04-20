@@ -48,11 +48,11 @@ func SendTX(param *common2.SendTxParam) error {
 	}
 	id := common2.GenerateUUId()
 	apiKey := &tables.APIKey{
-		ApiKey:  id,
-		ApiId:   order.ApiId,
-		Limit:   order.Specifications,
-		UsedNum: 0,
-		OntId:   param.ExtraData.OntId,
+		ApiKey:       id,
+		ApiId:        order.ApiId,
+		RequestLimit: order.Specifications,
+		UsedNum:      0,
+		OntId:        param.ExtraData.OntId,
 	}
 	return dao.DefSagaApiDB.ApiDB.InsertApiKey(apiKey)
 }
