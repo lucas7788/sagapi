@@ -22,8 +22,12 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	if err != nil {
 		return nil, err
 	}
-	price := utils.ToIntByPrecise(info.Price, config.ONG_DECIMALS)
-	specifications := new(big.Int).SetUint64(uint64(param.Specifications))
+	spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsBySpecificationsId(param.SpecificationsId)
+	if err != nil {
+		return nil, err
+	}
+	price := utils.ToIntByPrecise(spec.Price, config.ONG_DECIMALS)
+	specifications := new(big.Int).SetUint64(uint64(spec.Amount))
 	amount := new(big.Int).Mul(price, specifications)
 	amountStr := utils.ToStringByPrecise(amount, config.ONG_DECIMALS)
 	orderId := common.GenerateUUId()
@@ -38,7 +42,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 		UserName:       param.UserName,
 		Price:          info.Price,
 		ApiId:          info.ApiId,
-		Specifications: param.Specifications,
+		Specifications: param.SpecificationsId,
 	}
 	err = dao.DefSagaApiDB.OrderDB.InsertOrder(order)
 	if err != nil {

@@ -81,7 +81,8 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 	}
 }
 
-func BuildApiBasicInfo(apiId int, icon, title, apiProvider, apiUrl, price, apiDesc string, specifications, popularity, delay, successRate, invokeFrequency int) *tables.ApiBasicInfo {
+func BuildApiBasicInfo(apiId int, icon, title, apiProvider, apiUrl, price, apiDesc string, specifications, popularity,
+	delay, successRate, invokeFrequency int, createTime string) *tables.ApiBasicInfo {
 	return &tables.ApiBasicInfo{
 		ApiId:           apiId,
 		Coin:            config.TOKEN_TYPE_ONG,
@@ -97,5 +98,6 @@ func BuildApiBasicInfo(apiId int, icon, title, apiProvider, apiUrl, price, apiDe
 		Delay:           delay,
 		SuccessRate:     successRate,
 		InvokeFrequency: invokeFrequency,
+		CreateTime:      createTime,
 	}
 }

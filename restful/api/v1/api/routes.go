@@ -8,5 +8,5 @@ func RoutesApiList(parent *gin.RouterGroup) {
 	apiRouteGroup.GET("/getApiDetailByApiId/:apiId", GetApiDetailByApiId)
 	apiRouteGroup.GET("/searchApiByKey/:key", SearchApiByKey)
 	apiRouteGroup.GET("/searchApiByCategory/:categoryId", SearchApiByCategoryId)
-	apiRouteGroup.GET("/searchApiByCategory/:categoryId", SearchApi) //get newest
+	apiRouteGroup.GET("/searchApi", SearchApi) //get newest
 }

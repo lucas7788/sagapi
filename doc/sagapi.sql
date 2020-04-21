@@ -3,10 +3,13 @@ DROP TABLE IF EXISTS `tbl_api_key`;
 DROP TABLE IF EXISTS `tbl_order`;
 DROP TABLE IF EXISTS `tbl_error_code`;
 DROP TABLE IF EXISTS `tbl_request_param`;
+DROP TABLE IF EXISTS `tbl_specifications`;
 DROP TABLE IF EXISTS `tbl_api_detail_info`;
+DROP TABLE IF EXISTS `tbl_api_basic_info`;
 DROP TABLE IF EXISTS `tbl_api_tag`;
 DROP TABLE IF EXISTS `tbl_tag`;
 DROP TABLE IF EXISTS `tbl_category`;
+DROP TABLE IF EXISTS `tbl_api_test_key`;
 
 create table tbl_api_tag
 (
@@ -16,17 +19,17 @@ create table tbl_api_tag
  state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
  create_time timestamp default current_timestamp,
  PRIMARY KEY (id)
-);
+)default charset=utf8;
 
 create table tbl_tag
 (
  id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
  name varchar(100) not null default '' COMMENT '',
- category_id int(11) not null  default '' COMMENT '',
+ category_id int(11) not null COMMENT '',
  state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
  create_time timestamp default current_timestamp,
  PRIMARY KEY (id)
-);
+)default charset=utf8;
 
 create table tbl_category
 (
@@ -36,14 +39,14 @@ create table tbl_category
  icon varchar(100) not null  default '' COMMENT '',
  state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
  PRIMARY KEY (id)
-);
+)default charset=utf8;
 
 create table tbl_api_basic_info
 (
  ApiId int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
  Coin  varchar(10) not null default '' COMMENT '',
  ApiType varchar(10) not null default '' COMMENT '',
- Icon varchar(100) not null default '' COMMENT '',
+ Icon text not null COMMENT '',
  Title varchar(100) not null  default '' COMMENT '',
  ApiProvider varchar(100) not null default '' COMMENT '',
  ApiUrl varchar(100) not null  default '' COMMENT '',
@@ -56,21 +59,32 @@ create table tbl_api_basic_info
  InvokeFrequency int(11) not null default 0 COMMENT '',
  CreateTime timestamp default current_timestamp,
  PRIMARY KEY (ApiId)
-);
+)default charset=utf8;
 
 create table tbl_api_detail_info
 (
  Id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
  ApiId int(11) unique not null,
+ RequestType varchar(20) not null COMMENT '',
  Mark varchar(100) not null default '' COMMENT '',
  ResponseParam varchar(100) not null default ''  COMMENT '',
- ResponseExample varchar(100) not null default ''  COMMENT '',
+ ResponseExample varchar(2000) not null default ''  COMMENT '',
  DataDesc varchar(100) not null default '' COMMENT '',
  DataSource varchar(100) not null default ''  COMMENT '',
  ApplicationScenario varchar(100) not null default '' COMMENT '',
  PRIMARY KEY (Id),
  foreign key(ApiId) references tbl_api_basic_info(ApiId)
-);
+) default charset=utf8;
+
+create table tbl_specifications
+(
+ Id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+ ApiDetailInfoId int(11) NOT NULL,
+ Price  varchar(50) not null default '' COMMENT '',
+ Amount int(11) NOT NULL default 0,
+ PRIMARY KEY (Id),
+ CONSTRAINT FK_specifications_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id)
+)default charset=utf8;
 
 
 create table tbl_request_param (
@@ -82,7 +96,7 @@ create table tbl_request_param (
   Note varchar(50) not null default '',
   PRIMARY KEY (Id),
   CONSTRAINT FK_request_param_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id)
-);
+)default charset=utf8;
 
 
 create table tbl_error_code (
@@ -92,7 +106,7 @@ create table tbl_error_code (
   ErrorDesc varchar(50) not null default '',
   PRIMARY KEY (Id),
   CONSTRAINT FK_error_code_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id)
-);
+)default charset=utf8;
 
 
 create table tbl_order (
@@ -111,7 +125,7 @@ create table tbl_order (
   Specifications int(11) NOT NULL COMMENT '规格',
   PRIMARY KEY (OrderId),
   CONSTRAINT FK_tbl_order_id FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId)
-);
+)default charset=utf8;
 
 
 create table tbl_api_key (
@@ -124,7 +138,17 @@ create table tbl_api_key (
   OntId varchar(50) not null default '',
   PRIMARY KEY (Id),
   foreign key(OrderId) references tbl_order(OrderId)
-);
+)default charset=utf8;
+
+create table tbl_api_test_key (
+  Id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  ApiKey varchar(50) unique not null  default '',
+  ApiId int(11) not null,
+  RequestLimit int(11) not null default 0,
+  UsedNum int(11) not null default 0,
+  OntId varchar(50) not null default '',
+  PRIMARY KEY (Id)
+) default charset=utf8;
 
 CREATE TABLE `tbl_qr_code` (
   Id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -141,4 +165,4 @@ CREATE TABLE `tbl_qr_code` (
   QrCodeDesc varchar(50) not null default '',
   PRIMARY KEY (Id),
   foreign key(OrderId) references tbl_order(OrderId)
-);
+)default charset=utf8;

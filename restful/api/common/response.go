@@ -48,6 +48,7 @@ var ErrMap = map[int64]string{
 	INTER_ERROR:       "INTER_ERROR",
 	SQL_ERROR:         "SQL_ERROR",
 	JWT_VERIFY_FAILED: "JWT_VERIFY_FAILED",
+	API_KEY_IS_NIL:    "api key is nil",
 }
 
 const (
@@ -57,4 +58,5 @@ const (
 	SQL_ERROR          = 40002
 	VERIFY_TOKEN_ERROR = 40003
 	JWT_VERIFY_FAILED  = 40004
+	API_KEY_IS_NIL     = 40005
 )

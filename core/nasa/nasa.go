@@ -6,6 +6,7 @@ import (
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"strings"
 	"sync"
 )
 
@@ -16,11 +17,13 @@ var (
 
 type Nasa struct {
 	apiKeyCache *sync.Map //apikey -> ApiKey
+	invokeFre   *sync.Map //apiId -> invokeFre
 }
 
 func NewNasa() *Nasa {
 	return &Nasa{
 		apiKeyCache: new(sync.Map),
+		invokeFre:   new(sync.Map),
 	}
 }
 
@@ -46,8 +49,13 @@ func (this *Nasa) Apod(apiKey string) ([]byte, error) {
 		return nil, err
 	}
 	key.UsedNum += 1
+
 	//TODO
 	err = this.updateApiKey(key)
+	if err != nil {
+		return nil, err
+	}
+	err = this.updateInvokeFreByApiId(key.ApiId)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +77,32 @@ func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error)
 	if err != nil {
 		return nil, err
 	}
+	err = this.updateInvokeFreByApiId(key.ApiId)
+	if err != nil {
+		return nil, err
+	}
 	return res, nil
+}
+
+func (this *Nasa) getInvokeFreByApiId(apiId int) (int, error) {
+	val, ok := this.invokeFre.Load(apiId)
+	if ok {
+		return val.(int), nil
+	}
+	invokeFre, err := dao.DefSagaApiDB.ApiDB.QueryInvokeFreByApiId(apiId)
+	if err != nil {
+		return 0, err
+	}
+	return invokeFre, nil
+}
+
+func (this *Nasa) updateInvokeFreByApiId(apiId int) error {
+	invokeFre, err := this.getInvokeFreByApiId(apiId)
+	if err != nil {
+		return err
+	}
+	invokeFre += 1
+	return dao.DefSagaApiDB.ApiDB.UpdateInvokeFrequencyByApiId(invokeFre, apiId)
 }
 
 func (this *Nasa) getApiKey(apiKey string) (*tables.APIKey, error) {
@@ -77,7 +110,11 @@ func (this *Nasa) getApiKey(apiKey string) (*tables.APIKey, error) {
 	var key *tables.APIKey
 	if !ok || keyIn == nil {
 		var err error
-		key, err = dao.DefSagaApiDB.ApiDB.QueryApiKey(apiKey)
+		if strings.Contains(apiKey, "test") {
+			key, err = dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByApiTestKey(apiKey)
+		} else {
+			key, err = dao.DefSagaApiDB.ApiDB.QueryApiKey(apiKey)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -90,5 +127,16 @@ func (this *Nasa) getApiKey(apiKey string) (*tables.APIKey, error) {
 
 func (this *Nasa) updateApiKey(key *tables.APIKey) error {
 	this.apiKeyCache.Store(key.ApiKey, key)
-	return dao.DefSagaApiDB.ApiDB.UpdateApiKeyUsedNum(key.ApiKey, key.UsedNum)
+	if strings.Contains(key.ApiKey, "test") {
+		err := dao.DefSagaApiDB.ApiDB.UpdateApiTestKeyUsedNum(key.ApiKey, key.UsedNum)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := dao.DefSagaApiDB.ApiDB.UpdateApiKeyUsedNum(key.ApiKey, key.UsedNum)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

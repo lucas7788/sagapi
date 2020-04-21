@@ -25,6 +25,29 @@ func TakeOrder(c *gin.Context) {
 	common.WriteResponse(c, common.ResponseSuccess(res))
 }
 
+func GenerateTestKey(c *gin.Context) {
+	params := &common2.GenerateTestKeyParam{}
+	_, err := common.ParsePostParam(c, params)
+	if err != nil {
+		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	ontid, ok := c.Get("Ontid")
+	if !ok {
+		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	testKey, err := core.DefSagaApi.GenerateApiTestKey(params.ApiId, ontid.(string))
+	if err != nil || testKey == nil {
+		log.Errorf("[GenerateTestKey] GenerateApiTestKey failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(testKey))
+}
+
 func GetQrCodeByOrderId(c *gin.Context) {
 	paramArr, err := common.ParseGetParamByParamName(c, "orderId")
 	if err != nil {

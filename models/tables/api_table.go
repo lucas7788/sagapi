@@ -1,21 +1,21 @@
 package tables
 
 type ApiBasicInfo struct {
-	ApiId           int
-	Coin            string //ONG,ONT
-	ApiType         string //api or data
-	Icon            string
-	Title           string
-	ApiProvider     string
-	ApiUrl          string
-	Price           string
-	ApiDesc         string
-	Specifications  int
-	Popularity      int
-	Delay           int
-	SuccessRate     int
-	InvokeFrequency int
-	CreateTime      int
+	ApiId           int    `json:"apiId"`
+	Coin            string `json:"coin"` //ONG,ONT
+	ApiType         string `json:"type"` //api or data
+	Icon            string `json:"icon"`
+	Title           string `json:"title"`
+	ApiProvider     string `json:"type"`
+	ApiUrl          string `json:"apiUrl"`
+	Price           string `json:"price"`
+	ApiDesc         string `json:"description"`
+	Specifications  int    `json:"specifications"`
+	Popularity      int    `json:"popularity"`
+	Delay           int    `json:"delay"`
+	SuccessRate     int    `json:"successRate"`
+	InvokeFrequency int    `json:"invokeFrequency"`
+	CreateTime      string `json:"createTime"`
 }
 
 type ApiTag struct {
@@ -44,6 +44,7 @@ type Category struct {
 type ApiDetailInfo struct {
 	Id                  int
 	ApiId               int
+	RequestType         string
 	Mark                string
 	ResponseParam       string
 	ResponseExample     string
@@ -52,10 +53,17 @@ type ApiDetailInfo struct {
 	ApplicationScenario string
 }
 
+type Specifications struct {
+	Id              int
+	ApiDetailInfoId int
+	Price           string
+	Amount          int
+}
+
 type RequestParam struct {
 	ApiDetailInfoId int
 	ParamName       string
-	Required        int8
+	Required        bool
 	ParamType       string
 	Note            string
 }

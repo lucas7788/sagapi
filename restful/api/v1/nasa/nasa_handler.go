@@ -10,6 +10,11 @@ import (
 
 func Apod(c *gin.Context) {
 	apikey := c.Param("apikey")
+	if apikey == "" {
+		log.Errorf("[nasa_handler] apod error: %s")
+		common.WriteResponse(c, common.ResponseFailed(common.API_KEY_IS_NIL, fmt.Errorf("api key is nil")))
+		return
+	}
 	res, err := core.DefSagaApi.Nasa.Apod(apikey)
 	if err != nil {
 		log.Errorf("[nasa_handler] apod error: %s", err)
@@ -23,6 +28,7 @@ func Feed(c *gin.Context) {
 	startdate := c.Param("startdate")
 	enddate := c.Param("enddate")
 	apikey := c.Param("apikey")
+
 	fmt.Printf("startdate: %s, enddate: %s\n", startdate, enddate)
 	res, err := core.DefSagaApi.Nasa.Feed(startdate, enddate, apikey)
 	if err != nil {

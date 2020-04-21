@@ -21,6 +21,33 @@ func NewSagaApi() *SagaApi {
 	}
 }
 
+func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey, error) {
+	testKey, err := this.QueryApiTestKeyByOntIdAndApiId(ontid, apiId)
+	if err != nil {
+		return nil, err
+	}
+	if testKey != nil {
+		return testKey, nil
+	}
+	key := "test_" + common.GenerateUUId()
+	apiKey := &tables.APIKey{
+		ApiKey:       key,
+		ApiId:        apiId,
+		RequestLimit: 10,
+		UsedNum:      0,
+		OntId:        ontid,
+	}
+	err = dao.DefSagaApiDB.ApiDB.InsertApiTestKey(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return apiKey, nil
+}
+
+func (this *SagaApi) QueryApiTestKeyByOntIdAndApiId(ontid string, apiId int) (*tables.APIKey, error) {
+	return dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByOntIdAndApiId(ontid, apiId)
+}
+
 func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.ApiBasicInfo, error) {
 	if pageNum < 1 {
 		pageNum = 1
@@ -33,6 +60,10 @@ func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.A
 }
 
 func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResponse, error) {
+	basicInfo, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(apiId)
+	if err != nil {
+		return nil, err
+	}
 	apiDetail, err := dao.DefSagaApiDB.ApiDB.QueryApiDetailInfoById(apiId)
 	if err != nil {
 		return nil, err
@@ -48,9 +79,14 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 	if err != nil {
 		return nil, err
 	}
+	sp, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsByApiDetailId(apiDetail.Id)
+	if err != nil {
+		return nil, err
+	}
 	return &common.ApiDetailResponse{
 		ApiId:               apiDetail.ApiId,
 		Mark:                apiDetail.Mark,
+		ResponseType:        apiDetail.RequestType,
 		ResponseParam:       apiDetail.ResponseParam,
 		ResponseExample:     apiDetail.ResponseExample,
 		DataDesc:            apiDetail.DataDesc,
@@ -58,6 +94,8 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 		ApplicationScenario: apiDetail.ApplicationScenario,
 		RequestParams:       requestParam,
 		ErrorCodes:          errCode,
+		Specifications:      sp,
+		ApiBasicInfo:        basicInfo,
 	}, nil
 }
 

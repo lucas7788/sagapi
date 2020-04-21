@@ -1,11 +1,15 @@
 package common
 
 type TakeOrderParam struct {
-	ProductName    string `json:"productName"`
-	OntId          string `json:"ontId"`
-	UserName       string `json:"userName"`
-	ApiId          int    `json:"apiId"`
-	Specifications int    `json:"specifications"`
+	ProductName      string `json:"productName"`
+	OntId            string `json:"ontId"`
+	UserName         string `json:"userName"`
+	ApiId            int    `json:"apiId"`
+	SpecificationsId int    `json:"specifications"`
+}
+
+type GenerateTestKeyParam struct {
+	ApiId int `json:"apiId"`
 }
 
 type GetPayQrCode struct {

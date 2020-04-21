@@ -21,9 +21,6 @@ func ParseGetParamByParamName(c *gin.Context, paramNames ...string) ([]string, e
 	res := make([]string, len(paramNames))
 	for k, paramName := range paramNames {
 		res[k] = c.Param(paramName)
-		if res[k] == "" {
-			return nil, fmt.Errorf("param: %s is nil", paramName)
-		}
 	}
 	return res, nil
 }

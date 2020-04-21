@@ -21,10 +21,13 @@ type ApiDetailResponse struct {
 	ApiId               int
 	Mark                string
 	ResponseParam       string
+	ResponseType        string
 	ResponseExample     string
 	DataDesc            string
 	DataSource          string
 	ApplicationScenario string
 	RequestParams       []*tables.RequestParam
 	ErrorCodes          []*tables.ErrorCode
+	Specifications      []*tables.Specifications
+	ApiBasicInfo        *tables.ApiBasicInfo
 }

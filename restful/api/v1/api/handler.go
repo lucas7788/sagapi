@@ -71,6 +71,10 @@ func SearchApiByKey(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
+	if param == nil || param[0] == "" {
+		common.WriteResponse(c, common.ResponseSuccess(nil))
+		return
+	}
 	infos, err := dao.DefSagaApiDB.ApiDB.SearchApiByKey(param[0])
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
