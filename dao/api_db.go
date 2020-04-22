@@ -389,7 +389,7 @@ func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
 }
 
 func (this *ApiDB) QueryRequestParamByApiDetailInfoId(apiDetailInfoId int) ([]*tables.RequestParam, error) {
-	strSql := "select ParamName, ParamType,Required, ValueDesc from tbl_request_param where ApiDetailInfoId=?"
+	strSql := "select ParamName, ParamType,Required, Note,ValueDesc from tbl_request_param where ApiDetailInfoId=?"
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -406,9 +406,9 @@ func (this *ApiDB) QueryRequestParamByApiDetailInfoId(apiDetailInfoId int) ([]*t
 	}
 	res := make([]*tables.RequestParam, 0)
 	for rows.Next() {
-		var paramName, paramType, valueDesc string
+		var paramName, paramType, note, valueDesc string
 		var required bool
-		if err = rows.Scan(&paramName, &paramType, &required, &valueDesc); err != nil {
+		if err = rows.Scan(&paramName, &paramType, &required, &note, &valueDesc); err != nil {
 			return nil, err
 		}
 		rp := &tables.RequestParam{
@@ -416,6 +416,7 @@ func (this *ApiDB) QueryRequestParamByApiDetailInfoId(apiDetailInfoId int) ([]*t
 			ParamName:       paramName,
 			ParamType:       paramType,
 			Required:        required,
+			Note:            note,
 			ValueDesc:       valueDesc,
 		}
 		res = append(res, rp)
