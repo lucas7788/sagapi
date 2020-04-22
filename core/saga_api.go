@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 
+	"fmt"
 	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/dao"
@@ -48,16 +49,19 @@ func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey
 
 func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	if len(params) == 0 {
-		return nil, errors.New("params should not empty.")
+		return nil, errors.New("param is nil")
 	}
 	for i, _ := range params {
 		if (i != len(params)-1) && params[i].ApiDetailInfoId != params[i+1].ApiDetailInfoId {
 			return nil, errors.New("params should to the same api")
 		}
+		if params[i].ValueDesc == "" {
+			return nil, fmt.Errorf("param:%s is nil", params[i].ParamName)
+		}
 	}
 
-	apitestkey := params[len(params)-1].ValueDesc
-	key, err := dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByApiTestKey(apitestkey)
+	apiTestKey := params[len(params)-1].ValueDesc
+	key, err := dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByApiTestKey(apiTestKey)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +72,7 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	case 2:
 		return this.Nasa.FeedParams(params)
 	}
-	return nil, errors.New("error api")
+	return nil, fmt.Errorf("not support api, apiId:%d", key.ApiId)
 }
 
 func (this *SagaApi) QueryApiTestKeyByOntIdAndApiId(ontid string, apiId int) (*tables.APIKey, error) {

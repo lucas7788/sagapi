@@ -631,7 +631,7 @@ func (this *ApiDB) QueryApiTestKeyByOntIdAndApiId(ontId string, apiId int) (*tab
 			OntId:        ontId,
 		}, nil
 	}
-	return nil, fmt.Errorf("not found")
+	return nil, fmt.Errorf("apikey not found")
 }
 
 func (this *ApiDB) QueryApiTestKeyByApiTestKey(apiTestKey string) (*tables.APIKey, error) {

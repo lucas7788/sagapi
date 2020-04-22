@@ -108,11 +108,14 @@ func TestAPIKey(c *gin.Context) {
 
 	data, err := core.DefSagaApi.TestApiKey(params)
 	if err != nil {
-		log.Errorf("[GenerateTestKey] GenerateApiTestKey failed: %s", err)
-		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		log.Errorf("[TestAPIKey] TestApiKey failed: %s", err.Error())
+		res := make(map[string]string)
+		res["errorDesc"] = err.Error()
+		bs, _ := json.Marshal(res)
+		common.WriteResponse(c, common.ResponseSuccess(string(bs)))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(data))
+	common.WriteResponse(c, common.ResponseSuccess(string(data)))
 }
 
 func GetQrCodeByOrderId(c *gin.Context) {

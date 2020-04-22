@@ -2,10 +2,10 @@ package dao
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models/tables"
-	"fmt"
 )
 
 type OrderDB struct {
