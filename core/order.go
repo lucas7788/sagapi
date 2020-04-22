@@ -43,7 +43,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 		Amount:           amountStr,
 		OntId:            param.OntId,
 		UserName:         param.UserName,
-		Price:            info.Price,
+		Price:            spec.Price,
 		ApiId:            info.ApiId,
 		SpecificationsId: param.SpecificationsId,
 		Coin:             config.TOKEN_TYPE_ONG,

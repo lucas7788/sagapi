@@ -173,12 +173,19 @@ func CancelOrder(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
+	if param == nil || param.OrderId == "" {
+		log.Errorf("[CancelOrder] param is nil failed")
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("param is nil")))
+		return
+	}
+	fmt.Println("param:", param.OrderId)
 	err = core.DefSagaApi.SagaOrder.CancelOrder(param)
 	if err != nil {
 		log.Errorf("[CancelOrder] CancelOrder failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
+	log.Infof("[CancelOrder] orderId:%s", param.OrderId)
 	common.WriteResponse(c, common.ResponseSuccess(nil))
 }
 

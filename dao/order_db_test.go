@@ -25,6 +25,11 @@ func TestMain(m *testing.M) {
 	fmt.Println("end")
 }
 
+func TestOrderDB_UpdateOrderStatus(t *testing.T) {
+	err := TestDB.OrderDB.UpdateOrderStatus("cc5ebaf6-24cb-423b-a590-e05a41f8c1f5", config.Canceled)
+	assert.Nil(t, err)
+}
+
 func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
 	br := &tables.Order{
