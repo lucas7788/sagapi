@@ -699,14 +699,14 @@ func (this *ApiDB) QueryApiKeyByOrderId(orderId string) (*tables.APIKey, error) 
 	return this.queryApiKey("", orderId)
 }
 
-func (this *ApiDB) queryApiKey(apiKey, orderId string) (*tables.APIKey, error) {
+func (this *ApiDB) queryApiKey(key, orderId string) (*tables.APIKey, error) {
 	var strSql string
 	var where string
-	if apiKey != "" {
-		strSql = "select OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where ApiKey=?"
-		where = apiKey
+	if key != "" {
+		strSql = "select ApiKey, OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where ApiKey=?"
+		where = key
 	} else if orderId != "" {
-		strSql = "select OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where OrderId=?"
+		strSql = "select ApiKey, OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where OrderId=?"
 		where = orderId
 	}
 	stmt, err := this.db.Prepare(strSql)
@@ -724,9 +724,9 @@ func (this *ApiDB) queryApiKey(apiKey, orderId string) (*tables.APIKey, error) {
 		return nil, err
 	}
 	for rows.Next() {
-		var ontId, orderId string
+		var ontId, orderId, apiKey string
 		var apiId, limit, usedNum int
-		if err = rows.Scan(&orderId, &apiId, &limit, &usedNum, &ontId); err != nil {
+		if err = rows.Scan(&apiKey, &orderId, &apiId, &limit, &usedNum, &ontId); err != nil {
 			return nil, err
 		}
 		return &tables.APIKey{

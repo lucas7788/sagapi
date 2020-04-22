@@ -9,6 +9,9 @@ import (
 	"runtime"
 	"syscall"
 
+	"github.com/ontio/ontology-crypto/signature"
+	"github.com/ontio/ontology-go-sdk"
+	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/cmd"
 	"github.com/ontio/sagapi/config"
@@ -53,9 +56,23 @@ func startSaga(ctx *cli.Context) {
 		log.Errorf("[initDB] error: %s", err)
 		return
 	}
+	if err := initAccount(); err != nil {
+		log.Errorf("[initAccount] error: %s", err)
+		return
+	}
 	core.DefSagaApi = core.NewSagaApi()
 	startServer()
 	waitToExit()
+}
+
+func initAccount() error {
+	pri, _ := common.HexToBytes(config.OntIdPrivate)
+	acc, err := ontology_go_sdk.NewAccountFromPrivateKey(pri, signature.SHA256withECDSA)
+	if err != nil {
+		return err
+	}
+	config.DefConfig.OntIdAccount = acc
+	return nil
 }
 
 func initLog(ctx *cli.Context) {

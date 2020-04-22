@@ -99,7 +99,7 @@ func GenerateTestKey(c *gin.Context) {
 
 func TestAPIKey(c *gin.Context) {
 	var params []tables.RequestParam
-	_, err := common.ParsePostParam(c, params)
+	err := common.ParsePostParam(c, &params)
 	if err != nil {
 		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))

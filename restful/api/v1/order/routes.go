@@ -12,7 +12,7 @@ func RoutesOrder(parent *gin.RouterGroup) {
 	orderRouteGroup.POST("/cancelOrder", CancelOrder)
 	orderRouteGroup.POST("/deleteOrder", DeleteOrder)
 	orderRouteGroup.POST("/generateTestKey", GenerateTestKey)
-	orderRouteGroup.POST("/TestAPIKey", TestAPIKey)
+	orderRouteGroup.POST("/testAPIKey", TestAPIKey)
 	orderRouteGroup.GET("/getQrCodeByOrderId/:orderId", GetQrCodeByOrderId)
 	orderRouteGroup.GET("/getQrCodeResultByQrCodeId/:qrCodeId", GetQrCodeResultByQrCodeId)
 	orderRouteGroup.GET("/queryOrderStatus/:orderId", GetTxResult)

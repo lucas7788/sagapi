@@ -48,7 +48,7 @@ func (this *Nasa) ApodParams(params []tables.RequestParam) ([]byte, error) {
 }
 
 func (this *Nasa) FeedParams(params []tables.RequestParam) ([]byte, error) {
-	if len(params) != 3 && params[0].ParamName == "startDate" && params[1].ParamName == "endDate" && params[2].ParamName == "apiKey" {
+	if len(params) == 3 && params[0].ParamName == "startDate" && params[1].ParamName == "endDate" && params[2].ParamName == "apiKey" {
 		return this.Feed(params[0].ValueDesc, params[1].ValueDesc, params[2].ValueDesc)
 	}
 	return nil, errors.New("Apod params error")

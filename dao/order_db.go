@@ -121,7 +121,7 @@ func (this *OrderDB) QueryOrderSum(ontId string) (int, error) {
 }
 func (this *OrderDB) QueryOrderByPage(start, pageSize int, ontId string) ([]*tables.Order, error) {
 	strSql := `select OrderId,Title, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
-OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where OntId=? limit ?, ?`
+OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where OntId=? order by OrderTime desc limit ?, ?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
