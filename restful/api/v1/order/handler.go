@@ -7,6 +7,7 @@ import (
 	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/core"
+	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/restful/api/common"
 	"strconv"
 )
@@ -85,6 +86,24 @@ func GenerateTestKey(c *gin.Context) {
 		return
 	}
 	common.WriteResponse(c, common.ResponseSuccess(testKey))
+}
+
+func TestAPIKey(c *gin.Context) {
+	var params []tables.RequestParam
+	_, err := common.ParsePostParam(c, params)
+	if err != nil {
+		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+
+	data, err := core.DefSagaApi.TestApiKey(params)
+	if err != nil {
+		log.Errorf("[GenerateTestKey] GenerateApiTestKey failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(data))
 }
 
 func GetQrCodeByOrderId(c *gin.Context) {

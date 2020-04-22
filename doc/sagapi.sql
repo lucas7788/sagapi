@@ -93,7 +93,7 @@ create table tbl_request_param (
   ParamName varchar(50) not null default '',
   Required  tinyint(1) not null,
   ParamType varchar(10) not null default '',
-  Note varchar(50) not null default '',
+  ValueDesc varchar(50) not null default '',
   PRIMARY KEY (Id),
   CONSTRAINT FK_request_param_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id)
 )default charset=utf8;

@@ -1,7 +1,9 @@
 package nasa
 
 import (
+	"errors"
 	"fmt"
+
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/dao"
@@ -36,6 +38,20 @@ func (this *Nasa) beforeCheckApiKey(apiKey string) (*tables.APIKey, error) {
 		return nil, fmt.Errorf("apikey: %s, useNum: %d, limit:%d", apiKey, key.UsedNum, key.RequestLimit)
 	}
 	return key, nil
+}
+
+func (this *Nasa) ApodParams(params []tables.RequestParam) ([]byte, error) {
+	if len(params) == 1 && params[0].ParamName == "apiKey" {
+		return this.Apod(params[0].ValueDesc)
+	}
+	return nil, errors.New("Apod params error")
+}
+
+func (this *Nasa) FeedParams(params []tables.RequestParam) ([]byte, error) {
+	if len(params) != 3 && params[0].ParamName == "startDate" && params[1].ParamName == "endDate" && params[2].ParamName == "apiKey" {
+		return this.Feed(params[0].ValueDesc, params[1].ValueDesc, params[2].ValueDesc)
+	}
+	return nil, errors.New("Apod params error")
 }
 
 func (this *Nasa) Apod(apiKey string) ([]byte, error) {

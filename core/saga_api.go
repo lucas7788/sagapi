@@ -1,6 +1,8 @@
 package core
 
 import (
+	"errors"
+
 	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/dao"
@@ -42,6 +44,31 @@ func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey
 		return nil, err
 	}
 	return apiKey, nil
+}
+
+func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
+	if len(params) == 0 {
+		return nil, errors.New("params should not empty.")
+	}
+	for i, _ := range params {
+		if (i != len(params)-1) && params[i].ApiDetailInfoId != params[i+1].ApiDetailInfoId {
+			return nil, errors.New("params should to the same api")
+		}
+	}
+
+	apitestkey := params[len(params)-1].ValueDesc
+	key, err := dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByApiTestKey(apitestkey)
+	if err != nil {
+		return nil, err
+	}
+
+	switch key.ApiId {
+	case 1:
+		return this.Nasa.ApodParams(params)
+	case 2:
+		return this.Nasa.FeedParams(params)
+	}
+	return nil, errors.New("error api")
 }
 
 func (this *SagaApi) QueryApiTestKeyByOntIdAndApiId(ontid string, apiId int) (*tables.APIKey, error) {

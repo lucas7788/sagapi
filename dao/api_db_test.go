@@ -39,7 +39,7 @@ func TestApiDB_QueryApiBasicInfoByApiId(t *testing.T) {
 	assert.Equal(t, len(infos), 2)
 	price, err := TestDB.ApiDB.QueryPriceByApiId(1)
 	assert.Nil(t, err)
-	assert.Equal(t, price, "1")
+	assert.Equal(t, price, "")
 }
 
 func TestApiDB_InsertApiDetailInfo(t *testing.T) {
@@ -57,9 +57,9 @@ func TestApiDB_InsertApiDetailInfo(t *testing.T) {
 }
 
 func TestApiDB_QueryApiDetailInfoById(t *testing.T) {
-	info, err := TestDB.ApiDB.QueryApiDetailInfoById(10)
+	info, err := TestDB.ApiDB.QueryApiDetailInfoById(1)
 	assert.Nil(t, err)
-	assert.Equal(t, info.ApiId, 10)
+	assert.Equal(t, info.ApiId, 1)
 }
 
 func TestApiDB_InsertRequestParam(t *testing.T) {
@@ -68,7 +68,7 @@ func TestApiDB_InsertRequestParam(t *testing.T) {
 		ParamName:       "",
 		Required:        true,
 		ParamType:       "",
-		Note:            "",
+		ValueDesc:       "",
 	}
 	l := 10
 	requestParam := make([]*tables.RequestParam, l)
