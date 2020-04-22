@@ -32,7 +32,7 @@ func SetOntologyConfig(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	config.DefConfig = cfg
+	*config.DefSagaConfig = *cfg
 	updateConfigByCmd(ctx)
 	return nil
 }
@@ -40,23 +40,23 @@ func SetOntologyConfig(ctx *cli.Context) error {
 func updateConfigByCmd(ctx *cli.Context) error {
 	port := ctx.Uint(GetFlagName(RestPortFlag))
 	if port != 0 {
-		config.DefConfig.RestPort = port
+		config.DefSagaConfig.RestPort = port
 	}
 	networkId := ctx.Uint(GetFlagName(NetworkIdFlag))
 	if networkId > 3 {
 		return fmt.Errorf("networkid should be between 1 and 3, curr: %d", networkId)
 	}
-	config.DefConfig.NetWorkId = networkId
+	config.DefSagaConfig.NetWorkId = networkId
 	rpc := config.ONT_MAIN_NET
 	if networkId == config.NETWORK_ID_POLARIS_NET {
 		rpc = config.ONT_TEST_NET
 	} else if networkId == config.NETWORK_ID_SOLO_NET {
 		rpc = config.ONT_SOLO_NET
 	}
-	fmt.Println(rpc)
+	fmt.Println("rpc:", rpc)
 	sdk := ontology_go_sdk.NewOntologySdk()
 	sdk.NewRpcClient().SetAddress(config.ONT_TEST_NET)
-	config.DefConfig.OntSdk = sdk
+	config.DefSagaConfig.OntSdk = sdk
 	return nil
 }
 

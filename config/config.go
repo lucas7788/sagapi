@@ -47,7 +47,7 @@ var DefDBConfigMap = map[int]*DBConfig{
 	},
 }
 
-var DefConfig = &Config{
+var DefSagaConfig = &Config{
 	RestPort:            DEFAULT_REST_PORT,
 	Version:             "1.0.0",
 	NetWorkId:           NETWORK_ID_POLARIS_NET,

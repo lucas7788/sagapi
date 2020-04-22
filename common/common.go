@@ -20,7 +20,7 @@ func GenerateUUId() string {
 func BuildQrCodeResult(id string) *QrCodeResponse {
 	return &QrCodeResponse{
 		QrCode: QrCode{
-			ONTAuthScanProtocol: config.DefConfig.ONTAuthScanProtocol + "/" + id,
+			ONTAuthScanProtocol: config.DefSagaConfig.ONTAuthScanProtocol + "/" + id,
 		},
 		Id: id,
 	}
@@ -69,7 +69,7 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 	}
 	log.Errorf("qrdata length: %d", len(databs))
 	id := GenerateUUId()
-	sig, err := config.DefConfig.OntIdAccount.Sign(databs)
+	sig, err := config.DefSagaConfig.OntIdAccount.Sign(databs)
 	if err != nil {
 
 	}
@@ -81,7 +81,7 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 		Signature:  common.ToHexString(sig),
 		Signer:     ontid,
 		QrCodeData: string(databs),
-		Callback:   config.DefConfig.QrCodeCallback,
+		Callback:   config.DefSagaConfig.QrCodeCallback,
 		Exp:        exp,
 		Chain:      chain,
 		QrCodeDesc: "",

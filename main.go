@@ -61,6 +61,8 @@ func startSaga(ctx *cli.Context) {
 		return
 	}
 	core.DefSagaApi = core.NewSagaApi()
+	log.Info("ONTAuthScanProtocol:", config.DefSagaConfig.ONTAuthScanProtocol)
+	log.Info("QrCodeCallback:", config.DefSagaConfig.QrCodeCallback)
 	startServer()
 	waitToExit()
 }
@@ -71,7 +73,7 @@ func initAccount() error {
 	if err != nil {
 		return err
 	}
-	config.DefConfig.OntIdAccount = acc
+	config.DefSagaConfig.OntIdAccount = acc
 	return nil
 }
 
@@ -83,7 +85,7 @@ func initLog(ctx *cli.Context) {
 }
 
 func initDB(ctx *cli.Context) error {
-	if config.DefConfig.NetWorkId == config.NETWORK_ID_MAIN_NET {
+	if config.DefSagaConfig.NetWorkId == config.NETWORK_ID_MAIN_NET {
 		userName, err := getDBUserName()
 		if err != nil {
 			return fmt.Errorf("getDBUserName failed, error: %s", err)
@@ -92,8 +94,8 @@ func initDB(ctx *cli.Context) error {
 		if err != nil {
 			return fmt.Errorf("getDBPassword failed, error: %s", err)
 		}
-		config.DefConfig.DbConfig.ProjectDBUser = userName
-		config.DefConfig.DbConfig.ProjectDBPassword = string(pwd)
+		config.DefSagaConfig.DbConfig.ProjectDBUser = userName
+		config.DefSagaConfig.DbConfig.ProjectDBPassword = string(pwd)
 	}
 	db, err := dao.NewSagaApiDB()
 	if err != nil {

@@ -27,7 +27,7 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	hash, err := config.DefConfig.OntSdk.SendTransaction(mutTx)
+	hash, err := config.DefSagaConfig.OntSdk.SendTransaction(mutTx)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func verifyTx(txHash string) error {
 		if retry > config.VERIFY_TX_RETRY {
 			return fmt.Errorf("verify tx failed, txHash: %s", txHash)
 		}
-		event, err := config.DefConfig.OntSdk.GetSmartContractEvent(txHash)
+		event, err := config.DefSagaConfig.OntSdk.GetSmartContractEvent(txHash)
 		if err != nil && strings.Contains(err.Error(), "duplicated transaction detected") {
 			return err
 		}

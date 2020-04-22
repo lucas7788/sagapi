@@ -3,6 +3,8 @@ package dao
 import (
 	"database/sql"
 	"github.com/ontio/sagapi/config"
+	"context"
+	"time"
 )
 
 var DefSagaApiDB *SagaApiDB
@@ -14,15 +16,17 @@ type SagaApiDB struct {
 
 func NewSagaApiDB() (*SagaApiDB, error) {
 	db, dberr := sql.Open("mysql",
-		config.DefConfig.DbConfig.ProjectDBUser+
-			":"+config.DefConfig.DbConfig.ProjectDBPassword+
-			"@tcp("+config.DefConfig.DbConfig.ProjectDBUrl+
-			")/"+config.DefConfig.DbConfig.ProjectDBName+
+		config.DefSagaConfig.DbConfig.ProjectDBUser+
+			":"+config.DefSagaConfig.DbConfig.ProjectDBPassword+
+			"@tcp("+config.DefSagaConfig.DbConfig.ProjectDBUrl+
+			")/"+config.DefSagaConfig.DbConfig.ProjectDBName+
 			"?charset=utf8")
 	if dberr != nil {
 		return nil, dberr
 	}
-	err := db.Ping()
+	ctx,cf := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cf()
+	err := db.PingContext(ctx)
 	if err != nil {
 		return nil, err
 	}

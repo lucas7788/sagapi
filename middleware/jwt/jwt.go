@@ -47,7 +47,7 @@ func validateToken(token string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	pubKeyStr, _ := common2.HexToBytes(config.DefConfig.OperatorPublicKey)
+	pubKeyStr, _ := common2.HexToBytes(config.DefSagaConfig.OperatorPublicKey)
 	pubKey, err := keypair.DeserializePublicKey(pubKeyStr)
 	if err != nil {
 		return "", err
