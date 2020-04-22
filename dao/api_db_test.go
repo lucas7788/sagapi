@@ -1,10 +1,10 @@
 package dao
 
 import (
+	"fmt"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"fmt"
 )
 
 func TestApiDB_InsertApiBasicInfo(t *testing.T) {
@@ -109,6 +109,27 @@ func TestApiDB_QueryErrorCodeByApiDetailInfoId(t *testing.T) {
 func TestApiDB_QueryNewestApiBasicInfo(t *testing.T) {
 	infos, err := TestDB.ApiDB.QueryFreeApiBasicInfo()
 	fmt.Println(err)
-	assert.Nil(t,err)
+	assert.Nil(t, err)
 	fmt.Println(infos)
+}
+
+func TestApiDB_testTag(t *testing.T) {
+	a := &tables.ApiTag{
+		Id: 20,
+	}
+
+	b := &tables.Tag{
+		Id: 30,
+	}
+
+	c := &tables.Category{
+		Id: 40,
+	}
+
+	err := TestDB.ApiDB.InsertApiTag(a)
+	assert.Nil(t, err)
+	err = TestDB.ApiDB.InsertTag(b)
+	assert.Nil(t, err)
+	err = TestDB.ApiDB.InsertCategory(c)
+	assert.Nil(t, err)
 }

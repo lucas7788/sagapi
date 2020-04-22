@@ -740,3 +740,57 @@ func (this *ApiDB) VerifyApiKey(apiKey string) error {
 	}
 	return nil
 }
+
+func (this *ApiDB) InsertApiTag(apiTag *tables.ApiTag) error {
+	strSql := `insert into tbl_api_tag (id, api_id, tag_id, state, create_time) values (?,?,?,?,?)`
+
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(apiTag.Id, apiTag.ApiId, apiTag.TagId, apiTag.State, apiTag.CreateTime)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *ApiDB) InsertTag(tag *tables.Tag) error {
+	strSql := `insert into tbl_tag (id, name, category_id, state, create_time) values (?,?,?,?,?)`
+
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(tag.Id, tag.Name, tag.CategoryId, tag.State, tag.CreateTime)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *ApiDB) InsertCategory(category *tables.Category) error {
+	strSql := `insert into tbl_tag (id, name_zh, name_en, icon, state) values (?,?,?,?,?)`
+
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(category.Id, category.NameZh, category.NameEn, category.Icon, category.State)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
