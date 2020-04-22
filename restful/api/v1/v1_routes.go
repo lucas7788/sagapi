@@ -5,10 +5,12 @@ import (
 	"github.com/ontio/sagapi/restful/api/v1/api"
 	"github.com/ontio/sagapi/restful/api/v1/nasa"
 	"github.com/ontio/sagapi/restful/api/v1/order"
+	"github.com/ontio/sagapi/middleware/cors"
 )
 
 func RoutesV1(parent *gin.RouterGroup) {
 	v1Route := parent.Group("/v1")
+	v1Route.Use(cors.Cors())
 	nasa.RoutesNasa(v1Route)
 	order.RoutesOrder(v1Route)
 	api.RoutesApiList(v1Route)

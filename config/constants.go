@@ -41,8 +41,9 @@ const (
 
 //api token type
 const (
-	TOKEN_TYPE_ONG = "ONG"
-	TOKEN_TYPE_ONT = "ONT"
+	TOKEN_TYPE_ONG       = "ONG"
+	TOKEN_TYPE_ONT       = "ONT"
+	ONG_CONTRACT_ADDRESS = "0200000000000000000000000000000000000000"
 )
 
 const (
@@ -50,6 +51,8 @@ const (
 )
 
 const (
-	QueryAmt  = 3
-	Key_OntId = "OntId"
+	QueryAmt     = 3
+	Key_OntId    = "OntId"
+	OntId        = "did:ont:AYCcjQuB6xgXm2vKku9Vb6bdTcEguXqbt1"
+	OntIdPrivate = "ae1bab4364ec7966ab8e8a1db43cf7162b6e619bcab9ce0af4d1763bc4a62186"
 )

@@ -111,6 +111,7 @@ create table tbl_error_code (
 
 create table tbl_order (
   OrderId varchar(50) unique not null COMMENT '',
+  Title varchar(100) not null COMMENT '',
   ProductName varchar(50) not null default '' COMMENT '',
   OrderType varchar(50) not null default ''  COMMENT '',
   OrderTime int(11) not null default 0 COMMENT '下单时间',
@@ -119,7 +120,7 @@ create table tbl_order (
   Amount varchar(50) not null default '' COMMENT '',
   OntId varchar(50) not null default '' COMMENT '用户ontid',
   UserName varchar(50) not null default '' COMMENT '',
-  TxHash varchar(50) not null  default '' COMMENT '支付交易hash',
+  TxHash varchar(100) not null  default '' COMMENT '支付交易hash',
   Price varchar(50) not null default ''  COMMENT '',
   ApiId int(11) NOT NULL COMMENT '',
   SpecificationsId int(11) NOT NULL COMMENT '规格',

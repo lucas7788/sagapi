@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/ontio/sagapi/config"
 	"io/ioutil"
 	"log"
 	"reflect"
@@ -64,28 +63,23 @@ func getTagName(structName interface{}) []string {
 	return result
 }
 
-func ParsePostParam(c *gin.Context, paramStruct interface{}) (string, error) {
-	ontidTemp, ok := c.Get(config.Key_OntId)
-	if !ok || ontidTemp == nil {
-		return "", fmt.Errorf("ontid is nil")
-	}
-	ontid := ontidTemp.(string)
+func ParsePostParam(c *gin.Context, paramStruct interface{}) error {
 	paramsBs, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		return "", err
+		return err
 	}
 	rp := &ReqParam{}
 	err = json.Unmarshal(paramsBs, rp)
 	if err != nil {
-		return "", err
+		return err
 	}
 	bs, err := json.Marshal(rp.Params)
 	if err != nil {
-		return "", err
+		return err
 	}
 	err = json.Unmarshal(bs, paramStruct)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return ontid, nil
+	return nil
 }

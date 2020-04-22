@@ -1,6 +1,9 @@
 package common
 
-import "github.com/ontio/sagapi/models/tables"
+import (
+	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/models/tables"
+)
 
 type GetOrderResponse struct {
 	Result   string `json:"result"`
@@ -33,6 +36,16 @@ type ApiDetailResponse struct {
 }
 
 type OrderResult struct {
-	*tables.Order
-	*tables.APIKey
+	Title        string
+	Total        int
+	OrderId      string
+	CreateTime   int64
+	TxHash       string
+	ApiId        int
+	RequestLimit int
+	UsedNum      int
+	Status       config.OrderStatus
+	ApiKey       string
+	Price        string
+	Coin         string
 }

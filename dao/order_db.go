@@ -18,8 +18,8 @@ func NewOrderDB(db *sql.DB) *OrderDB {
 }
 
 func (this *OrderDB) InsertOrder(order *tables.Order) error {
-	strSql := `insert into tbl_order (OrderId, ProductName, OrderType, OrderTime, OrderStatus,Amount, 
-OntId,UserName,Price,ApiId,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,?)`
+	strSql := `insert into tbl_order (OrderId,Title, ProductName, OrderType, OrderTime, OrderStatus,Amount, 
+OntId,UserName,Price,ApiId,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,?,?)`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -27,7 +27,7 @@ OntId,UserName,Price,ApiId,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(order.OrderId, order.ProductName, order.OrderType, order.OrderTime, order.OrderStatus,
+	_, err = stmt.Exec(order.OrderId, order.Title, order.ProductName, order.OrderType, order.OrderTime, order.OrderStatus,
 		order.Amount, order.OntId, order.UserName, order.Price, order.ApiId, order.SpecificationsId, order.Coin)
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ OntId,UserName,Price,ApiId,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,
 }
 
 func (this *OrderDB) UpdateTxInfoByOrderId(orderId string, txHash string, status config.OrderStatus) error {
-	strSql := "update tbl_order set TxHash=?,Status=? where OrderId=?"
+	strSql := "update tbl_order set TxHash=?,OrderStatus=? where OrderId=?"
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -49,7 +49,7 @@ func (this *OrderDB) UpdateTxInfoByOrderId(orderId string, txHash string, status
 }
 
 func (this *OrderDB) QueryOrderByOrderId(orderId string) (*tables.Order, error) {
-	strSql := `select OrderId, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
+	strSql := `select OrderId,Title, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
 OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where OrderId=?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
@@ -67,15 +67,16 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ord
 	}
 	for rows.Next() {
 		var orderTime, payTime int64
-		var orderId, productName, orderType, amount, ontId, userName, txHash, price, coin string
+		var orderId, title, productName, orderType, amount, ontId, userName, txHash, price, coin string
 		var specifications, apiId int
 		var orderStatus uint8
-		if err = rows.Scan(&orderId, &productName, &orderType, &orderTime, &payTime, &orderStatus, &amount,
+		if err = rows.Scan(&orderId, &title, &productName, &orderType, &orderTime, &payTime, &orderStatus, &amount,
 			&ontId, &userName, &txHash, &price, &apiId, &specifications, &coin); err != nil {
 			return nil, err
 		}
 		return &tables.Order{
 			OrderId:          orderId,
+			Title:            title,
 			ProductName:      productName,
 			OrderType:        orderType,
 			OrderTime:        orderTime,
@@ -93,8 +94,33 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ord
 	return nil, nil
 }
 
+func (this *OrderDB) QueryOrderSum(ontId string) (int, error) {
+	strSql := `select count(*) from tbl_order where OntId=?`
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return 0, err
+	}
+	rows, err := stmt.Query(ontId)
+	if rows != nil {
+		defer rows.Close()
+	}
+	if err != nil {
+		return 0, err
+	}
+	for rows.Next() {
+		var sum int
+		if err := rows.Scan(&sum); err != nil {
+			return 0, err
+		}
+		return sum, nil
+	}
+	return 0, nil
+}
 func (this *OrderDB) QueryOrderByPage(start, pageSize int, ontId string) ([]*tables.Order, error) {
-	strSql := `select OrderId, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
+	strSql := `select OrderId,Title, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
 OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where OntId=? limit ?, ?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
@@ -113,15 +139,16 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ont
 	res := make([]*tables.Order, 0)
 	for rows.Next() {
 		var orderTime, payTime int64
-		var orderId, productName, orderType, amount, ontId, userName, txHash, price, coin string
+		var orderId, title, productName, orderType, amount, ontId, userName, txHash, price, coin string
 		var specifications, apiId int
 		var orderStatus uint8
-		if err = rows.Scan(&orderId, &productName, &orderType, &orderTime, &payTime, &orderStatus, &amount,
+		if err = rows.Scan(&orderId, &title, &productName, &orderType, &orderTime, &payTime, &orderStatus, &amount,
 			&ontId, &userName, &txHash, &price, &apiId, &specifications, &coin); err != nil {
 			return nil, err
 		}
 		res = append(res, &tables.Order{
 			OrderId:          orderId,
+			Title:            title,
 			ProductName:      productName,
 			OrderType:        orderType,
 			OrderTime:        orderTime,
@@ -141,7 +168,6 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ont
 }
 
 func (this *OrderDB) InsertQrCode(code *tables.QrCode) error {
-
 	strSql := `insert into tbl_qr_code (QrCodeId,Ver, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc) values (?,?,?,?,?,?,?,?,?,?,?)`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
@@ -211,6 +237,9 @@ func (this *OrderDB) QueryQrCodeResultByQrCodeId(qrCodeId string) (string, error
 	if err != nil {
 		return "", err
 	}
+	if rows != nil {
+		defer rows.Close()
+	}
 	for rows.Next() {
 		var orderStatus uint8
 		if err = rows.Scan(&orderStatus); err != nil {
@@ -248,9 +277,9 @@ func (this *OrderDB) DeleteOrderByOrderId(orderId string) error {
 func (this *OrderDB) queryQrCodeById(orderId, qrCodeId string) (*tables.QrCode, error) {
 	var strSql string
 	if orderId != "" {
-		strSql = `select Ver, Id, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where OrderId=?`
+		strSql = `select Ver, QrCodeId, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where OrderId=?`
 	} else if qrCodeId != "" {
-		strSql = `select Ver, Id, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where QrCodeId=?`
+		strSql = `select Ver, QrCodeId, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where QrCodeId=?`
 	}
 
 	stmt, err := this.db.Prepare(strSql)

@@ -2,10 +2,12 @@ package common
 
 import (
 	"encoding/json"
+	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/utils"
 	"github.com/satori/go.uuid"
 	"time"
 )
@@ -18,38 +20,39 @@ func GenerateUUId() string {
 func BuildQrCodeResult(id string) *QrCodeResponse {
 	return &QrCodeResponse{
 		QrCode: QrCode{
-			ONTAuthScanProtocol: config.DefConfig.ONTAuthScanProtocol,
+			ONTAuthScanProtocol: config.DefConfig.ONTAuthScanProtocol + "/" + id,
 		},
 		Id: id,
 	}
 }
 
-func BuildTestNetQrCode(orderId, requester, payer string, from, to, value string) *tables.QrCode {
-	return buildQrCode("Testnet", orderId, requester, payer, from, to, value)
+func BuildTestNetQrCode(orderId, ontid, payer, from, to, value string) *tables.QrCode {
+	return buildQrCode("Testnet", orderId, ontid, payer, from, to, value)
 }
 
-func buildQrCode(chain, orderId, requester, payer string, from, to, value string) *tables.QrCode {
+func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.QrCode {
 	exp := time.Now().Unix() + config.QrCodeExp
+	amt := utils.ToIntByPrecise(value, config.ONG_DECIMALS)
 	data := &models.QrCodeData{
-		Action: "transfer",
+		Action: "signTransaction",
 		Params: models.QrCodeParam{
 			InvokeConfig: models.InvokeConfig{
-				ContractHash: "",
+				ContractHash: config.ONG_CONTRACT_ADDRESS,
 				Functions: []models.Function{
 					models.Function{
-						Operation: "",
+						Operation: "transfer",
 						Args: []models.Arg{
 							models.Arg{
 								Name:  "from",
-								Value: from,
+								Value: "Address:" + from,
 							},
 							models.Arg{
 								Name:  "to",
-								Value: to,
+								Value: "Address:" + to,
 							},
 							models.Arg{
 								Name:  "value",
-								Value: value,
+								Value: amt.Uint64(),
 							},
 						},
 					},
@@ -66,13 +69,17 @@ func buildQrCode(chain, orderId, requester, payer string, from, to, value string
 	}
 	log.Errorf("qrdata length: %d", len(databs))
 	id := GenerateUUId()
+	sig, err := config.DefConfig.OntIdAccount.Sign(databs)
+	if err != nil {
+
+	}
 	return &tables.QrCode{
 		Ver:        "1.0.0",
 		QrCodeId:   id,
 		OrderId:    orderId,
-		Requester:  requester,
-		Signature:  "",
-		Signer:     "",
+		Requester:  config.OntId,
+		Signature:  common.ToHexString(sig),
+		Signer:     ontid,
 		QrCodeData: string(databs),
 		Callback:   config.DefConfig.QrCodeCallback,
 		Exp:        exp,

@@ -1,12 +1,14 @@
 package core
 
 import (
+	"fmt"
 	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/utils"
 	"math/big"
+	"strings"
 	"time"
 )
 
@@ -33,6 +35,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	orderId := common.GenerateUUId()
 	order := &tables.Order{
 		OrderId:          orderId,
+		Title:            info.Title,
 		ProductName:      param.ProductName,
 		OrderType:        config.Api,
 		OrderTime:        time.Now().Unix(),
@@ -49,7 +52,11 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	if err != nil {
 		return nil, err
 	}
-	code := common.BuildTestNetQrCode(orderId, param.OntId, "", param.OntId, "", amountStr)
+	arr := strings.Split(param.OntId, ":")
+	if len(arr) < 3 {
+		return nil, fmt.Errorf("error ontid: %s", param.OntId)
+	}
+	code := common.BuildTestNetQrCode(orderId, param.OntId, arr[2], arr[2], "AbtTQJYKfQxq4UdygDsbLVjE8uRrJ2H3tP", amountStr)
 	err = dao.DefSagaApiDB.OrderDB.InsertQrCode(code)
 	if err != nil {
 		return nil, err
@@ -57,14 +64,19 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	return common.BuildQrCodeResult(code.QrCodeId), nil
 }
 
-func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) ([]*common.OrderResult, error) {
+func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (map[string]interface{}, error) {
 	if pageNum < 1 {
 		pageNum = 1
 	}
 	if pageSize < 0 {
 		pageSize = 0
 	}
-	orders, err := dao.DefSagaApiDB.OrderDB.QueryOrderByPage(pageNum, pageSize, ontid)
+	total, err := dao.DefSagaApiDB.OrderDB.QueryOrderSum(ontid)
+	if err != nil {
+		return nil, err
+	}
+	start := (pageNum - 1) * pageSize
+	orders, err := dao.DefSagaApiDB.OrderDB.QueryOrderByPage(start, pageSize, ontid)
 	if err != nil {
 		return nil, err
 	}
@@ -88,11 +100,23 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) ([]
 			}
 		}
 		res[i] = &common.OrderResult{
-			order,
-			apiKey,
+			Title:        order.Title,
+			OrderId:      order.OrderId,
+			CreateTime:   order.OrderTime,
+			TxHash:       order.TxHash,
+			ApiId:        order.ApiId,
+			RequestLimit: apiKey.RequestLimit,
+			UsedNum:      apiKey.UsedNum,
+			Status:       order.OrderStatus,
+			ApiKey:       apiKey.ApiKey,
+			Price:        order.Price,
+			Coin:         order.Coin,
 		}
 	}
-	return res, nil
+	return map[string]interface{}{
+		"total":     total,
+		"orderList": res,
+	}, nil
 }
 
 func (this *SagaOrder) GetQrCodeByOrderId(orderId string) (*common.QrCodeResponse, error) {

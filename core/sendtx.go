@@ -9,6 +9,7 @@ import (
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"strings"
 	"time"
 )
 
@@ -26,19 +27,24 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	orderId, err := dao.DefSagaApiDB.OrderDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
-	if err != nil {
-		return err
-	}
-	err = generateApiKey(orderId, param.ExtraData.OntId)
-	if err != nil {
-		return err
-	}
 	hash, err := config.DefConfig.OntSdk.SendTransaction(mutTx)
 	if err != nil {
 		return err
 	}
+	orderId, err := dao.DefSagaApiDB.OrderDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
+	if err != nil {
+		return err
+	}
 	err = verifyTx(hash.ToHexString())
+	if err != nil {
+		log.Errorf("verifyTx failed: %s", err)
+		err2 := dao.DefSagaApiDB.OrderDB.UpdateTxInfoByOrderId(orderId, "", config.Failed)
+		if err2 != nil {
+			return err2
+		}
+		return err
+	}
+	err = generateApiKey(orderId, param.Signer)
 	if err != nil {
 		return err
 	}
@@ -46,7 +52,7 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	return dao.DefSagaApiDB.OrderDB.UpdateOrderStatus(orderId, config.Completed)
+	return nil
 }
 
 func generateApiKey(orderId, ontId string) error {
@@ -54,12 +60,13 @@ func generateApiKey(orderId, ontId string) error {
 	if err != nil {
 		return err
 	}
-	spec,err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsBySpecificationsId(order.SpecificationsId)
+	spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsBySpecificationsId(order.SpecificationsId)
 	if err != nil {
 		return err
 	}
 	id := common2.GenerateUUId()
 	apiKey := &tables.APIKey{
+		OrderId:      orderId,
 		ApiKey:       id,
 		ApiId:        order.ApiId,
 		RequestLimit: spec.Amount,
@@ -76,14 +83,19 @@ func verifyTx(txHash string) error {
 			return fmt.Errorf("verify tx failed, txHash: %s", txHash)
 		}
 		event, err := config.DefConfig.OntSdk.GetSmartContractEvent(txHash)
-		if err != nil {
+		if err != nil && strings.Contains(err.Error(), "duplicated transaction detected") {
+			return err
+		}
+		if err != nil || event == nil {
 			log.Errorf("[verifyTx] GetSmartContractEvent failed: %s", err)
 			sleepTime := config.VERIFY_TX_RETRY - retry
 			time.Sleep(time.Duration(sleepTime) * time.Second)
 			retry += 1
+			log.Infof("[verifyTx] txHash: %s, retry:%d, err: %s", txHash, retry, err)
 			continue
 		}
 		if event != nil && event.State == 1 {
+			log.Infof("txHash:%s, event.State:%d", txHash, event.State)
 			return nil
 		}
 		return fmt.Errorf("verify tx failed, txHash: %s", txHash)

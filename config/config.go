@@ -22,6 +22,7 @@ type Config struct {
 	ONTAuthScanProtocol string    `json:"ontauth_scan_protocol"`
 	QrCodeCallback      string    `json:"qrcode_callback"`
 	NASAAPIKey          string    `json:"nasa_api_key"`
+	OntIdAccount        *ontology_go_sdk.Account
 }
 
 type DBConfig struct {
@@ -49,10 +50,10 @@ var DefDBConfigMap = map[int]*DBConfig{
 var DefConfig = &Config{
 	RestPort:            DEFAULT_REST_PORT,
 	Version:             "1.0.0",
-	NetWorkId:           NETWORK_ID_SOLO_NET,
+	NetWorkId:           NETWORK_ID_POLARIS_NET,
 	DbConfig:            DefDBConfigMap[NETWORK_ID_SOLO_NET],
 	OperatorPublicKey:   "02b8fcf42deecc7cccb574ba145f2f627339fbd3ba2b63fda99af0a26a8d5a01da",
-	ONTAuthScanProtocol: "http://192.168.1.175:8080/api/v1/order/getQrCodeDataByQrCodeId",
-	QrCodeCallback:      "http://192.168.1.175:8080/api/v1/sendtx",
+	ONTAuthScanProtocol: "http://192.168.1.175:8080/api/v1/onto/getQrCodeDataByQrCodeId",
+	QrCodeCallback:      "http://192.168.1.175:8080/api/v1/onto/sendTx",
 	NASAAPIKey:          NASA_API_KEY,
 }

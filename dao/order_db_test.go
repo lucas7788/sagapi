@@ -6,6 +6,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/stretchr/testify/assert"
 	"time"
@@ -39,7 +40,7 @@ func TestOrderDB_InsertOrder(t *testing.T) {
 func TestApiDB_InsertApiKey(t *testing.T) {
 	key := &tables.APIKey{
 		ApiId:        1,
-		OrderId:      "abc",
+		OrderId:      "145e89f6-850e-44a7-be3e-9224fd066858",
 		ApiKey:       "apikey",
 		RequestLimit: 2,
 		UsedNum:      1,
@@ -98,6 +99,11 @@ func TestOrderDB_QueryOrderByPage(t *testing.T) {
 	order, err := TestDB.OrderDB.QueryOrderByPage(1, 2, "")
 	assert.Nil(t, err)
 	fmt.Println(order)
+}
+
+func TestOrderDB_UpdateTxInfoByOrderId(t *testing.T) {
+	err := TestDB.OrderDB.UpdateTxInfoByOrderId("145e89f6-850e-44a7-be3e-9224fd066858", "", config.Processing)
+	assert.Nil(t, err)
 }
 
 func TestOrderDB_QueryQrCodeResultByQrCodeId(t *testing.T) {

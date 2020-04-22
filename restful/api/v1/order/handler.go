@@ -1,6 +1,7 @@
 package order
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology/common/log"
@@ -9,18 +10,26 @@ import (
 	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/restful/api/common"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 )
 
 func TakeOrder(c *gin.Context) {
 	param := &common2.TakeOrderParam{}
-	ontid, err := common.ParsePostParam(c, param)
+	err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[TakeOrder] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	param.OntId = ontid
+	ontid, ok := c.Get(config.Key_OntId)
+	if !ok {
+		log.Errorf("[TakeOrder] ontid is nil: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("ontid is nil")))
+		return
+	}
+	param.OntId = ontid.(string)
 	res, err := core.DefSagaApi.SagaOrder.TakeOrder(param)
 	if err != nil {
 		log.Errorf("[TakeOrder] TakeOrder failed: %s", err)
@@ -43,7 +52,7 @@ func QueryOrderByPage(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("ontid is nil")))
 		return
 	}
-	fmt.Println("ontid:", ontId)
+	log.Infof("[QueryOrderByPage] ontid:%s", ontId)
 	pageNum, err := strconv.Atoi(params[0])
 	if err != nil {
 		log.Errorf("[QueryOrderByPage] Atoi failed: %s", err)
@@ -67,7 +76,7 @@ func QueryOrderByPage(c *gin.Context) {
 
 func GenerateTestKey(c *gin.Context) {
 	params := &common2.GenerateTestKeyParam{}
-	_, err := common.ParsePostParam(c, params)
+	err := common.ParsePostParam(c, params)
 	if err != nil {
 		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -123,6 +132,7 @@ func GetQrCodeByOrderId(c *gin.Context) {
 	common.WriteResponse(c, common.ResponseSuccess(res))
 }
 
+//onto invoke
 func GetQrCodeDataByQrCodeId(c *gin.Context) {
 	paramArr, err := common.ParseGetParamByParamName(c, "qrCodeId")
 	if err != nil {
@@ -136,7 +146,7 @@ func GetQrCodeDataByQrCodeId(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(code))
+	c.JSON(http.StatusOK, code)
 }
 
 func GetQrCodeResultByQrCodeId(c *gin.Context) {
@@ -157,7 +167,7 @@ func GetQrCodeResultByQrCodeId(c *gin.Context) {
 
 func CancelOrder(c *gin.Context) {
 	param := &common2.OrderIdParam{}
-	_, err := common.ParsePostParam(c, param)
+	err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[CancelOrder] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -174,7 +184,7 @@ func CancelOrder(c *gin.Context) {
 
 func DeleteOrder(c *gin.Context) {
 	param := &common2.OrderIdParam{}
-	_, err := common.ParsePostParam(c, param)
+	err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[CancelOrder] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -191,20 +201,29 @@ func DeleteOrder(c *gin.Context) {
 
 func SendTx(c *gin.Context) {
 	param := &common2.SendTxParam{}
-	ontid, err := common.ParsePostParam(c, param)
+	paramsBs, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
-		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		writeOntoResponse(c, common.ResponseFailedOnto(common.PARA_ERROR, err))
 		return
 	}
-	param.ExtraData.OntId = ontid
+	err = json.Unmarshal(paramsBs, param)
+	if err != nil {
+		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
+		writeOntoResponse(c, common.ResponseFailedOnto(common.PARA_ERROR, err))
+		return
+	}
 	err = core.SendTX(param)
 	if err != nil {
 		log.Errorf("[SendTx] SendTX failed: %s", err)
-		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		writeOntoResponse(c, common.ResponseFailedOnto(common.INTER_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess("SUCCESS"))
+	writeOntoResponse(c, common.ResponseSuccessOnto())
+}
+
+func writeOntoResponse(c *gin.Context, param map[string]interface{}) {
+	c.JSON(http.StatusOK, param)
 }
 
 func GetTxResult(c *gin.Context) {

@@ -53,8 +53,9 @@ func updateConfigByCmd(ctx *cli.Context) error {
 	} else if networkId == config.NETWORK_ID_SOLO_NET {
 		rpc = config.ONT_SOLO_NET
 	}
+	fmt.Println(rpc)
 	sdk := ontology_go_sdk.NewOntologySdk()
-	sdk.NewRpcClient().SetAddress(rpc)
+	sdk.NewRpcClient().SetAddress(config.ONT_TEST_NET)
 	config.DefConfig.OntSdk = sdk
 	return nil
 }

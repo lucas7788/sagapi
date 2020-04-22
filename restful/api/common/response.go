@@ -1,7 +1,6 @@
 package common
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,12 +14,7 @@ type ResponseResult struct {
 }
 
 func WriteResponse(c *gin.Context, response *ResponseResult) error {
-	bs, err := json.Marshal(response)
-	if err != nil {
-		return err
-	}
-
-	c.String(http.StatusOK, string(bs))
+	c.JSON(http.StatusOK, response)
 	return nil
 }
 
@@ -39,6 +33,22 @@ func ResponseFailed(errCode int64, err error) *ResponseResult {
 		Error:   errCode,
 		Desc:    ErrMap[errCode] + err.Error(),
 		Version: "1.0",
+	}
+}
+func ResponseFailedOnto(errCode int64, err error) map[string]interface{} {
+	return map[string]interface{}{
+		"result":  err,
+		"error":   errCode,
+		"desc":    ErrMap[errCode] + err.Error(),
+		"version": "1.0",
+	}
+}
+func ResponseSuccessOnto() map[string]interface{} {
+	return map[string]interface{}{
+		"result":  "SUCCESS",
+		"error":   0,
+		"desc":    "SUCCESS",
+		"version": "1.0",
 	}
 }
 

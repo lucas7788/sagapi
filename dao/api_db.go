@@ -699,7 +699,7 @@ func (this *ApiDB) QueryApiKeyByOrderId(orderId string) (*tables.APIKey, error) 
 	return this.queryApiKey("", orderId)
 }
 
-func (this *ApiDB) queryApiKey(apiKey,orderId string) (*tables.APIKey, error) {
+func (this *ApiDB) queryApiKey(apiKey, orderId string) (*tables.APIKey, error) {
 	var strSql string
 	var where string
 	if apiKey != "" {
@@ -740,7 +740,6 @@ func (this *ApiDB) queryApiKey(apiKey,orderId string) (*tables.APIKey, error) {
 	}
 	return nil, nil
 }
-
 
 func (this *ApiDB) VerifyApiKey(apiKey string) error {
 	key, err := this.QueryApiKeyByApiKey(apiKey)

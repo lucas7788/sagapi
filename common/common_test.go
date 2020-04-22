@@ -4,30 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/restful/api/common"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestBuildApiBasicInfo(t *testing.T) {
-	type A struct {
-		AB string
-	}
-	type B struct {
-		ABC string
-	}
-	type C struct {
-		*A
-		*B
-	}
-	c := C {
-		&A{
-			AB:"ab",
-		},
-		&B{
-			ABC:"abc",
-		},
-	}
-	bs, _ := json.Marshal(c)
+	res := common.ResponseSuccessOnto()
+	bs, _ := json.Marshal(res)
 	fmt.Println(string(bs))
 }
 

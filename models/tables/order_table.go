@@ -4,6 +4,7 @@ import "github.com/ontio/sagapi/config"
 
 type Order struct {
 	OrderId          string
+	Title            string
 	ProductName      string
 	OrderType        string
 	OrderTime        int64
