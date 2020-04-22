@@ -65,6 +65,7 @@ type RequestParam struct {
 	ParamName       string
 	Required        bool
 	ParamType       string
+	Note            string
 	ValueDesc       string
 }
 
