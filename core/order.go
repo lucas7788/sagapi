@@ -83,7 +83,7 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 	res := make([]*common.OrderResult, len(orders))
 	for i, order := range orders {
 		apiKey, err := dao.DefSagaApiDB.ApiDB.QueryApiKeyByOrderId(order.OrderId)
-		if err != nil {
+		if err != nil && !strings.Contains(err.Error(),"not found") {
 			return nil, err
 		}
 		if apiKey == nil {
