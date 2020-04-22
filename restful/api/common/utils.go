@@ -8,6 +8,7 @@ import (
 	"log"
 	"reflect"
 	"strings"
+	"github.com/ontio/sagapi/config"
 )
 
 type ReqParam struct {
@@ -64,7 +65,7 @@ func getTagName(structName interface{}) []string {
 }
 
 func ParsePostParam(c *gin.Context, paramStruct interface{}) (string, error) {
-	ontidTemp, ok := c.Get("Ontid")
+	ontidTemp, ok := c.Get(config.Key_OntId)
 	if !ok || ontidTemp == nil {
 		return "", fmt.Errorf("ontid is nil")
 	}

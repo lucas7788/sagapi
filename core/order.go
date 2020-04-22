@@ -56,6 +56,16 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	return common.BuildQrCodeResult(code.QrCodeId), nil
 }
 
+func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string)  ([]*tables.Order, error)  {
+	if pageNum < 1 {
+		pageNum = 1
+	}
+	if pageSize < 0 {
+		pageSize = 0
+	}
+	return dao.DefSagaApiDB.OrderDB.QueryOrderByPage(pageNum, pageSize,ontid)
+}
+
 func (this *SagaOrder) GetQrCodeByOrderId(orderId string) (*common.QrCodeResponse, error) {
 	code, err := dao.DefSagaApiDB.OrderDB.QueryQrCodeByOrderId(orderId)
 	if err != nil {

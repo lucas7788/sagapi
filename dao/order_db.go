@@ -93,6 +93,52 @@ OntId,UserName,TxHash,Price,ApiId,Specifications from tbl_order where OrderId=?`
 	return nil, nil
 }
 
+func (this *OrderDB) QueryOrderByPage(start,pageSize int, ontId string) ([]*tables.Order, error) {
+	strSql := `select OrderId, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
+OntId,UserName,TxHash,Price,ApiId,Specifications from tbl_order where OntId=? limit ?, ?`
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	rows, err := stmt.Query(start, pageSize, ontId)
+	if rows != nil {
+		defer rows.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*tables.Order, 0)
+	for rows.Next() {
+		var orderTime, payTime int64
+		var orderId, productName, orderType, amount, ontId, userName, txHash, price string
+		var specifications, apiId int
+		var orderStatus uint8
+		if err = rows.Scan(&orderId, &productName, &orderType, &orderTime, &payTime, &orderStatus, &amount,
+			&ontId, &userName, &txHash, &price, &apiId, &specifications); err != nil {
+			return nil, err
+		}
+		res = append(res, &tables.Order{
+			OrderId:        orderId,
+			ProductName:    productName,
+			OrderType:      orderType,
+			OrderTime:      orderTime,
+			PayTime:        payTime,
+			OrderStatus:    config.OrderStatus(orderStatus),
+			Amount:         amount,
+			OntId:          ontId,
+			UserName:       userName,
+			TxHash:         txHash,
+			Price:          price,
+			ApiId:          apiId,
+			Specifications: specifications,
+		})
+	}
+	return res, nil
+}
+
 func (this *OrderDB) InsertQrCode(code *tables.QrCode) error {
 
 	strSql := `insert into tbl_qr_code (QrCodeId,Ver, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc) values (?,?,?,?,?,?,?,?,?,?,?)`

@@ -28,7 +28,7 @@ func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
 	br := &tables.Order{
 		ApiId:     1,
-		OrderId:   "abc",
+		OrderId:   "abcde",
 		OntId:     "111",
 		OrderTime: tt,
 	}
@@ -92,4 +92,10 @@ func TestSagaDB_QueryOrderStatusByOrderId(t *testing.T) {
 	status, err := TestDB.OrderDB.QueryOrderByOrderId("1")
 	assert.Nil(t, err)
 	fmt.Println("status:", status)
+}
+
+func TestOrderDB_QueryOrderByPage(t *testing.T) {
+	order, err := TestDB.OrderDB.QueryOrderByPage(1,2,"")
+	assert.Nil(t, err)
+	fmt.Println(order)
 }

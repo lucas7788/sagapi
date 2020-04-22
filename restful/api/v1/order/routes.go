@@ -16,4 +16,5 @@ func RoutesOrder(parent *gin.RouterGroup) {
 	orderRouteGroup.GET("/getQrCodeByOrderId/:orderId", GetQrCodeByOrderId)
 	orderRouteGroup.GET("/getQrCodeDataByQrCodeId/:qrCodeId", GetQrCodeDataByQrCodeId)
 	orderRouteGroup.GET("/queryOrderStatus/:orderId", GetTxResult)
+	orderRouteGroup.GET("/queryOrderByPage/:pageNum/:pageSize", QueryOrderByPage)
 }

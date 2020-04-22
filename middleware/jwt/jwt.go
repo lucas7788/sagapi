@@ -32,7 +32,7 @@ func JWT() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set("Ontid", ontid)
+		c.Set(config.Key_OntId, ontid)
 		c.Next()
 	}
 }

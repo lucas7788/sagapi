@@ -6,6 +6,9 @@ import (
 	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/restful/api/common"
+	"github.com/ontio/sagapi/config"
+	"fmt"
+	"strconv"
 )
 
 func TakeOrder(c *gin.Context) {
@@ -25,6 +28,40 @@ func TakeOrder(c *gin.Context) {
 	common.WriteResponse(c, common.ResponseSuccess(res))
 }
 
+func QueryOrderByPage(c *gin.Context) {
+	params,err := common.ParseGetParamByParamName(c,"pageNum", "pageSize")
+	if err != nil {
+		log.Errorf("[QueryOrderByPage] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	ontId,ok := c.Get(config.Key_OntId)
+	if !ok || ontId == "" {
+		log.Errorf("[QueryOrderByPage] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("ontid is nil")))
+		return
+	}
+	pageNum,err := strconv.Atoi(params[0])
+	if err != nil {
+		log.Errorf("[QueryOrderByPage] Atoi failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	paseSize,err := strconv.Atoi(params[1])
+	if err != nil {
+		log.Errorf("[QueryOrderByPage] Atoi failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	orders, err := core.DefSagaApi.SagaOrder.QueryOrderByPage(pageNum, paseSize, ontId.(string))
+	if err != nil {
+		log.Errorf("[QueryOrderByPage] QueryOrderByPage failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(orders))
+}
+
 func GenerateTestKey(c *gin.Context) {
 	params := &common2.GenerateTestKeyParam{}
 	_, err := common.ParsePostParam(c, params)
@@ -33,7 +70,7 @@ func GenerateTestKey(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	ontid, ok := c.Get("Ontid")
+	ontid, ok := c.Get(config.Key_OntId)
 	if !ok {
 		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
