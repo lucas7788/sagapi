@@ -36,7 +36,7 @@ create table tbl_category
  id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
  name_zh varchar(100) not null default '' COMMENT '',
  name_en varchar(100) not null  default '' COMMENT '',
- icon varchar(100) not null  default '' COMMENT '',
+ icon varchar(255) not null  default '' COMMENT '',
  state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
  PRIMARY KEY (id)
 )default charset=utf8;
