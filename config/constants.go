@@ -50,6 +50,6 @@ const (
 )
 
 const (
-	QueryAmt = 3
+	QueryAmt  = 3
 	Key_OntId = "OntId"
 )

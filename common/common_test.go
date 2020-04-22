@@ -8,6 +8,29 @@ import (
 	"testing"
 )
 
+func TestBuildApiBasicInfo(t *testing.T) {
+	type A struct {
+		AB string
+	}
+	type B struct {
+		ABC string
+	}
+	type C struct {
+		*A
+		*B
+	}
+	c := C {
+		&A{
+			AB:"ab",
+		},
+		&B{
+			ABC:"abc",
+		},
+	}
+	bs, _ := json.Marshal(c)
+	fmt.Println(string(bs))
+}
+
 func TestGenerateOrderId(t *testing.T) {
 	orderId := make([]string, 0)
 	for i := 0; i < 10; i++ {

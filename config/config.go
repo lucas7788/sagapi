@@ -52,7 +52,7 @@ var DefConfig = &Config{
 	NetWorkId:           NETWORK_ID_SOLO_NET,
 	DbConfig:            DefDBConfigMap[NETWORK_ID_SOLO_NET],
 	OperatorPublicKey:   "02b8fcf42deecc7cccb574ba145f2f627339fbd3ba2b63fda99af0a26a8d5a01da",
-	ONTAuthScanProtocol: "http://127.0.0.1:8080/api/v1/order/getQrCodeDataByQrCodeId",
-	QrCodeCallback:      "http://127.0.0.1:8080/api/v1/sendtx",
+	ONTAuthScanProtocol: "http://192.168.1.175:8080/api/v1/order/getQrCodeDataByQrCodeId",
+	QrCodeCallback:      "http://192.168.1.175:8080/api/v1/sendtx",
 	NASAAPIKey:          NASA_API_KEY,
 }

@@ -692,9 +692,23 @@ func (this *ApiDB) UpdateApiTestKeyUsedNum(apiKey string, usedNum int) error {
 	_, err = stmt.Exec(usedNum, apiKey)
 	return err
 }
+func (this *ApiDB) QueryApiKeyByApiKey(apiKey string) (*tables.APIKey, error) {
+	return this.queryApiKey(apiKey, "")
+}
+func (this *ApiDB) QueryApiKeyByOrderId(orderId string) (*tables.APIKey, error) {
+	return this.queryApiKey("", orderId)
+}
 
-func (this *ApiDB) QueryApiKey(apiKey string) (*tables.APIKey, error) {
-	strSql := "select OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where ApiKey=?"
+func (this *ApiDB) queryApiKey(apiKey,orderId string) (*tables.APIKey, error) {
+	var strSql string
+	var where string
+	if apiKey != "" {
+		strSql = "select OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where ApiKey=?"
+		where = apiKey
+	} else if orderId != "" {
+		strSql = "select OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where OrderId=?"
+		where = orderId
+	}
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -702,7 +716,7 @@ func (this *ApiDB) QueryApiKey(apiKey string) (*tables.APIKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(apiKey)
+	rows, err := stmt.Query(where)
 	if rows != nil {
 		defer rows.Close()
 	}
@@ -727,8 +741,9 @@ func (this *ApiDB) QueryApiKey(apiKey string) (*tables.APIKey, error) {
 	return nil, nil
 }
 
+
 func (this *ApiDB) VerifyApiKey(apiKey string) error {
-	key, err := this.QueryApiKey(apiKey)
+	key, err := this.QueryApiKeyByApiKey(apiKey)
 	if err != nil {
 		return err
 	}

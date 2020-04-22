@@ -1,24 +1,25 @@
 package order
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology/common/log"
 	common2 "github.com/ontio/sagapi/common"
+	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/restful/api/common"
-	"github.com/ontio/sagapi/config"
-	"fmt"
 	"strconv"
 )
 
 func TakeOrder(c *gin.Context) {
 	param := &common2.TakeOrderParam{}
-	_, err := common.ParsePostParam(c, param)
+	ontid, err := common.ParsePostParam(c, param)
 	if err != nil {
 		log.Errorf("[TakeOrder] ParsePostParam failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
+	param.OntId = ontid
 	res, err := core.DefSagaApi.SagaOrder.TakeOrder(param)
 	if err != nil {
 		log.Errorf("[TakeOrder] TakeOrder failed: %s", err)
@@ -29,25 +30,26 @@ func TakeOrder(c *gin.Context) {
 }
 
 func QueryOrderByPage(c *gin.Context) {
-	params,err := common.ParseGetParamByParamName(c,"pageNum", "pageSize")
+	params, err := common.ParseGetParamByParamName(c, "pageNum", "pageSize")
 	if err != nil {
 		log.Errorf("[QueryOrderByPage] ParseGetParamByParamName failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	ontId,ok := c.Get(config.Key_OntId)
+	ontId, ok := c.Get(config.Key_OntId)
 	if !ok || ontId == "" {
 		log.Errorf("[QueryOrderByPage] ParseGetParamByParamName failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("ontid is nil")))
 		return
 	}
-	pageNum,err := strconv.Atoi(params[0])
+	fmt.Println("ontid:", ontId)
+	pageNum, err := strconv.Atoi(params[0])
 	if err != nil {
 		log.Errorf("[QueryOrderByPage] Atoi failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	paseSize,err := strconv.Atoi(params[1])
+	paseSize, err := strconv.Atoi(params[1])
 	if err != nil {
 		log.Errorf("[QueryOrderByPage] Atoi failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -112,6 +114,22 @@ func GetQrCodeDataByQrCodeId(c *gin.Context) {
 	code, err := core.DefSagaApi.SagaOrder.GetQrCodeDataById(paramArr[0])
 	if err != nil {
 		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(code))
+}
+
+func GetQrCodeResultByQrCodeId(c *gin.Context) {
+	paramArr, err := common.ParseGetParamByParamName(c, "qrCodeId")
+	if err != nil {
+		log.Errorf("[SendTx] ParsePostParam failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	code, err := core.DefSagaApi.SagaOrder.GetQrCodeResultById(paramArr[0])
+	if err != nil {
+		log.Errorf("[SendTx] GetQrCodeResultById failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}

@@ -122,7 +122,8 @@ create table tbl_order (
   TxHash varchar(50) not null  default '' COMMENT '支付交易hash',
   Price varchar(50) not null default ''  COMMENT '',
   ApiId int(11) NOT NULL COMMENT '',
-  Specifications int(11) NOT NULL COMMENT '规格',
+  SpecificationsId int(11) NOT NULL COMMENT '规格',
+	Coin varchar(20) NOT NULL COMMENT '币种',
   PRIMARY KEY (OrderId),
   CONSTRAINT FK_tbl_order_id FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId)
 )default charset=utf8;
@@ -156,10 +157,10 @@ CREATE TABLE `tbl_qr_code` (
   Ver varchar(50) not null default '',
   OrderId varchar(50) unique not null default '' ,
   Requester varchar(50) not null default '',
-  Signature varchar(50) not null default '',
+  Signature varchar(200) not null default '',
   Signer varchar(50) not null default '',
-  QrCodeData varchar(400) not null default '',
-  Callback varchar(50) not null default '',
+  QrCodeData varchar(1000) not null default '',
+  Callback varchar(400) not null default '',
   Exp varchar(50) not null default '',
   Chain varchar(50) not null default '',
   QrCodeDesc varchar(50) not null default '',

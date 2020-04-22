@@ -3,19 +3,20 @@ package tables
 import "github.com/ontio/sagapi/config"
 
 type Order struct {
-	OrderId        string
-	ProductName    string
-	OrderType      string
-	OrderTime      int64
-	PayTime        int64
-	OrderStatus    config.OrderStatus
-	Amount         string
-	OntId          string
-	UserName       string
-	TxHash         string
-	Price          string
-	ApiId          int
-	Specifications int
+	OrderId          string
+	ProductName      string
+	OrderType        string
+	OrderTime        int64
+	PayTime          int64
+	OrderStatus      config.OrderStatus
+	Amount           string
+	OntId            string
+	UserName         string
+	TxHash           string
+	Price            string
+	ApiId            int
+	SpecificationsId int
+	Coin             string
 }
 
 type APIKey struct {

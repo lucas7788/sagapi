@@ -32,17 +32,18 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	amountStr := utils.ToStringByPrecise(amount, config.ONG_DECIMALS)
 	orderId := common.GenerateUUId()
 	order := &tables.Order{
-		OrderId:        orderId,
-		ProductName:    param.ProductName,
-		OrderType:      config.Api,
-		OrderTime:      time.Now().Unix(),
-		OrderStatus:    config.Processing,
-		Amount:         amountStr,
-		OntId:          param.OntId,
-		UserName:       param.UserName,
-		Price:          info.Price,
-		ApiId:          info.ApiId,
-		Specifications: param.SpecificationsId,
+		OrderId:          orderId,
+		ProductName:      param.ProductName,
+		OrderType:        config.Api,
+		OrderTime:        time.Now().Unix(),
+		OrderStatus:      config.Processing,
+		Amount:           amountStr,
+		OntId:            param.OntId,
+		UserName:         param.UserName,
+		Price:            info.Price,
+		ApiId:            info.ApiId,
+		SpecificationsId: param.SpecificationsId,
+		Coin:             config.TOKEN_TYPE_ONG,
 	}
 	err = dao.DefSagaApiDB.OrderDB.InsertOrder(order)
 	if err != nil {
@@ -56,14 +57,42 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	return common.BuildQrCodeResult(code.QrCodeId), nil
 }
 
-func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string)  ([]*tables.Order, error)  {
+func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) ([]*common.OrderResult, error) {
 	if pageNum < 1 {
 		pageNum = 1
 	}
 	if pageSize < 0 {
 		pageSize = 0
 	}
-	return dao.DefSagaApiDB.OrderDB.QueryOrderByPage(pageNum, pageSize,ontid)
+	orders, err := dao.DefSagaApiDB.OrderDB.QueryOrderByPage(pageNum, pageSize, ontid)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*common.OrderResult, len(orders))
+	for i, order := range orders {
+		apiKey, err := dao.DefSagaApiDB.ApiDB.QueryApiKeyByOrderId(order.OrderId)
+		if err != nil {
+			return nil, err
+		}
+		if apiKey == nil {
+			spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsBySpecificationsId(order.SpecificationsId)
+			if err != nil {
+				return nil, err
+			}
+			apiKey = &tables.APIKey{
+				ApiKey:       "",
+				OrderId:      order.OrderId,
+				ApiId:        order.ApiId,
+				RequestLimit: spec.Amount,
+				UsedNum:      0,
+			}
+		}
+		res[i] = &common.OrderResult{
+			order,
+			apiKey,
+		}
+	}
+	return res, nil
 }
 
 func (this *SagaOrder) GetQrCodeByOrderId(orderId string) (*common.QrCodeResponse, error) {
@@ -79,6 +108,9 @@ func (this *SagaOrder) GetQrCodeByOrderId(orderId string) (*common.QrCodeRespons
 
 func (this *SagaOrder) GetQrCodeDataById(id string) (*tables.QrCode, error) {
 	return dao.DefSagaApiDB.OrderDB.QueryQrCodeByQrCodeId(id)
+}
+func (this *SagaOrder) GetQrCodeResultById(id string) (string, error) {
+	return dao.DefSagaApiDB.OrderDB.QueryQrCodeResultByQrCodeId(id)
 }
 
 func (this *SagaOrder) CancelOrder(param *common.OrderIdParam) error {

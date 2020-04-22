@@ -28,8 +28,8 @@ func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
 	br := &tables.Order{
 		ApiId:     1,
-		OrderId:   "abcde",
-		OntId:     "111",
+		OrderId:   "abcdefg",
+		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 		OrderTime: tt,
 	}
 	err := TestDB.OrderDB.InsertOrder(br)
@@ -50,13 +50,13 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 }
 
 func TestApiDB_QueryApiKey(t *testing.T) {
-	key, err := TestDB.ApiDB.QueryApiKey("apikey")
+	key, err := TestDB.ApiDB.QueryApiKeyByApiKey("apikey")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, key.UsedNum)
 }
 
 func TestSagaDB_QueryRequestNum(t *testing.T) {
-	key, err := TestDB.ApiDB.QueryApiKey("apikey")
+	key, err := TestDB.ApiDB.QueryApiKeyByApiKey("apikey")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, key.UsedNum)
 }
@@ -64,12 +64,12 @@ func TestSagaDB_QueryRequestNum(t *testing.T) {
 func TestSagaDB_SearchApi(t *testing.T) {
 	info := &tables.ApiBasicInfo{
 		ApiDesc:        "abcdefg",
-		Price:       "0.1",
+		Price:          "0.1",
 		Specifications: 1,
 	}
 	info2 := &tables.ApiBasicInfo{
 		ApiDesc:        "cdefgty",
-		Price:       "0.1",
+		Price:          "0.1",
 		Specifications: 1,
 	}
 	err := TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info})
@@ -95,7 +95,13 @@ func TestSagaDB_QueryOrderStatusByOrderId(t *testing.T) {
 }
 
 func TestOrderDB_QueryOrderByPage(t *testing.T) {
-	order, err := TestDB.OrderDB.QueryOrderByPage(1,2,"")
+	order, err := TestDB.OrderDB.QueryOrderByPage(1, 2, "")
 	assert.Nil(t, err)
 	fmt.Println(order)
+}
+
+func TestOrderDB_QueryQrCodeResultByQrCodeId(t *testing.T) {
+	status, err := TestDB.OrderDB.QueryQrCodeResultByQrCodeId("bb5b68d4-0282-469d-936b-ae43e30c5de5")
+	assert.Nil(t, err)
+	fmt.Println(status)
 }

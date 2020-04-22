@@ -15,6 +15,7 @@ func RoutesOrder(parent *gin.RouterGroup) {
 	orderRouteGroup.POST("/generateTestKey", GenerateTestKey)
 	orderRouteGroup.GET("/getQrCodeByOrderId/:orderId", GetQrCodeByOrderId)
 	orderRouteGroup.GET("/getQrCodeDataByQrCodeId/:qrCodeId", GetQrCodeDataByQrCodeId)
+	orderRouteGroup.GET("/getQrCodeResultByQrCodeId/:qrCodeId", GetQrCodeResultByQrCodeId)
 	orderRouteGroup.GET("/queryOrderStatus/:orderId", GetTxResult)
 	orderRouteGroup.GET("/queryOrderByPage/:pageNum/:pageSize", QueryOrderByPage)
 }

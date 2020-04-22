@@ -113,7 +113,7 @@ func (this *Nasa) getApiKey(apiKey string) (*tables.APIKey, error) {
 		if strings.Contains(apiKey, "test") {
 			key, err = dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByApiTestKey(apiKey)
 		} else {
-			key, err = dao.DefSagaApiDB.ApiDB.QueryApiKey(apiKey)
+			key, err = dao.DefSagaApiDB.ApiDB.QueryApiKeyByApiKey(apiKey)
 		}
 		if err != nil {
 			return nil, err

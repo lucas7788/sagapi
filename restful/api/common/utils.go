@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/ontio/sagapi/config"
 	"io/ioutil"
 	"log"
 	"reflect"
 	"strings"
-	"github.com/ontio/sagapi/config"
 )
 
 type ReqParam struct {

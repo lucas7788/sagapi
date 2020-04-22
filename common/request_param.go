@@ -5,7 +5,7 @@ type TakeOrderParam struct {
 	OntId            string `json:"ontId"`
 	UserName         string `json:"userName"`
 	ApiId            int    `json:"apiId"`
-	SpecificationsId int    `json:"specifications"`
+	SpecificationsId int    `json:"specificationsId"`
 }
 
 type GenerateTestKeyParam struct {

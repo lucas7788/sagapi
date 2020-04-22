@@ -31,3 +31,8 @@ type ApiDetailResponse struct {
 	Specifications      []*tables.Specifications
 	ApiBasicInfo        *tables.ApiBasicInfo
 }
+
+type OrderResult struct {
+	*tables.Order
+	*tables.APIKey
+}
