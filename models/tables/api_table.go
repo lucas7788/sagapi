@@ -6,7 +6,7 @@ type ApiBasicInfo struct {
 	ApiType         string `json:"type"` //api or data
 	Icon            string `json:"icon"`
 	Title           string `json:"title"`
-	ApiProvider     string `json:"type"`
+	ApiProvider     string `json:"provider"`
 	ApiUrl          string `json:"apiUrl"`
 	Price           string `json:"price"`
 	ApiDesc         string `json:"description"`
