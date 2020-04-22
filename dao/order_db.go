@@ -5,6 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models/tables"
+	"fmt"
 )
 
 type OrderDB struct {
@@ -91,7 +92,7 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ord
 			SpecificationsId: specifications,
 		}, nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("not found")
 }
 
 func (this *OrderDB) QueryOrderSum(ontId string) (int, error) {
@@ -321,7 +322,7 @@ func (this *OrderDB) queryQrCodeById(orderId, qrCodeId string) (*tables.QrCode, 
 			QrCodeDesc: qrCodeDesc,
 		}, nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("not found")
 }
 func (this *OrderDB) Close() error {
 	return this.db.Close()

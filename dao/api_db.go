@@ -158,7 +158,7 @@ func (this *ApiDB) QueryInvokeFreByApiId(apiId int) (int, error) {
 		}
 		return invokeFrequency, nil
 	}
-	return 0, nil
+	return 0, fmt.Errorf("not found")
 }
 
 func (this *ApiDB) QueryApiBasicInfoByApiId(apiId int) (*tables.ApiBasicInfo, error) {
@@ -188,7 +188,7 @@ Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId
 		return common.BuildApiBasicInfo(apiId, apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, specifications,
 			popularity, delay, successRate, invokeFrequency, createTime), nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("not found")
 }
 func (this *ApiDB) QueryTagIdByCategoryId(categoryId int) (int, error) {
 	strSql := `select id from tbl_tag where category_id =?`
@@ -281,7 +281,7 @@ SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId=?`
 		return common.BuildApiBasicInfo(apiId, apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, specifications, popularity,
 			delay, successRate, invokeFrequency, createTime), nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("not found")
 }
 
 func (this *ApiDB) SearchApiByKey(key string) ([]*tables.ApiBasicInfo, error) {
@@ -367,7 +367,7 @@ func (this *ApiDB) QueryApiDetailInfoById(apiId int) (*tables.ApiDetailInfo, err
 			ApplicationScenario: applicationScenario,
 		}, nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("not found")
 }
 
 func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
@@ -631,7 +631,7 @@ func (this *ApiDB) QueryApiTestKeyByOntIdAndApiId(ontId string, apiId int) (*tab
 			OntId:        ontId,
 		}, nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("not found")
 }
 
 func (this *ApiDB) QueryApiTestKeyByApiTestKey(apiTestKey string) (*tables.APIKey, error) {
@@ -664,7 +664,7 @@ func (this *ApiDB) QueryApiTestKeyByApiTestKey(apiTestKey string) (*tables.APIKe
 			OntId:        ontId,
 		}, nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("not found")
 }
 
 func (this *ApiDB) UpdateApiKeyUsedNum(apiKey string, usedNum int) error {
@@ -738,7 +738,7 @@ func (this *ApiDB) queryApiKey(key, orderId string) (*tables.APIKey, error) {
 			OntId:        ontId,
 		}, nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("not found")
 }
 
 func (this *ApiDB) VerifyApiKey(apiKey string) error {
