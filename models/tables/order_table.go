@@ -3,32 +3,32 @@ package tables
 import "github.com/ontio/sagapi/config"
 
 type Order struct {
-	OrderId          string
-	Title            string
-	ProductName      string
-	OrderType        string
-	OrderTime        int64
-	PayTime          int64
-	OrderStatus      config.OrderStatus
-	Amount           string
-	OntId            string
-	UserName         string
-	TxHash           string
-	Price            string
-	ApiId            int
-	SpecificationsId int
-	Coin             string
+	OrderId          string             `json:"orderId"`
+	Title            string             `json:"title"`
+	ProductName      string             `json:"productName"`
+	OrderType        string             `json:"orderType"`
+	OrderTime        int64              `json:"orderTime"`
+	PayTime          int64              `json:"payTime"`
+	OrderStatus      config.OrderStatus `json:"orderStatus"`
+	Amount           string             `json:"amount"`
+	OntId            string             `json:"ontId"`
+	UserName         string             `json:"userName"`
+	TxHash           string             `json:"txHash"`
+	Price            string             `json:"price"`
+	ApiId            int                `json:"apiId"`
+	SpecificationsId int                `json:"specificationsId"`
+	Coin             string             `json:"coin"`
 }
 
 type APIKey struct {
-	Id           int
-	ApiKey       string
-	OrderId      string
-	ApiId        int
-	RequestLimit int
-	UsedNum      int
-	OntId        string
-	OrderStatus  config.OrderStatus
+	Id           int                `json:"id"`
+	ApiKey       string             `json:"apiKey"`
+	OrderId      string             `json:"orderId"`
+	ApiId        int                `json:"apiId"`
+	RequestLimit int                `json:"requestLimit"`
+	UsedNum      int                `json:"usedNum"`
+	OntId        string             `json:"ontId"`
+	OrderStatus  config.OrderStatus `json:"orderStatus"`
 }
 
 type QrCode struct {

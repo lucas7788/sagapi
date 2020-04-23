@@ -19,58 +19,59 @@ type ApiBasicInfo struct {
 }
 
 type ApiTag struct {
-	Id         int
-	ApiId      int
-	TagId      int
-	State      byte
-	CreateTime int
+	Id         int  `json:"id"`
+	ApiId      int  `json:"apiId"`
+	TagId      int  `json:"tagId"`
+	State      byte `json:"state"`
+	CreateTime int  `json:"createTime"`
 }
 
 type Tag struct {
-	Id         int
-	Name       string
-	CategoryId int
-	State      byte
-	CreateTime int
+	Id         int    `json:"id"`
+	Name       string `json:"name"`
+	CategoryId int    `json:"categoryId"`
+	State      byte   `json:"state"`
+	CreateTime int    `json:"createTime"`
 }
+
 type Category struct {
-	Id     int
-	NameZh string
-	NameEn string
-	Icon   string
-	State  byte
+	Id     int    `json:"id"`
+	NameZh string `json:"nameZh"`
+	NameEn string `json:"nameEn"`
+	Icon   string `json:"icon"`
+	State  byte   `json:"state"`
 }
 
 type ApiDetailInfo struct {
-	Id                  int
-	ApiId               int
-	RequestType         string
-	Mark                string
-	ResponseParam       string
-	ResponseExample     string
-	DataDesc            string
-	DataSource          string
-	ApplicationScenario string
+	Id                  int    `json:"id"`
+	ApiId               int    `json:"apiId"`
+	RequestType         string `json:"requestType"`
+	Mark                string `json:"mark"`
+	ResponseParam       string `json:"responseParam"`
+	ResponseExample     string `json:"responseExample"`
+	DataDesc            string `json:"dataDesc"`
+	DataSource          string `json:"dataSource"`
+	ApplicationScenario string `json:"applicationScenario"`
 }
 
 type Specifications struct {
-	Id              int
-	ApiDetailInfoId int
-	Price           string
-	Amount          int
+	Id              int    `json:"id"`
+	ApiDetailInfoId int    `json:"apiDetailInfoId"`
+	Price           string `json:"price"`
+	Amount          int    `json:"amount"`
 }
 
 type RequestParam struct {
-	ApiDetailInfoId int
-	ParamName       string
-	Required        bool
-	ParamType       string
-	Note            string
-	ValueDesc       string
+	ApiDetailInfoId int    `json:"apiDetailInfoId"`
+	ParamName       string `json:"paramName"`
+	Required        bool   `json:"required"`
+	ParamType       string `json:"paramType"`
+	Note            string `json:"note"`
+	ValueDesc       string `json:"valueDesc"`
 }
 
 type ErrorCode struct {
-	ApiDetailInfoId int
-	ErrorCode       int
-	ErrorDesc       string
+	ApiDetailInfoId int    `json:"apiDetailInfoId"`
+	ErrorCode       int    `json:"errorCode"`
+	ErrorDesc       string `json:"errorDesc"`
 }

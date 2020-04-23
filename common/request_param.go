@@ -35,8 +35,8 @@ type GetQrCodeParam struct {
 }
 
 type OrderIdParam struct {
-	OrderId string
+	OrderId string `json:"orderId"`
 }
 type QrCodeIdParam struct {
-	QrCodeId string
+	QrCodeId string `json:"qrCodeId"`
 }
