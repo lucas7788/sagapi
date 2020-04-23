@@ -39,7 +39,7 @@ type OrderResult struct {
 	Title        string             `json:"title"`
 	Total        int                `json:"total"`
 	OrderId      string             `json:"orderId"`
-  Amount       string             `json:"amount`
+	Amount       string             `json:"amount`
 	CreateTime   int64              `json:"createTime"`
 	TxHash       string             `json:"txHash"`
 	ApiId        int                `json:"apiId"`

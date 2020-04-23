@@ -82,13 +82,13 @@ func GenerateTestKey(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	ontid, ok := c.Get(config.Key_OntId)
+	ontId, ok := c.Get(config.Key_OntId)
 	if !ok {
-		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
+		log.Errorf("[GenerateTestKey] ontId is nil: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	testKey, err := core.DefSagaApi.GenerateApiTestKey(params.ApiId, ontid.(string))
+	testKey, err := core.DefSagaApi.GenerateApiTestKey(params.ApiId, ontId.(string))
 	if err != nil || testKey == nil {
 		log.Errorf("[GenerateTestKey] GenerateApiTestKey failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))

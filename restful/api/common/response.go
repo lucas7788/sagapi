@@ -31,7 +31,7 @@ func ResponseFailed(errCode int64, err error) *ResponseResult {
 	return &ResponseResult{
 		Result:  nil,
 		Error:   errCode,
-		Desc:    ErrMap[errCode] + err.Error(),
+		Desc:    ErrMap[errCode] + ": " + err.Error(),
 		Version: "1.0",
 	}
 }

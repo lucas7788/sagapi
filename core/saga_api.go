@@ -8,6 +8,7 @@ import (
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"strings"
 )
 
 var DefSagaApi *SagaApi
@@ -26,7 +27,7 @@ func NewSagaApi() *SagaApi {
 
 func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey, error) {
 	testKey, err := this.QueryApiTestKeyByOntIdAndApiId(ontid, apiId)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "not found") {
 		return nil, err
 	}
 	if testKey != nil {
