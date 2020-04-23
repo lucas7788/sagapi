@@ -376,8 +376,14 @@ func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
 	}
 	sqlStrArr := make([]string, len(params))
 	for i, param := range params {
-		sqlStrArr[i] = fmt.Sprintf("('%d','%s','%s','%t','%s')",
-			param.ApiDetailInfoId, param.ParamName, param.ParamType, param.Required, param.ValueDesc)
+		var require int
+		if param.Required {
+			require = 1
+		} else {
+			require = 0
+		}
+		sqlStrArr[i] = fmt.Sprintf("('%d','%s','%s','%d','%s')",
+			param.ApiDetailInfoId, param.ParamName, param.ParamType, require, param.ValueDesc)
 	}
 	strSql := `insert into tbl_request_param (ApiDetailInfoId,ParamName,ParamType,Required,ValueDesc) values`
 	strSql += strings.Join(sqlStrArr, ",")
@@ -793,7 +799,7 @@ func (this *ApiDB) InsertTag(tag *tables.Tag) error {
 }
 
 func (this *ApiDB) InsertCategory(category *tables.Category) error {
-	strSql := `insert into tbl_tag (id, name_zh, name_en, icon, state) values (?,?,?,?,?)`
+	strSql := `insert into tbl_category (id, name_zh, name_en, icon, state) values (?,?,?,?,?)`
 
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {

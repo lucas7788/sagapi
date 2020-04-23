@@ -6,7 +6,7 @@ services:
     - mysql
 
 before_install:
-    - sudo mysql -e 'CREATE DATABASE saga;'
+    - mysql -u root --password="" < .travis.sql
 
 os:
   - linux

@@ -19,6 +19,7 @@ const (
 	NETWORK_ID_MAIN_NET    = 1
 	NETWORK_ID_POLARIS_NET = 2
 	NETWORK_ID_SOLO_NET    = 3
+	NETWORK_ID_TRAVIS_NET  = 4
 )
 
 type OrderStatus uint8

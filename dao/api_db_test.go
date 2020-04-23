@@ -5,6 +5,7 @@ import (
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestApiDB_InsertApiBasicInfo(t *testing.T) {
@@ -77,9 +78,7 @@ func TestApiDB_InsertRequestParam(t *testing.T) {
 	}
 	err := TestDB.ApiDB.InsertRequestParam(requestParam)
 	assert.Nil(t, err)
-}
 
-func TestApiDB_QueryRequestParamByApiDetailInfoId(t *testing.T) {
 	param, err := TestDB.ApiDB.QueryRequestParamByApiDetailInfoId(1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(param), 10)
@@ -115,15 +114,19 @@ func TestApiDB_QueryNewestApiBasicInfo(t *testing.T) {
 
 func TestApiDB_testTag(t *testing.T) {
 	a := &tables.ApiTag{
-		Id: 20,
+		Id:         20,
+		CreateTime: time.Now(),
 	}
 
 	b := &tables.Tag{
-		Id: 30,
+		Id:         30,
+		CreateTime: time.Now(),
 	}
 
 	c := &tables.Category{
-		Id: 40,
+		Id:     40,
+		NameZh: "xxx",
+		NameEn: "xxx",
 	}
 
 	err := TestDB.ApiDB.InsertApiTag(a)

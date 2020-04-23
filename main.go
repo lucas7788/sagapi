@@ -97,7 +97,8 @@ func initDB(ctx *cli.Context) error {
 		config.DefSagaConfig.DbConfig.ProjectDBUser = userName
 		config.DefSagaConfig.DbConfig.ProjectDBPassword = string(pwd)
 	}
-	db, err := dao.NewSagaApiDB()
+	var sagaDBConfig = *config.DefSagaConfig
+	db, err := dao.NewSagaApiDB(&sagaDBConfig)
 	if err != nil {
 		return err
 	}

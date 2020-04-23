@@ -45,6 +45,12 @@ var DefDBConfigMap = map[int]*DBConfig{
 		ProjectDBPassword: "111111",
 		ProjectDBName:     "saga",
 	},
+	NETWORK_ID_TRAVIS_NET: &DBConfig{
+		ProjectDBUrl:      "127.0.0.1",
+		ProjectDBUser:     "root",
+		ProjectDBPassword: "",
+		ProjectDBName:     "saga",
+	},
 }
 
 var DefSagaConfig = &Config{

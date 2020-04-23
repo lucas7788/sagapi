@@ -1,5 +1,9 @@
 package tables
 
+import (
+	"time"
+)
+
 type ApiBasicInfo struct {
 	ApiId           int    `json:"apiId"`
 	Coin            string `json:"coin"` //ONG,ONT
@@ -19,19 +23,19 @@ type ApiBasicInfo struct {
 }
 
 type ApiTag struct {
-	Id         int  `json:"id"`
-	ApiId      int  `json:"apiId"`
-	TagId      int  `json:"tagId"`
-	State      byte `json:"state"`
-	CreateTime int  `json:"createTime"`
+	Id         int       `json:"id"`
+	ApiId      int       `json:"apiId"`
+	TagId      int       `json:"tagId"`
+	State      byte      `json:"state"`
+	CreateTime time.Time `json:"createTime"`
 }
 
 type Tag struct {
-	Id         int    `json:"id"`
-	Name       string `json:"name"`
-	CategoryId int    `json:"categoryId"`
-	State      byte   `json:"state"`
-	CreateTime int    `json:"createTime"`
+	Id         int       `json:"id"`
+	Name       string    `json:"name"`
+	CategoryId int       `json:"categoryId"`
+	State      byte      `json:"state"`
+	CreateTime time.Time `json:"createTime"`
 }
 
 type Category struct {
