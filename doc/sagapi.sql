@@ -157,7 +157,7 @@ CREATE TABLE `tbl_qr_code` (
   Id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   QrCodeId varchar(50) unique not null default '',
   Ver varchar(50) not null default '',
-  OrderId varchar(50) unique not null default '' ,
+  OrderId varchar(50) not null default '' ,
   Requester varchar(50) not null default '',
   Signature varchar(200) not null default '',
   Signer varchar(50) not null default '',

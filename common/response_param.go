@@ -39,6 +39,7 @@ type OrderResult struct {
 	Title        string
 	Total        int
 	OrderId      string
+	Amount       string
 	CreateTime   int64
 	TxHash       string
 	ApiId        int
