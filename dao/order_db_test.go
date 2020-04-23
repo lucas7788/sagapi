@@ -17,9 +17,7 @@ var TestDB *SagaApiDB
 func TestMain(m *testing.M) {
 	fmt.Println("begin test db.")
 	var err error
-	sagaDBConfig := sagaconfig.DefSagaConfig
-	sagaDBConfig.DbConfig = sagaconfig.DefDBConfigMap[sagaconfig.NETWORK_ID_TRAVIS_NET]
-	TestDB, err = NewSagaApiDB(sagaDBConfig)
+	TestDB, err = NewSagaApiDB(sagaconfig.DefDBConfigMap[sagaconfig.NETWORK_ID_TRAVIS_NET])
 	if err != nil {
 		panic(err)
 	}

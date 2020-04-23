@@ -16,12 +16,12 @@ type SagaApiDB struct {
 	OtherDB  *OtherDB
 }
 
-func NewSagaApiDB(sagaDBConfig *sagaconfig.Config) (*SagaApiDB, error) {
+func NewSagaApiDB(dbConfig *sagaconfig.DBConfig) (*SagaApiDB, error) {
 	db, dberr := sql.Open("mysql",
-		sagaDBConfig.DbConfig.ProjectDBUser+
-			":"+sagaDBConfig.DbConfig.ProjectDBPassword+
-			"@tcp("+sagaDBConfig.DbConfig.ProjectDBUrl+
-			")/"+sagaDBConfig.DbConfig.ProjectDBName+
+		dbConfig.ProjectDBUser+
+			":"+dbConfig.ProjectDBPassword+
+			"@tcp("+dbConfig.ProjectDBUrl+
+			")/"+dbConfig.ProjectDBName+
 			"?charset=utf8&parseTime=true")
 	if dberr != nil {
 		return nil, dberr
