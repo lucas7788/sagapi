@@ -21,31 +21,31 @@ type QrCode struct {
 }
 
 type ApiDetailResponse struct {
-	ApiId               int
-	Mark                string
-	ResponseParam       string
-	ResponseType        string
-	ResponseExample     string
-	DataDesc            string
-	DataSource          string
-	ApplicationScenario string
-	RequestParams       []*tables.RequestParam
-	ErrorCodes          []*tables.ErrorCode
-	Specifications      []*tables.Specifications
-	ApiBasicInfo        *tables.ApiBasicInfo
+	ApiId               int                      `json:"apiId"`
+	Mark                string                   `json:"mark"`
+	ResponseParam       string                   `json:"responseParam"`
+	ResponseType        string                   `json:"responseType"`
+	ResponseExample     string                   `json:"responseExample"`
+	DataDesc            string                   `json:"dataDesc"`
+	DataSource          string                   `json:"dataSource"`
+	ApplicationScenario string                   `json:"applicationScenario"`
+	RequestParams       []*tables.RequestParam   `json:"requestParams"`
+	ErrorCodes          []*tables.ErrorCode      `json:"errorCodes"`
+	Specifications      []*tables.Specifications `json:"specifications"`
+	ApiBasicInfo        *tables.ApiBasicInfo     `json:"apiBasicInfo"`
 }
 
 type OrderResult struct {
-	Title        string
-	Total        int
-	OrderId      string
-	CreateTime   int64
-	TxHash       string
-	ApiId        int
-	RequestLimit int
-	UsedNum      int
-	Status       config.OrderStatus
-	ApiKey       string
-	Price        string
-	Coin         string
+	Title        string             `json:"title"`
+	Total        int                `json:"total"`
+	OrderId      string             `json:"orderId"`
+	CreateTime   int64              `json:"createTime"`
+	TxHash       string             `json:"txHash"`
+	ApiId        int                `json:"apiId"`
+	RequestLimit int                `json:"requestLimit"`
+	UsedNum      int                `json:"usedNum"`
+	Status       config.OrderStatus `json:"status"`
+	ApiKey       string             `json:"apiKey"`
+	Price        string             `json:"price"`
+	Coin         string             `json:"coin"`
 }
