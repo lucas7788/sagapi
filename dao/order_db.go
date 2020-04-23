@@ -49,6 +49,32 @@ func (this *OrderDB) UpdateTxInfoByOrderId(orderId string, txHash string, status
 	return err
 }
 
+func (this *OrderDB) QueryOrderStatusByOrderId(orderId string) (config.OrderStatus, error) {
+	strSql := `select OrderStatus from tbl_order where OrderId=?`
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return 0, err
+	}
+	rows, err := stmt.Query(orderId)
+	if rows != nil {
+		defer rows.Close()
+	}
+	if err != nil {
+		return 0, err
+	}
+	for rows.Next() {
+		var orderStatus uint8
+		if err = rows.Scan(&orderStatus); err != nil {
+			return 0, err
+		}
+		return config.OrderStatus(orderStatus), nil
+	}
+	return 0, fmt.Errorf("order not found, orderId: %s", orderId)
+}
+
 func (this *OrderDB) QueryOrderByOrderId(orderId string) (*tables.Order, error) {
 	strSql := `select OrderId,Title, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
 OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where OrderId=?`
@@ -92,7 +118,7 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ord
 			SpecificationsId: specifications,
 		}, nil
 	}
-	return nil, fmt.Errorf("not found")
+	return nil, fmt.Errorf("order not found, orderId: %s", orderId)
 }
 
 func (this *OrderDB) QueryOrderSum(ontId string) (int, error) {
@@ -169,7 +195,8 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ont
 }
 
 func (this *OrderDB) InsertQrCode(code *tables.QrCode) error {
-	strSql := `insert into tbl_qr_code (QrCodeId,Ver, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc) values (?,?,?,?,?,?,?,?,?,?,?)`
+	strSql := `insert into tbl_qr_code (QrCodeId,Ver, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,
+Chain,QrCodeDesc) values (?,?,?,?,?,?,?,?,?,?,?)`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -177,11 +204,25 @@ func (this *OrderDB) InsertQrCode(code *tables.QrCode) error {
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(code.QrCodeId, code.Ver, code.OrderId, code.Requester, code.Signature, code.Signer, code.QrCodeData, code.Callback, code.Exp, code.Chain, code.QrCodeDesc)
+	_, err = stmt.Exec(code.QrCodeId, code.Ver, code.OrderId, code.Requester, code.Signature, code.Signer,
+		code.QrCodeData, code.Callback, code.Exp, code.Chain, code.QrCodeDesc)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (this *OrderDB) DeleteQrCodeByOrderId(orderId string) error {
+	strSql := `delete from tbl_qr_code where OrderId=?`
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(orderId)
+	return err
 }
 
 func (this *OrderDB) QueryOrderIdByQrCodeId(qrCodeId string) (string, error) {

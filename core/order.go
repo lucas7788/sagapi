@@ -9,14 +9,18 @@ import (
 	"github.com/ontio/sagapi/utils"
 	"math/big"
 	"strings"
+	"sync"
 	"time"
 )
 
 type SagaOrder struct {
+	qrCodeCache *sync.Map //qrCodeId -> QrCode
 }
 
 func NewSagaOrder() *SagaOrder {
-	return &SagaOrder{}
+	return &SagaOrder{
+		qrCodeCache: new(sync.Map),
+	}
 }
 
 func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResponse, error) {
@@ -57,11 +61,12 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 		return nil, fmt.Errorf("error ontid: %s", param.OntId)
 	}
 	code := common.BuildTestNetQrCode(orderId, param.OntId, arr[2], arr[2], "AbtTQJYKfQxq4UdygDsbLVjE8uRrJ2H3tP", amountStr)
+	//this.qrCodeCache.Store(code.QrCodeId, code)
 	err = dao.DefSagaApiDB.OrderDB.InsertQrCode(code)
 	if err != nil {
 		return nil, err
 	}
-	return common.BuildQrCodeResult(code.QrCodeId), nil
+	return common.BuildQrCodeResponse(code.QrCodeId), nil
 }
 
 func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (map[string]interface{}, error) {
@@ -83,7 +88,7 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 	res := make([]*common.OrderResult, len(orders))
 	for i, order := range orders {
 		apiKey, err := dao.DefSagaApiDB.ApiDB.QueryApiKeyByOrderId(order.OrderId)
-		if err != nil && !strings.Contains(err.Error(),"not found") {
+		if err != nil && !strings.Contains(err.Error(), "not found") {
 			return nil, err
 		}
 		if apiKey == nil {
@@ -102,6 +107,7 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 		res[i] = &common.OrderResult{
 			Title:        order.Title,
 			OrderId:      order.OrderId,
+			Amount:       order.Amount,
 			CreateTime:   order.OrderTime,
 			TxHash:       order.TxHash,
 			ApiId:        order.ApiId,
@@ -119,15 +125,22 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 	}, nil
 }
 
-func (this *SagaOrder) GetQrCodeByOrderId(orderId string) (*common.QrCodeResponse, error) {
-	code, err := dao.DefSagaApiDB.OrderDB.QueryQrCodeByOrderId(orderId)
+//every time generate new qrcode
+func (this *SagaOrder) GetQrCodeByOrderId(ontId, orderId string) (*common.QrCodeResponse, error) {
+	arr := strings.Split(ontId, ":")
+	if len(arr) != 3 {
+		return nil, fmt.Errorf("error ontId: %s", ontId)
+	}
+	order, err := dao.DefSagaApiDB.OrderDB.QueryOrderByOrderId(orderId)
 	if err != nil {
 		return nil, err
 	}
-	if code == nil {
-		return nil, nil
+	code := common.BuildTestNetQrCode(orderId, ontId, arr[2], arr[2], config.Collect_Money_Address, order.Amount)
+	err = dao.DefSagaApiDB.OrderDB.InsertQrCode(code)
+	if err != nil {
+		return nil, err
 	}
-	return common.BuildQrCodeResult(code.QrCodeId), nil
+	return common.BuildQrCodeResponse(code.QrCodeId), nil
 }
 
 func (this *SagaOrder) GetQrCodeDataById(id string) (*tables.QrCode, error) {
@@ -137,11 +150,32 @@ func (this *SagaOrder) GetQrCodeResultById(id string) (string, error) {
 	return dao.DefSagaApiDB.OrderDB.QueryQrCodeResultByQrCodeId(id)
 }
 
-func (this *SagaOrder) CancelOrder(param *common.OrderIdParam) error {
-	return dao.DefSagaApiDB.OrderDB.UpdateOrderStatus(param.OrderId, config.Canceled)
+//1. delete qrCodeId
+//2. cancel order
+func (this *SagaOrder) CancelOrder(orderId string) error {
+	status, err := dao.DefSagaApiDB.OrderDB.QueryOrderStatusByOrderId(orderId)
+	if err != nil {
+		return err
+	}
+	if status == config.Processing {
+		//delete qrCodeId
+		err = dao.DefSagaApiDB.OrderDB.DeleteQrCodeByOrderId(orderId)
+		if err != nil {
+			return err
+		}
+		return dao.DefSagaApiDB.OrderDB.UpdateOrderStatus(orderId, config.Canceled)
+	}
+	return fmt.Errorf("only processing order can be canceled")
 }
-func (this *SagaOrder) DeleteOrderByOrderId(param *common.OrderIdParam) error {
-	return dao.DefSagaApiDB.OrderDB.DeleteOrderByOrderId(param.OrderId)
+
+//1. delete qrCodeId
+//2. cancel order
+func (this *SagaOrder) DeleteOrderByOrderId(orderId string) error {
+	err := dao.DefSagaApiDB.OrderDB.DeleteQrCodeByOrderId(orderId)
+	if err != nil {
+		return err
+	}
+	return dao.DefSagaApiDB.OrderDB.DeleteOrderByOrderId(orderId)
 }
 
 func (this *SagaOrder) GetTxResult(orderId string) (*common.GetOrderResponse, error) {

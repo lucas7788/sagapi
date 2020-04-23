@@ -32,13 +32,35 @@ func TestOrderDB_UpdateOrderStatus(t *testing.T) {
 
 func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
+	orderId := "abcedkfy"
 	br := &tables.Order{
 		ApiId:     1,
-		OrderId:   "abcdefg",
+		OrderId:   orderId,
 		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 		OrderTime: tt,
 	}
 	err := TestDB.OrderDB.InsertOrder(br)
+	assert.Nil(t, err)
+	code := &tables.QrCode{
+		QrCodeId: "qbcdab",
+		OrderId:  orderId,
+		Exp:      tt,
+	}
+	err = TestDB.OrderDB.InsertQrCode(code)
+	assert.Nil(t, err)
+	code = &tables.QrCode{
+		QrCodeId: "qbcdabc",
+		OrderId:  orderId,
+		Exp:      tt,
+	}
+	err = TestDB.OrderDB.InsertQrCode(code)
+	assert.Nil(t, err)
+	code, err = TestDB.OrderDB.QueryQrCodeByOrderId(orderId)
+	assert.Nil(t, err)
+	fmt.Println(code)
+	err = TestDB.OrderDB.DeleteQrCodeByOrderId(orderId)
+	assert.Nil(t, err)
+	err = TestDB.OrderDB.DeleteOrderByOrderId(orderId)
 	assert.Nil(t, err)
 }
 
@@ -52,7 +74,6 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 	}
 	err := TestDB.ApiDB.InsertApiKey(key)
 	assert.Nil(t, err)
-
 }
 
 func TestApiDB_QueryApiKey(t *testing.T) {

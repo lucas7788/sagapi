@@ -17,7 +17,7 @@ func GenerateUUId() string {
 	return u1.String()
 }
 
-func BuildQrCodeResult(id string) *QrCodeResponse {
+func BuildQrCodeResponse(id string) *QrCodeResponse {
 	return &QrCodeResponse{
 		QrCode: QrCode{
 			ONTAuthScanProtocol: config.DefSagaConfig.ONTAuthScanProtocol + "/" + id,

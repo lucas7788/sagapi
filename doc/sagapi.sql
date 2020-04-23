@@ -111,7 +111,7 @@ create table tbl_error_code (
 
 
 create table tbl_order (
-  OrderId varchar(50) unique not null COMMENT '',
+  OrderId varchar(100) unique not null COMMENT '',
   Title varchar(100) not null COMMENT '',
   ProductName varchar(50) not null default '' COMMENT '',
   OrderType varchar(50) not null default ''  COMMENT '',
@@ -135,7 +135,7 @@ create table tbl_api_key (
   Id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   ApiKey varchar(50) unique not null  default '',
   ApiId int(11) not null,
-  OrderId varchar(50) unique not null COMMENT '',
+  OrderId varchar(100) unique not null COMMENT '',
   RequestLimit int(11) not null default 0,
   UsedNum int(11) not null default 0,
   OntId varchar(50) not null default '',
@@ -155,17 +155,17 @@ create table tbl_api_test_key (
 
 CREATE TABLE `tbl_qr_code` (
   Id int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  QrCodeId varchar(50) unique not null default '',
+  QrCodeId varchar(100) unique not null default '',
   Ver varchar(50) not null default '',
-  OrderId varchar(50) unique not null default '' ,
+  OrderId varchar(100) not null default '' ,
   Requester varchar(50) not null default '',
   Signature varchar(200) not null default '',
   Signer varchar(50) not null default '',
-  QrCodeData varchar(1000) not null default '',
+  QrCodeData text,
   Callback varchar(400) not null default '',
-  Exp varchar(50) not null default '',
+  Exp int(11) not null default 0,
   Chain varchar(50) not null default '',
-  QrCodeDesc varchar(50) not null default '',
+  QrCodeDesc varchar(100) not null default '',
   PRIMARY KEY (Id),
   foreign key(OrderId) references tbl_order(OrderId)
 )default charset=utf8;
