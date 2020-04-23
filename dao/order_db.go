@@ -195,7 +195,8 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ont
 }
 
 func (this *OrderDB) InsertQrCode(code *tables.QrCode) error {
-	strSql := `insert into tbl_qr_code (QrCodeId,Ver, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc) values (?,?,?,?,?,?,?,?,?,?,?)`
+	strSql := `insert into tbl_qr_code (QrCodeId,Ver, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,
+Chain,QrCodeDesc) values (?,?,?,?,?,?,?,?,?,?,?)`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -203,7 +204,8 @@ func (this *OrderDB) InsertQrCode(code *tables.QrCode) error {
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(code.QrCodeId, code.Ver, code.OrderId, code.Requester, code.Signature, code.Signer, code.QrCodeData, code.Callback, code.Exp, code.Chain, code.QrCodeDesc)
+	_, err = stmt.Exec(code.QrCodeId, code.Ver, code.OrderId, code.Requester, code.Signature, code.Signer,
+		code.QrCodeData, code.Callback, code.Exp, code.Chain, code.QrCodeDesc)
 	if err != nil {
 		return err
 	}
