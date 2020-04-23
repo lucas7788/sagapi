@@ -5,8 +5,8 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ontio/sagapi/common"
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/sagaconfig"
 	"strings"
 )
 
@@ -114,7 +114,7 @@ InvokeFrequency,CreateTime from tbl_api_basic_info where Price='' limit ?`
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(config.QueryAmt)
+	rows, err := stmt.Query(sagaconfig.QueryAmt)
 	if rows != nil {
 		defer rows.Close()
 	}

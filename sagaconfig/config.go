@@ -1,4 +1,4 @@
-package config
+package sagaconfig
 
 import (
 	"github.com/ontio/ontology-go-sdk"

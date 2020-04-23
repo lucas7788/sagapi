@@ -14,17 +14,17 @@ import (
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/cmd"
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/restful"
+	"github.com/ontio/sagapi/sagaconfig"
 )
 
 func setupAPP() *cli.App {
 	app := cli.NewApp()
 	app.Usage = "sagapi CLI"
 	app.Action = startSaga
-	app.Version = config.Version
+	app.Version = sagaconfig.Version
 	app.Copyright = "Copyright in 2018 The Ontology Authors"
 	app.Flags = []cli.Flag{
 		cmd.LogLevelFlag,
@@ -61,31 +61,31 @@ func startSaga(ctx *cli.Context) {
 		return
 	}
 	core.DefSagaApi = core.NewSagaApi()
-	log.Info("ONTAuthScanProtocol:", config.DefSagaConfig.ONTAuthScanProtocol)
-	log.Info("QrCodeCallback:", config.DefSagaConfig.QrCodeCallback)
+	log.Info("ONTAuthScanProtocol:", sagaconfig.DefSagaConfig.ONTAuthScanProtocol)
+	log.Info("QrCodeCallback:", sagaconfig.DefSagaConfig.QrCodeCallback)
 	startServer()
 	waitToExit()
 }
 
 func initAccount() error {
-	pri, _ := common.HexToBytes(config.OntIdPrivate)
+	pri, _ := common.HexToBytes(sagaconfig.OntIdPrivate)
 	acc, err := ontology_go_sdk.NewAccountFromPrivateKey(pri, signature.SHA256withECDSA)
 	if err != nil {
 		return err
 	}
-	config.DefSagaConfig.OntIdAccount = acc
+	sagaconfig.DefSagaConfig.OntIdAccount = acc
 	return nil
 }
 
 func initLog(ctx *cli.Context) {
 	//init log module
 	logLevel := ctx.GlobalInt(cmd.GetFlagName(cmd.LogLevelFlag))
-	logName := fmt.Sprintf("%s%s", config.LogPath, string(os.PathSeparator))
+	logName := fmt.Sprintf("%s%s", sagaconfig.LogPath, string(os.PathSeparator))
 	log.InitLog(logLevel, logName, log.Stdout)
 }
 
 func initDB(ctx *cli.Context) error {
-	if config.DefSagaConfig.NetWorkId == config.NETWORK_ID_MAIN_NET {
+	if sagaconfig.DefSagaConfig.NetWorkId == sagaconfig.NETWORK_ID_MAIN_NET {
 		userName, err := getDBUserName()
 		if err != nil {
 			return fmt.Errorf("getDBUserName failed, error: %s", err)
@@ -94,10 +94,10 @@ func initDB(ctx *cli.Context) error {
 		if err != nil {
 			return fmt.Errorf("getDBPassword failed, error: %s", err)
 		}
-		config.DefSagaConfig.DbConfig.ProjectDBUser = userName
-		config.DefSagaConfig.DbConfig.ProjectDBPassword = string(pwd)
+		sagaconfig.DefSagaConfig.DbConfig.ProjectDBUser = userName
+		sagaconfig.DefSagaConfig.DbConfig.ProjectDBPassword = string(pwd)
 	}
-	var sagaDBConfig = *config.DefSagaConfig
+	var sagaDBConfig sagaconfig.Config = *sagaconfig.DefSagaConfig
 	db, err := dao.NewSagaApiDB(&sagaDBConfig)
 	if err != nil {
 		return err

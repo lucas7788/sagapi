@@ -6,9 +6,9 @@ import (
 	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/ontology/core/types"
 	common2 "github.com/ontio/sagapi/common"
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/sagaconfig"
 	"strings"
 	"time"
 )
@@ -27,18 +27,18 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	hash, err := config.DefSagaConfig.OntSdk.SendTransaction(mutTx)
+	hash, err := sagaconfig.DefSagaConfig.OntSdk.SendTransaction(mutTx)
 	if err != nil {
 		return err
 	}
-	orderId, err := dao.DefSagaApiDB.OrderDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
+	orderId, err := dao.DefSagaApiDB.QrCodeDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
 	if err != nil {
 		return err
 	}
 	err = verifyTx(hash.ToHexString())
 	if err != nil {
 		log.Errorf("verifyTx failed: %s", err)
-		err2 := dao.DefSagaApiDB.OrderDB.UpdateTxInfoByOrderId(orderId, "", config.Failed)
+		err2 := dao.DefSagaApiDB.OrderDB.UpdateTxInfoByOrderId(orderId, "", sagaconfig.Failed)
 		if err2 != nil {
 			return err2
 		}
@@ -48,7 +48,7 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	err = dao.DefSagaApiDB.OrderDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), config.Completed)
+	err = dao.DefSagaApiDB.OrderDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), sagaconfig.Completed)
 	if err != nil {
 		return err
 	}
@@ -79,16 +79,16 @@ func generateApiKey(orderId, ontId string) error {
 func verifyTx(txHash string) error {
 	retry := 0
 	for {
-		if retry > config.VERIFY_TX_RETRY {
+		if retry > sagaconfig.VERIFY_TX_RETRY {
 			return fmt.Errorf("verify tx failed, txHash: %s", txHash)
 		}
-		event, err := config.DefSagaConfig.OntSdk.GetSmartContractEvent(txHash)
+		event, err := sagaconfig.DefSagaConfig.OntSdk.GetSmartContractEvent(txHash)
 		if err != nil && strings.Contains(err.Error(), "duplicated transaction detected") {
 			return err
 		}
 		if err != nil || event == nil {
 			log.Errorf("[verifyTx] GetSmartContractEvent failed: %s", err)
-			sleepTime := config.VERIFY_TX_RETRY - retry
+			sleepTime := sagaconfig.VERIFY_TX_RETRY - retry
 			time.Sleep(time.Duration(sleepTime) * time.Second)
 			retry += 1
 			log.Infof("[verifyTx] txHash: %s, retry:%d, err: %s", txHash, retry, err)

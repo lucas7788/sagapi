@@ -9,8 +9,8 @@ import (
 	common2 "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/ontology/core/signature"
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/restful/api/common"
+	"github.com/ontio/sagapi/sagaconfig"
 	"net/http"
 	"strings"
 )
@@ -32,7 +32,7 @@ func JWT() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set(config.Key_OntId, ontid)
+		c.Set(sagaconfig.Key_OntId, ontid)
 		c.Next()
 	}
 }
@@ -47,7 +47,7 @@ func validateToken(token string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	pubKeyStr, _ := common2.HexToBytes(config.DefSagaConfig.OperatorPublicKey)
+	pubKeyStr, _ := common2.HexToBytes(sagaconfig.DefSagaConfig.OperatorPublicKey)
 	pubKey, err := keypair.DeserializePublicKey(pubKeyStr)
 	if err != nil {
 		return "", err

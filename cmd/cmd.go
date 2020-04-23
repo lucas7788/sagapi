@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/sagapi/config"
+	"github.com/ontio/sagapi/sagaconfig"
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"os"
@@ -27,12 +27,12 @@ func SetOntologyConfig(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	cfg := &config.Config{}
+	cfg := &sagaconfig.Config{}
 	err = json.Unmarshal(bs, cfg)
 	if err != nil {
 		return err
 	}
-	*config.DefSagaConfig = *cfg
+	*sagaconfig.DefSagaConfig = *cfg
 	updateConfigByCmd(ctx)
 	return nil
 }
@@ -40,23 +40,23 @@ func SetOntologyConfig(ctx *cli.Context) error {
 func updateConfigByCmd(ctx *cli.Context) error {
 	port := ctx.Uint(GetFlagName(RestPortFlag))
 	if port != 0 {
-		config.DefSagaConfig.RestPort = port
+		sagaconfig.DefSagaConfig.RestPort = port
 	}
 	networkId := ctx.Uint(GetFlagName(NetworkIdFlag))
 	if networkId > 3 {
 		return fmt.Errorf("networkid should be between 1 and 3, curr: %d", networkId)
 	}
-	config.DefSagaConfig.NetWorkId = networkId
-	rpc := config.ONT_MAIN_NET
-	if networkId == config.NETWORK_ID_POLARIS_NET {
-		rpc = config.ONT_TEST_NET
-	} else if networkId == config.NETWORK_ID_SOLO_NET {
-		rpc = config.ONT_SOLO_NET
+	sagaconfig.DefSagaConfig.NetWorkId = networkId
+	rpc := sagaconfig.ONT_MAIN_NET
+	if networkId == sagaconfig.NETWORK_ID_POLARIS_NET {
+		rpc = sagaconfig.ONT_TEST_NET
+	} else if networkId == sagaconfig.NETWORK_ID_SOLO_NET {
+		rpc = sagaconfig.ONT_SOLO_NET
 	}
 	fmt.Println("rpc:", rpc)
 	sdk := ontology_go_sdk.NewOntologySdk()
-	sdk.NewRpcClient().SetAddress(config.ONT_TEST_NET)
-	config.DefSagaConfig.OntSdk = sdk
+	sdk.NewRpcClient().SetAddress(sagaconfig.ONT_TEST_NET)
+	sagaconfig.DefSagaConfig.OntSdk = sdk
 	return nil
 }
 

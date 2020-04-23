@@ -3,9 +3,9 @@ package core
 import (
 	"fmt"
 	"github.com/ontio/sagapi/common"
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/sagaconfig"
 	"github.com/ontio/sagapi/utils"
 	"math/big"
 	"strings"
@@ -32,25 +32,25 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	if err != nil {
 		return nil, err
 	}
-	price := utils.ToIntByPrecise(spec.Price, config.ONG_DECIMALS)
+	price := utils.ToIntByPrecise(spec.Price, sagaconfig.ONG_DECIMALS)
 	specifications := new(big.Int).SetUint64(uint64(spec.Amount))
 	amount := new(big.Int).Mul(price, specifications)
-	amountStr := utils.ToStringByPrecise(amount, config.ONG_DECIMALS)
+	amountStr := utils.ToStringByPrecise(amount, sagaconfig.ONG_DECIMALS)
 	orderId := common.GenerateUUId()
 	order := &tables.Order{
 		OrderId:          orderId,
 		Title:            info.Title,
 		ProductName:      param.ProductName,
-		OrderType:        config.Api,
+		OrderType:        sagaconfig.Api,
 		OrderTime:        time.Now().Unix(),
-		OrderStatus:      config.Processing,
+		OrderStatus:      sagaconfig.Processing,
 		Amount:           amountStr,
 		OntId:            param.OntId,
 		UserName:         param.UserName,
 		Price:            spec.Price,
 		ApiId:            info.ApiId,
 		SpecificationsId: param.SpecificationsId,
-		Coin:             config.TOKEN_TYPE_ONG,
+		Coin:             sagaconfig.TOKEN_TYPE_ONG,
 	}
 	err = dao.DefSagaApiDB.OrderDB.InsertOrder(order)
 	if err != nil {
@@ -62,7 +62,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	}
 	code := common.BuildTestNetQrCode(orderId, param.OntId, arr[2], arr[2], "AbtTQJYKfQxq4UdygDsbLVjE8uRrJ2H3tP", amountStr)
 	//this.qrCodeCache.Store(code.QrCodeId, code)
-	err = dao.DefSagaApiDB.OrderDB.InsertQrCode(code)
+	err = dao.DefSagaApiDB.QrCodeDB.InsertQrCode(code)
 	if err != nil {
 		return nil, err
 	}
@@ -135,8 +135,8 @@ func (this *SagaOrder) GetQrCodeByOrderId(ontId, orderId string) (*common.QrCode
 	if err != nil {
 		return nil, err
 	}
-	code := common.BuildTestNetQrCode(orderId, ontId, arr[2], arr[2], config.Collect_Money_Address, order.Amount)
-	err = dao.DefSagaApiDB.OrderDB.InsertQrCode(code)
+	code := common.BuildTestNetQrCode(orderId, ontId, arr[2], arr[2], sagaconfig.Collect_Money_Address, order.Amount)
+	err = dao.DefSagaApiDB.QrCodeDB.InsertQrCode(code)
 	if err != nil {
 		return nil, err
 	}
@@ -144,10 +144,10 @@ func (this *SagaOrder) GetQrCodeByOrderId(ontId, orderId string) (*common.QrCode
 }
 
 func (this *SagaOrder) GetQrCodeDataById(id string) (*tables.QrCode, error) {
-	return dao.DefSagaApiDB.OrderDB.QueryQrCodeByQrCodeId(id)
+	return dao.DefSagaApiDB.QrCodeDB.QueryQrCodeByQrCodeId(id)
 }
 func (this *SagaOrder) GetQrCodeResultById(id string) (string, error) {
-	return dao.DefSagaApiDB.OrderDB.QueryQrCodeResultByQrCodeId(id)
+	return dao.DefSagaApiDB.QrCodeDB.QueryQrCodeResultByQrCodeId(id)
 }
 
 //1. delete qrCodeId
@@ -157,13 +157,13 @@ func (this *SagaOrder) CancelOrder(orderId string) error {
 	if err != nil {
 		return err
 	}
-	if status == config.Processing {
+	if status == sagaconfig.Processing {
 		//delete qrCodeId
-		err = dao.DefSagaApiDB.OrderDB.DeleteQrCodeByOrderId(orderId)
+		err = dao.DefSagaApiDB.QrCodeDB.DeleteQrCodeByOrderId(orderId)
 		if err != nil {
 			return err
 		}
-		return dao.DefSagaApiDB.OrderDB.UpdateOrderStatus(orderId, config.Canceled)
+		return dao.DefSagaApiDB.OrderDB.UpdateOrderStatus(orderId, sagaconfig.Canceled)
 	}
 	return fmt.Errorf("only processing order can be canceled")
 }
@@ -171,7 +171,7 @@ func (this *SagaOrder) CancelOrder(orderId string) error {
 //1. delete qrCodeId
 //2. cancel order
 func (this *SagaOrder) DeleteOrderByOrderId(orderId string) error {
-	err := dao.DefSagaApiDB.OrderDB.DeleteQrCodeByOrderId(orderId)
+	err := dao.DefSagaApiDB.QrCodeDB.DeleteQrCodeByOrderId(orderId)
 	if err != nil {
 		return err
 	}
@@ -187,11 +187,11 @@ func (this *SagaOrder) GetTxResult(orderId string) (*common.GetOrderResponse, er
 		UserName: order.UserName,
 		OntId:    order.OntId,
 	}
-	if order.OrderStatus == config.Completed {
+	if order.OrderStatus == sagaconfig.Completed {
 		res.Result = "1"
-	} else if order.OrderStatus == config.Processing {
+	} else if order.OrderStatus == sagaconfig.Processing {
 		res.Result = ""
-	} else if order.OrderStatus == config.Failed {
+	} else if order.OrderStatus == sagaconfig.Failed {
 		res.Result = "0"
 	}
 	return res, nil

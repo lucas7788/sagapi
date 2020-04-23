@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/log"
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/sagaconfig"
 	"github.com/ontio/sagapi/utils"
 	"github.com/satori/go.uuid"
 	"time"
@@ -20,7 +20,7 @@ func GenerateUUId() string {
 func BuildQrCodeResponse(id string) *QrCodeResponse {
 	return &QrCodeResponse{
 		QrCode: QrCode{
-			ONTAuthScanProtocol: config.DefSagaConfig.ONTAuthScanProtocol + "/" + id,
+			ONTAuthScanProtocol: sagaconfig.DefSagaConfig.ONTAuthScanProtocol + "/" + id,
 		},
 		Id: id,
 	}
@@ -31,13 +31,13 @@ func BuildTestNetQrCode(orderId, ontid, payer, from, to, value string) *tables.Q
 }
 
 func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.QrCode {
-	exp := time.Now().Unix() + config.QrCodeExp
-	amt := utils.ToIntByPrecise(value, config.ONG_DECIMALS)
+	exp := time.Now().Unix() + sagaconfig.QrCodeExp
+	amt := utils.ToIntByPrecise(value, sagaconfig.ONG_DECIMALS)
 	data := &models.QrCodeData{
 		Action: "signTransaction",
 		Params: models.QrCodeParam{
 			InvokeConfig: models.InvokeConfig{
-				ContractHash: config.ONG_CONTRACT_ADDRESS,
+				ContractHash: sagaconfig.ONG_CONTRACT_ADDRESS,
 				Functions: []models.Function{
 					models.Function{
 						Operation: "transfer",
@@ -69,7 +69,7 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 	}
 	log.Errorf("qrdata length: %d", len(databs))
 	id := GenerateUUId()
-	sig, err := config.DefSagaConfig.OntIdAccount.Sign(databs)
+	sig, err := sagaconfig.DefSagaConfig.OntIdAccount.Sign(databs)
 	if err != nil {
 
 	}
@@ -77,11 +77,11 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 		Ver:        "1.0.0",
 		QrCodeId:   id,
 		OrderId:    orderId,
-		Requester:  config.OntId,
+		Requester:  sagaconfig.OntId,
 		Signature:  common.ToHexString(sig),
 		Signer:     ontid,
 		QrCodeData: string(databs),
-		Callback:   config.DefSagaConfig.QrCodeCallback,
+		Callback:   sagaconfig.DefSagaConfig.QrCodeCallback,
 		Exp:        exp,
 		Chain:      chain,
 		QrCodeDesc: "",
@@ -92,8 +92,8 @@ func BuildApiBasicInfo(apiId int, icon, title, apiProvider, apiUrl, price, apiDe
 	delay, successRate, invokeFrequency int, createTime string) *tables.ApiBasicInfo {
 	return &tables.ApiBasicInfo{
 		ApiId:           apiId,
-		Coin:            config.TOKEN_TYPE_ONG,
-		ApiType:         config.Api,
+		Coin:            sagaconfig.TOKEN_TYPE_ONG,
+		ApiType:         sagaconfig.Api,
 		Icon:            icon,
 		Title:           title,
 		ApiProvider:     apiProvider,

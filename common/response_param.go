@@ -1,8 +1,8 @@
 package common
 
 import (
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/sagaconfig"
 )
 
 type GetOrderResponse struct {
@@ -36,17 +36,17 @@ type ApiDetailResponse struct {
 }
 
 type OrderResult struct {
-	Title        string             `json:"title"`
-	Total        int                `json:"total"`
-	OrderId      string             `json:"orderId"`
-	Amount       string             `json:"amount`
-	CreateTime   int64              `json:"createTime"`
-	TxHash       string             `json:"txHash"`
-	ApiId        int                `json:"apiId"`
-	RequestLimit int                `json:"requestLimit"`
-	UsedNum      int                `json:"usedNum"`
-	Status       config.OrderStatus `json:"status"`
-	ApiKey       string             `json:"apiKey"`
-	Price        string             `json:"price"`
-	Coin         string             `json:"coin"`
+	Title        string                 `json:"title"`
+	Total        int                    `json:"total"`
+	OrderId      string                 `json:"orderId"`
+	Amount       string                 `json:"amount`
+	CreateTime   int64                  `json:"createTime"`
+	TxHash       string                 `json:"txHash"`
+	ApiId        int                    `json:"apiId"`
+	RequestLimit int                    `json:"requestLimit"`
+	UsedNum      int                    `json:"usedNum"`
+	Status       sagaconfig.OrderStatus `json:"status"`
+	ApiKey       string                 `json:"apiKey"`
+	Price        string                 `json:"price"`
+	Coin         string                 `json:"coin"`
 }

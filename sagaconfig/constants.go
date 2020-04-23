@@ -1,4 +1,4 @@
-package config
+package sagaconfig
 
 const (
 	LogPath = "./Log"

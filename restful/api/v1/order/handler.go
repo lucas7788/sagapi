@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology/common/log"
 	common2 "github.com/ontio/sagapi/common"
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/restful/api/common"
+	"github.com/ontio/sagapi/sagaconfig"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -23,7 +23,7 @@ func TakeOrder(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	ontid, ok := c.Get(config.Key_OntId)
+	ontid, ok := c.Get(sagaconfig.Key_OntId)
 	if !ok {
 		log.Errorf("[TakeOrder] ontid is nil: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("ontid is nil")))
@@ -46,7 +46,7 @@ func QueryOrderByPage(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	ontId, ok := c.Get(config.Key_OntId)
+	ontId, ok := c.Get(sagaconfig.Key_OntId)
 	if !ok || ontId == "" {
 		log.Errorf("[QueryOrderByPage] ParseGetParamByParamName failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("ontid is nil")))
@@ -82,7 +82,7 @@ func GenerateTestKey(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	ontId, ok := c.Get(config.Key_OntId)
+	ontId, ok := c.Get(sagaconfig.Key_OntId)
 	if !ok {
 		log.Errorf("[GenerateTestKey] ontId is nil: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -125,7 +125,7 @@ func GetQrCodeByOrderId(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	ontId, ok := c.Get(config.Key_OntId)
+	ontId, ok := c.Get(sagaconfig.Key_OntId)
 	if !ok || ontId == nil {
 		log.Errorf("[GetQrCodeByOrderId] ontid is nil")
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))

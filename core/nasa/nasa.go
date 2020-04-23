@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ontio/sagapi/config"
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/sagaconfig"
 	"strings"
 	"sync"
 )
@@ -59,7 +59,7 @@ func (this *Nasa) Apod(apiKey string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	url := fmt.Sprintf(apod, config.DefSagaConfig.NASAAPIKey)
+	url := fmt.Sprintf(apod, sagaconfig.DefSagaConfig.NASAAPIKey)
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	url := fmt.Sprintf(feed, startDate, endDate, config.DefSagaConfig.NASAAPIKey)
+	url := fmt.Sprintf(feed, startDate, endDate, sagaconfig.DefSagaConfig.NASAAPIKey)
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
