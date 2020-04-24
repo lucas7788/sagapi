@@ -17,25 +17,28 @@ var (
 	feed = "https://api.nasa.gov/neo/rest/v1/feed?start_date=%s&end_date=%s&api_key=%s"
 )
 
+type ApiKeyInvokeFre struct {
+	ApiKey    *tables.APIKey
+	InvokeFre int
+}
+
 type Nasa struct {
-	apiKeyCache *sync.Map //apikey -> ApiKey
-	invokeFre   *sync.Map //apiId -> invokeFre
+	apiKeyInvokeFreCache *sync.Map //apikey -> ApiKeyInvokeFre
 }
 
 func NewNasa() *Nasa {
 	return &Nasa{
-		apiKeyCache: new(sync.Map),
-		invokeFre:   new(sync.Map),
+		apiKeyInvokeFreCache: new(sync.Map),
 	}
 }
 
-func (this *Nasa) beforeCheckApiKey(apiKey string) (*tables.APIKey, error) {
-	key, err := this.getApiKey(apiKey)
+func (this *Nasa) beforeCheckApiKey(apiKey string) (*ApiKeyInvokeFre, error) {
+	key, err := this.getApiKeyInvokeFre(apiKey)
 	if err != nil {
 		return nil, err
 	}
-	if key.UsedNum >= key.RequestLimit {
-		return nil, fmt.Errorf("apikey: %s, useNum: %d, limit:%d", apiKey, key.UsedNum, key.RequestLimit)
+	if key.ApiKey.UsedNum >= key.ApiKey.RequestLimit {
+		return nil, fmt.Errorf("apikey: %s, useNum: %d, limit:%d", apiKey, key.ApiKey.UsedNum, key.ApiKey.RequestLimit)
 	}
 	return key, nil
 }
@@ -64,14 +67,10 @@ func (this *Nasa) Apod(apiKey string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	key.UsedNum += 1
+	key.ApiKey.UsedNum += 1
 
 	//TODO
-	err = this.updateApiKey(key)
-	if err != nil {
-		return nil, err
-	}
-	err = this.updateInvokeFreByApiId(key.ApiId)
+	err = this.updateApiKeyInvokeFre(key)
 	if err != nil {
 		return nil, err
 	}
@@ -89,44 +88,19 @@ func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error)
 		return nil, err
 	}
 	//TODO
-	err = this.updateApiKey(key)
-	if err != nil {
-		return nil, err
-	}
-	err = this.updateInvokeFreByApiId(key.ApiId)
+	err = this.updateApiKeyInvokeFre(key)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (this *Nasa) getInvokeFreByApiId(apiId int) (int, error) {
-	val, ok := this.invokeFre.Load(apiId)
-	if ok {
-		return val.(int), nil
-	}
-	invokeFre, err := dao.DefSagaApiDB.ApiDB.QueryInvokeFreByApiId(apiId)
-	if err != nil {
-		return 0, err
-	}
-	return invokeFre, nil
-}
-
-func (this *Nasa) updateInvokeFreByApiId(apiId int) error {
-	invokeFre, err := this.getInvokeFreByApiId(apiId)
-	if err != nil {
-		return err
-	}
-	invokeFre += 1
-	return dao.DefSagaApiDB.ApiDB.UpdateInvokeFrequencyByApiId(invokeFre, apiId)
-}
-
-func (this *Nasa) getApiKey(apiKey string) (*tables.APIKey, error) {
-	keyIn, ok := this.apiKeyCache.Load(apiKey)
-	var key *tables.APIKey
+func (this *Nasa) getApiKeyInvokeFre(apiKey string) (*ApiKeyInvokeFre, error) {
+	keyIn, ok := this.apiKeyInvokeFreCache.Load(apiKey)
 	if !ok || keyIn == nil {
 		var err error
-		if strings.Contains(apiKey, "test") {
+		var key *tables.APIKey
+		if isTestKey(apiKey) {
 			key, err = dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByApiTestKey(apiKey)
 		} else {
 			key, err = dao.DefSagaApiDB.ApiDB.QueryApiKeyByApiKey(apiKey)
@@ -134,25 +108,35 @@ func (this *Nasa) getApiKey(apiKey string) (*tables.APIKey, error) {
 		if err != nil {
 			return nil, err
 		}
-		return key, nil
+		invokeFre, err := dao.DefSagaApiDB.ApiDB.QueryInvokeFreByApiId(key.ApiId)
+		if err != nil {
+			return nil, err
+		}
+		return &ApiKeyInvokeFre{
+			ApiKey:    key,
+			InvokeFre: invokeFre,
+		}, nil
 	} else {
-		key = keyIn.(*tables.APIKey)
+		return keyIn.(*ApiKeyInvokeFre), nil
 	}
-	return key, nil
 }
 
-func (this *Nasa) updateApiKey(key *tables.APIKey) error {
-	this.apiKeyCache.Store(key.ApiKey, key)
-	if strings.Contains(key.ApiKey, "test") {
-		err := dao.DefSagaApiDB.ApiDB.UpdateApiTestKeyUsedNum(key.ApiKey, key.UsedNum)
+func isTestKey(apiKey string) bool {
+	return strings.Contains(apiKey, "test")
+}
+
+func (this *Nasa) updateApiKeyInvokeFre(key *ApiKeyInvokeFre) error {
+	this.apiKeyInvokeFreCache.Store(key.ApiKey, key)
+	if strings.Contains(key.ApiKey.ApiKey, "test") {
+		err := dao.DefSagaApiDB.ApiDB.UpdateApiTestKeyUsedNum(key.ApiKey.ApiKey, key.ApiKey.UsedNum)
 		if err != nil {
 			return err
 		}
 	} else {
-		err := dao.DefSagaApiDB.ApiDB.UpdateApiKeyUsedNum(key.ApiKey, key.UsedNum)
+		err := dao.DefSagaApiDB.ApiDB.UpdateApiKeyUsedNum(key.ApiKey.ApiKey, key.ApiKey.UsedNum)
 		if err != nil {
 			return err
 		}
 	}
-	return nil
+	return dao.DefSagaApiDB.ApiDB.UpdateInvokeFrequencyByApiId(key.InvokeFre, key.ApiKey.ApiId)
 }
