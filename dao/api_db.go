@@ -164,7 +164,7 @@ func (this *ApiDB) QueryInvokeFreByApiId(apiId int) (int, error) {
 func (this *ApiDB) QueryApiBasicInfoByCategoryId(categoryId int) ([]*tables.ApiBasicInfo, error) {
 	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,
 Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId 
-in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=10))`
+in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=?))`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -223,7 +223,6 @@ Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId
 	return nil, fmt.Errorf("not found")
 }
 
-
 func (this *ApiDB) QueryApiByApiIds(apiIds []int) ([]*tables.ApiBasicInfo, error) {
 	res := make([]*tables.ApiBasicInfo, len(apiIds))
 	for i, apiId := range apiIds {
@@ -269,7 +268,7 @@ SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId=?`
 func (this *ApiDB) SearchApiByKey(key string) ([]*tables.ApiBasicInfo, error) {
 	k := "%" + key + "%"
 	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
-InvokeFrequency,CreateTime from tbl_api_basic_info where ApiDesc like ? or Title like ? limit 10`
+InvokeFrequency,CreateTime from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where name=?)) limit 30`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -277,7 +276,7 @@ InvokeFrequency,CreateTime from tbl_api_basic_info where ApiDesc like ? or Title
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(k, k)
+	rows, err := stmt.Query(k, k, key)
 	if rows != nil {
 		defer rows.Close()
 	}

@@ -52,7 +52,7 @@ create table tbl_api_basic_info
  Icon text not null COMMENT '',
  Title varchar(100) not null  default '' COMMENT '',
  ApiProvider varchar(100) not null default '' COMMENT '',
- ApiUrl varchar(100) not null  default '' COMMENT '',
+ ApiUrl varchar(255) not null  default '' COMMENT '',
  Price varchar(100) not null  default '' COMMENT '',
  ApiDesc varchar(100) not null  default '' COMMENT '',
  Specifications int(11) not null  default 0 COMMENT '规格',
