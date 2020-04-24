@@ -50,23 +50,23 @@ func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey
 	return apiKey, nil
 }
 
-func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
+func (this *SagaApi) TestApiKey(params []tables.RequestParam) (string, error) {
 	if len(params) == 0 {
-		return nil, errors.New("param is nil")
+		return "", errors.New("param is nil")
 	}
 	for i, _ := range params {
 		if (i != len(params)-1) && params[i].ApiDetailInfoId != params[i+1].ApiDetailInfoId {
-			return nil, errors.New("params should to the same api")
+			return "", errors.New("params should to the same api")
 		}
 		if params[i].ValueDesc == "" {
-			return nil, fmt.Errorf("param:%s is nil", params[i].ParamName)
+			return "", fmt.Errorf("param:%s is nil", params[i].ParamName)
 		}
 	}
 
 	apiTestKey := params[len(params)-1].ValueDesc
 	key, err := dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByApiTestKey(apiTestKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	switch key.ApiId {
@@ -75,7 +75,7 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	case 2:
 		return this.Nasa.FeedParams(params)
 	}
-	return nil, fmt.Errorf("not support api, apiId:%d", key.ApiId)
+	return "", fmt.Errorf("not support api, apiId:%d", key.ApiId)
 }
 
 func (this *SagaApi) QueryApiTestKeyByOntIdAndApiId(ontid string, apiId int) (*tables.APIKey, error) {

@@ -43,56 +43,56 @@ func (this *Nasa) beforeCheckApiKey(apiKey string) (*ApiKeyInvokeFre, error) {
 	return key, nil
 }
 
-func (this *Nasa) ApodParams(params []tables.RequestParam) ([]byte, error) {
+func (this *Nasa) ApodParams(params []tables.RequestParam) (string, error) {
 	if len(params) == 1 && params[0].ParamName == "apiKey" {
 		return this.Apod(params[0].ValueDesc)
 	}
-	return nil, errors.New("Apod params error")
+	return "", errors.New("Apod params error")
 }
 
-func (this *Nasa) FeedParams(params []tables.RequestParam) ([]byte, error) {
+func (this *Nasa) FeedParams(params []tables.RequestParam) (string, error) {
 	if len(params) == 3 && params[0].ParamName == "startDate" && params[1].ParamName == "endDate" && params[2].ParamName == "apiKey" {
 		return this.Feed(params[0].ValueDesc, params[1].ValueDesc, params[2].ValueDesc)
 	}
-	return nil, errors.New("Apod params error")
+	return "", errors.New("Apod params error")
 }
 
-func (this *Nasa) Apod(apiKey string) ([]byte, error) {
+func (this *Nasa) Apod(apiKey string) (string, error) {
 	key, err := this.beforeCheckApiKey(apiKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	url := fmt.Sprintf(apod, sagaconfig.DefSagaConfig.NASAAPIKey)
 	res, err := http.DefClient.Get(url)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	key.ApiKey.UsedNum += 1
 
 	//TODO
 	err = this.updateApiKeyInvokeFre(key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return res, nil
+	return string(res), nil
 }
 
-func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error) {
+func (this *Nasa) Feed(startDate, endDate string, apiKey string) (string, error) {
 	key, err := this.beforeCheckApiKey(apiKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	url := fmt.Sprintf(feed, startDate, endDate, sagaconfig.DefSagaConfig.NASAAPIKey)
 	res, err := http.DefClient.Get(url)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	//TODO
 	err = this.updateApiKeyInvokeFre(key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return res, nil
+	return string(res), nil
 }
 
 func (this *Nasa) getApiKeyInvokeFre(apiKey string) (*ApiKeyInvokeFre, error) {
