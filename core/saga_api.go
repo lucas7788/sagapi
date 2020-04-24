@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 	"github.com/ontio/sagapi/common"
+	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
@@ -19,6 +20,7 @@ type SagaApi struct {
 }
 
 func NewSagaApi() *SagaApi {
+	http.DefClient = http.NewClient()
 	return &SagaApi{
 		Nasa:      nasa.NewNasa(),
 		SagaOrder: NewSagaOrder(),
@@ -132,15 +134,8 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 }
 
 func (this *SagaApi) SearchApiIdByCategoryId(categoryId int) ([]*tables.ApiBasicInfo, error) {
-	tagId, err := dao.DefSagaApiDB.ApiDB.QueryTagIdByCategoryId(categoryId)
-	if err != nil {
-		return nil, err
-	}
-	apiIds, err := dao.DefSagaApiDB.ApiDB.QueryApiIdByTagId(tagId)
-	if err != nil {
-		return nil, err
-	}
-	return dao.DefSagaApiDB.ApiDB.QueryApiByApiIds(apiIds)
+
+	return dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByCategoryId(categoryId)
 }
 
 //newest hot free

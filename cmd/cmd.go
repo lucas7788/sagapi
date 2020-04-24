@@ -47,13 +47,12 @@ func updateConfigByCmd(ctx *cli.Context) error {
 		return fmt.Errorf("networkid should be between 1 and 3, curr: %d", networkId)
 	}
 	sagaconfig.DefSagaConfig.NetWorkId = networkId
-	rpc := sagaconfig.ONT_MAIN_NET
-	if networkId == sagaconfig.NETWORK_ID_POLARIS_NET {
-		rpc = sagaconfig.ONT_TEST_NET
-	} else if networkId == sagaconfig.NETWORK_ID_SOLO_NET {
-		rpc = sagaconfig.ONT_SOLO_NET
-	}
-	fmt.Println("rpc:", rpc)
+	//rpc := sagaconfig.ONT_MAIN_NET
+	//if networkId == sagaconfig.NETWORK_ID_POLARIS_NET {
+	//	rpc = sagaconfig.ONT_TEST_NET
+	//} else if networkId == sagaconfig.NETWORK_ID_SOLO_NET {
+	//	rpc = sagaconfig.ONT_SOLO_NET
+	//}
 	sdk := ontology_go_sdk.NewOntologySdk()
 	sdk.NewRpcClient().SetAddress(sagaconfig.ONT_TEST_NET)
 	sagaconfig.DefSagaConfig.OntSdk = sdk

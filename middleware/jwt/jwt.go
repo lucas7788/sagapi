@@ -27,7 +27,7 @@ func JWT() gin.HandlerFunc {
 			ontid, err = validateToken(token[0])
 		}
 		if err != nil {
-			log.Errorf("jwt error:%s", err)
+			log.Errorf("token error:%s", err)
 			c.JSON(http.StatusUnauthorized, common.ResponseFailed(common.VERIFY_TOKEN_ERROR, err))
 			c.Abort()
 			return

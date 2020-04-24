@@ -7,7 +7,8 @@ import (
 )
 
 func NewRouter() *gin.Engine {
-	root := gin.New()
+	gin.DisableConsoleColor()
+	root := gin.Default()
 	root.Use(cors.Cors())
 	api.RoutesApi(root)
 	return root

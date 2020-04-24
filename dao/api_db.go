@@ -104,7 +104,7 @@ InvokeFrequency,CreateTime from tbl_api_basic_info order by CreateTime limit ?`
 InvokeFrequency,CreateTime from tbl_api_basic_info order by CreateTime limit ?`
 	} else if free {
 		strSql = `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
-InvokeFrequency,CreateTime from tbl_api_basic_info where Price='' limit ?`
+InvokeFrequency,CreateTime from tbl_api_basic_info where Price='0' limit ?`
 	}
 
 	stmt, err := this.db.Prepare(strSql)
@@ -161,6 +161,38 @@ func (this *ApiDB) QueryInvokeFreByApiId(apiId int) (int, error) {
 	return 0, fmt.Errorf("not found")
 }
 
+func (this *ApiDB) QueryApiBasicInfoByCategoryId(categoryId int) ([]*tables.ApiBasicInfo, error) {
+	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,
+Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId 
+in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=10))`
+	stmt, err := this.db.Prepare(strSql)
+	if stmt != nil {
+		defer stmt.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	rows, err := stmt.Query(categoryId)
+	if rows != nil {
+		defer rows.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*tables.ApiBasicInfo, 0)
+	for rows.Next() {
+		var apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, createTime string
+		var apiId, specifications, popularity, delay, successRate, invokeFrequency int
+		if err = rows.Scan(&apiId, &apiLogo, &apiName, &apiProvider, &apiUrl, &apiPrice, &apiDesc, &specifications,
+			&popularity, &delay, &successRate, &invokeFrequency, &createTime); err != nil {
+			return nil, err
+		}
+		res = append(res, common.BuildApiBasicInfo(apiId, apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, specifications,
+			popularity, delay, successRate, invokeFrequency, createTime))
+	}
+	return res, nil
+}
+
 func (this *ApiDB) QueryApiBasicInfoByApiId(apiId int) (*tables.ApiBasicInfo, error) {
 	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,
 Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId =?`
@@ -190,57 +222,7 @@ Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId
 	}
 	return nil, fmt.Errorf("not found")
 }
-func (this *ApiDB) QueryTagIdByCategoryId(categoryId int) (int, error) {
-	strSql := `select id from tbl_tag where category_id =?`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return 0, err
-	}
-	rows, err := stmt.Query(categoryId)
-	if rows != nil {
-		defer rows.Close()
-	}
-	if err != nil {
-		return 0, err
-	}
-	for rows.Next() {
-		var tagId int
-		if err = rows.Scan(&tagId); err != nil {
-			return 0, err
-		}
-		return tagId, nil
-	}
-	return 0, nil
-}
-func (this *ApiDB) QueryApiIdByTagId(tagId int) ([]int, error) {
-	strSql := `select api_id from tbl_api_tag where tag_id =?`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	rows, err := stmt.Query(tagId)
-	if rows != nil {
-		defer rows.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	res := make([]int, 0)
-	for rows.Next() {
-		var apiId int
-		if err = rows.Scan(&apiId); err != nil {
-			return nil, err
-		}
-		res = append(res, apiId)
-	}
-	return res, nil
-}
+
 
 func (this *ApiDB) QueryApiByApiIds(apiIds []int) ([]*tables.ApiBasicInfo, error) {
 	res := make([]*tables.ApiBasicInfo, len(apiIds))

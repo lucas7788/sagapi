@@ -60,7 +60,7 @@ func (this *Nasa) Apod(apiKey string) ([]byte, error) {
 		return nil, err
 	}
 	url := fmt.Sprintf(apod, sagaconfig.DefSagaConfig.NASAAPIKey)
-	res, err := http.Get(url)
+	res, err := http.DefClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error)
 		return nil, err
 	}
 	url := fmt.Sprintf(feed, startDate, endDate, sagaconfig.DefSagaConfig.NASAAPIKey)
-	res, err := http.Get(url)
+	res, err := http.DefClient.Get(url)
 	if err != nil {
 		return nil, err
 	}

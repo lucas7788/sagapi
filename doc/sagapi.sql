@@ -18,7 +18,8 @@ create table tbl_api_tag
  tag_id int(11) not null  default 0 COMMENT '',
  state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
  create_time timestamp default current_timestamp,
- PRIMARY KEY (id)
+ PRIMARY KEY (id),
+ INDEX(tag_id)
 )default charset=utf8;
 
 create table tbl_tag
@@ -28,7 +29,9 @@ create table tbl_tag
  category_id int(11) not null COMMENT '',
  state tinyint(1) not null default 1 COMMENT '0:delete, 1:active',
  create_time timestamp default current_timestamp,
- PRIMARY KEY (id)
+ PRIMARY KEY (id),
+ INDEX(category_id),
+ INDEX(name)
 )default charset=utf8;
 
 create table tbl_category
@@ -58,7 +61,10 @@ create table tbl_api_basic_info
  SuccessRate int(11) not null default 0 COMMENT '',
  InvokeFrequency int(11) not null default 0 COMMENT '',
  CreateTime timestamp default current_timestamp,
- PRIMARY KEY (ApiId)
+ PRIMARY KEY (ApiId),
+ INDEX(Price),
+ INDEX(Title),
+ INDEX(ApiDesc)
 )default charset=utf8;
 
 create table tbl_api_detail_info
@@ -73,7 +79,8 @@ create table tbl_api_detail_info
  DataSource varchar(100) not null default ''  COMMENT '',
  ApplicationScenario varchar(100) not null default '' COMMENT '',
  PRIMARY KEY (Id),
- foreign key(ApiId) references tbl_api_basic_info(ApiId)
+ foreign key(ApiId) references tbl_api_basic_info(ApiId),
+ INDEX(ApiId)
 ) default charset=utf8;
 
 create table tbl_specifications
@@ -96,7 +103,8 @@ create table tbl_request_param (
   Note varchar(50) not null default '',
   ValueDesc varchar(50) not null default '',
   PRIMARY KEY (Id),
-  CONSTRAINT FK_request_param_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id)
+  CONSTRAINT FK_request_param_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id),
+  INDEX(ApiDetailInfoId)
 )default charset=utf8;
 
 
@@ -106,7 +114,8 @@ create table tbl_error_code (
   ErrorCode int(11) not null,
   ErrorDesc varchar(50) not null default '',
   PRIMARY KEY (Id),
-  CONSTRAINT FK_error_code_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id)
+  CONSTRAINT FK_error_code_id FOREIGN KEY (ApiDetailInfoId) REFERENCES tbl_api_detail_info(Id),
+  INDEX(ApiDetailInfoId)
 )default charset=utf8;
 
 
@@ -127,7 +136,8 @@ create table tbl_order (
   SpecificationsId int(11) NOT NULL COMMENT '规格',
 	Coin varchar(20) NOT NULL COMMENT '币种',
   PRIMARY KEY (OrderId),
-  CONSTRAINT FK_tbl_order_id FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId)
+  CONSTRAINT FK_tbl_order_id FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId),
+  INDEX(OntId)
 )default charset=utf8;
 
 
@@ -140,7 +150,9 @@ create table tbl_api_key (
   UsedNum int(11) not null default 0,
   OntId varchar(50) not null default '',
   PRIMARY KEY (Id),
-  foreign key(OrderId) references tbl_order(OrderId)
+  foreign key(OrderId) references tbl_order(OrderId),
+  INDEX(ApiKey),
+  INDEX(OntId)
 )default charset=utf8;
 
 create table tbl_api_test_key (
@@ -167,5 +179,6 @@ CREATE TABLE `tbl_qr_code` (
   Chain varchar(50) not null default '',
   QrCodeDesc varchar(100) not null default '',
   PRIMARY KEY (Id),
-  foreign key(OrderId) references tbl_order(OrderId)
+  foreign key(OrderId) references tbl_order(OrderId),
+   INDEX(QrCodeId)
 )default charset=utf8;
