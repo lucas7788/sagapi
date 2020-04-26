@@ -40,19 +40,6 @@ ApiDesc,Specifications, Popularity,Delay,SuccessRate,InvokeFrequency) values`
 	return nil
 }
 
-func (this *ApiDB) UpdateInvokeFrequencyByApiId(invokeFre, apiId int) error {
-	strSql := `update tbl_api_basic_info set InvokeFrequency=? where ApiId=?`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(invokeFre, apiId)
-	return err
-}
-
 func (this *ApiDB) QueryApiBasicInfoByPage(start, pageSize int) ([]*tables.ApiBasicInfo, error) {
 	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
 InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId limit ?, ?`
@@ -655,8 +642,13 @@ func (this *ApiDB) QueryApiTestKeyByApiTestKey(apiTestKey string) (*tables.APIKe
 	return nil, fmt.Errorf("not found")
 }
 
-func (this *ApiDB) UpdateApiKeyUsedNum(apiKey string, usedNum int) error {
-	strSql := "update tbl_api_key set UsedNum = ? where ApiKey=?"
+func (this *ApiDB) UpdateApiKeyInvokeFre(apiKey string, usedNum, apiId, invokeFre int) error {
+	var strSql string
+	if common.IsTestKey(apiKey) {
+		strSql = "update tbl_api_test_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
+	} else {
+		strSql = "update tbl_api_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
+	}
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -664,20 +656,7 @@ func (this *ApiDB) UpdateApiKeyUsedNum(apiKey string, usedNum int) error {
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(usedNum, apiKey)
-	return err
-}
-
-func (this *ApiDB) UpdateApiTestKeyUsedNum(apiKey string, usedNum int) error {
-	strSql := "update tbl_api_test_key set UsedNum = ? where ApiKey=?"
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(usedNum, apiKey)
+	_, err = stmt.Exec(usedNum, invokeFre, apiKey, apiId)
 	return err
 }
 func (this *ApiDB) QueryApiKeyByApiKey(apiKey string) (*tables.APIKey, error) {

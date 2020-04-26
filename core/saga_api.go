@@ -9,6 +9,7 @@ import (
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"github.com/ontio/sagapi/sagaconfig"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey
 	apiKey := &tables.APIKey{
 		ApiKey:       key,
 		ApiId:        apiId,
-		RequestLimit: 10,
+		RequestLimit: sagaconfig.DefRequestLimit,
 		UsedNum:      0,
 		OntId:        ontid,
 	}

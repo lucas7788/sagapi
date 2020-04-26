@@ -23,6 +23,8 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
+	txHash := tx.Hash()
+	log.Debugf("txHash: %s, signedTx: %s", txHash.ToHexString(), param.SignedTx)
 	mutTx, err := tx.IntoMutable()
 	if err != nil {
 		return err

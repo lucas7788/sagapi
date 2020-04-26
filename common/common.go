@@ -9,12 +9,17 @@ import (
 	"github.com/ontio/sagapi/sagaconfig"
 	"github.com/ontio/sagapi/utils"
 	"github.com/satori/go.uuid"
+	"strings"
 	"time"
 )
 
 func GenerateUUId() string {
 	u1 := uuid.Must(uuid.NewV4())
 	return u1.String()
+}
+
+func IsTestKey(apiKey string) bool {
+	return strings.Contains(apiKey, "test")
 }
 
 func BuildQrCodeResponse(id string) *QrCodeResponse {

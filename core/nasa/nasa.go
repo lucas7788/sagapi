@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/sagaconfig"
-	"strings"
 	"sync"
 )
 
@@ -67,8 +67,6 @@ func (this *Nasa) Apod(apiKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	key.ApiKey.UsedNum += 1
-	key.InvokeFre += 1
 	//TODO
 	err = this.updateApiKeyInvokeFre(key)
 	if err != nil {
@@ -100,7 +98,7 @@ func (this *Nasa) getApiKeyInvokeFre(apiKey string) (*ApiKeyInvokeFre, error) {
 	if !ok || keyIn == nil {
 		var err error
 		var key *tables.APIKey
-		if isTestKey(apiKey) {
+		if common.IsTestKey(apiKey) {
 			key, err = dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByApiTestKey(apiKey)
 		} else {
 			key, err = dao.DefSagaApiDB.ApiDB.QueryApiKeyByApiKey(apiKey)
@@ -121,22 +119,9 @@ func (this *Nasa) getApiKeyInvokeFre(apiKey string) (*ApiKeyInvokeFre, error) {
 	}
 }
 
-func isTestKey(apiKey string) bool {
-	return strings.Contains(apiKey, "test")
-}
-
 func (this *Nasa) updateApiKeyInvokeFre(key *ApiKeyInvokeFre) error {
+	key.ApiKey.UsedNum += 1
+	key.InvokeFre += 1
 	this.apiKeyInvokeFreCache.Store(key.ApiKey, key)
-	if strings.Contains(key.ApiKey.ApiKey, "test") {
-		err := dao.DefSagaApiDB.ApiDB.UpdateApiTestKeyUsedNum(key.ApiKey.ApiKey, key.ApiKey.UsedNum)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := dao.DefSagaApiDB.ApiDB.UpdateApiKeyUsedNum(key.ApiKey.ApiKey, key.ApiKey.UsedNum)
-		if err != nil {
-			return err
-		}
-	}
-	return dao.DefSagaApiDB.ApiDB.UpdateInvokeFrequencyByApiId(key.InvokeFre, key.ApiKey.ApiId)
+	return dao.DefSagaApiDB.ApiDB.UpdateApiKeyInvokeFre(key.ApiKey.ApiKey, key.ApiKey.UsedNum, key.ApiKey.ApiId, key.InvokeFre)
 }

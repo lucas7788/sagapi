@@ -30,6 +30,11 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	assert.Nil(t, TestDB.ApiDB.InsertApiBasicInfo(infos))
 }
 
+func TestApiDB_UpdateApiKeyInvokeFre(t *testing.T) {
+	err := TestDB.ApiDB.UpdateApiKeyInvokeFre("test_3dddcb11-041a-4184-ad69-7505542649a6", 80, 1, 89)
+	assert.Nil(t, err)
+}
+
 func TestApiDB_QueryApiBasicInfoByApiId(t *testing.T) {
 	info, err := TestDB.ApiDB.QueryApiBasicInfoByApiId(1)
 	assert.Nil(t, err)
