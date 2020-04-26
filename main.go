@@ -80,8 +80,8 @@ func initAccount() error {
 func initLog(ctx *cli.Context) {
 	//init log module
 	logLevel := ctx.GlobalInt(cmd.GetFlagName(cmd.LogLevelFlag))
-	logName := fmt.Sprintf("%s%s", sagaconfig.LogPath, string(os.PathSeparator))
-	log.InitLog(logLevel, logName, log.Stdout)
+	//logName := fmt.Sprintf("%s%s", sagaconfig.LogPath, string(os.PathSeparator))
+	log.InitLog(logLevel, log.Stdout)
 }
 
 func initDB(ctx *cli.Context) error {
