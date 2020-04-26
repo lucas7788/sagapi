@@ -68,7 +68,7 @@ func (this *Nasa) Apod(apiKey string) (string, error) {
 		return "", err
 	}
 	key.ApiKey.UsedNum += 1
-
+	key.InvokeFre += 1
 	//TODO
 	err = this.updateApiKeyInvokeFre(key)
 	if err != nil {
