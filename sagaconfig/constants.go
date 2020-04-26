@@ -49,7 +49,7 @@ const (
 )
 
 const (
-	QrCodeExp = 10 * 60
+	QrCodeExp       = 10 * 60
 	DefRequestLimit = 100
 )
 

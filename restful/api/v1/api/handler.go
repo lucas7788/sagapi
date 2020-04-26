@@ -7,6 +7,7 @@ import (
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/restful/api/common"
 	"strconv"
+	common2 "github.com/ontio/sagapi/common"
 )
 
 type GetBasicApiInfoByPageParam struct {
@@ -65,17 +66,19 @@ func GetApiDetailByApiId(c *gin.Context) {
 }
 
 func SearchApiByKey(c *gin.Context) {
-	param, err := common.ParseGetParamByParamName(c, "key")
+	key := &common2.SearchApiByKey{}
+	err := common.ParsePostParam(c, key)
 	if err != nil {
-		log.Errorf("[GetApiDetailByApiId] ParseGetParam error: %s", err)
+		log.Errorf("[SearchApiByKey] ParsePostParam error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	if param == nil || param[0] == "" {
+	if key == nil || key.Key == "" {
 		common.WriteResponse(c, common.ResponseSuccess(nil))
 		return
 	}
-	infos, err := dao.DefSagaApiDB.ApiDB.SearchApiByKey(param[0])
+	//todo key.Key should not have sql statement
+	infos, err := dao.DefSagaApiDB.ApiDB.SearchApiByKey(key.Key)
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))

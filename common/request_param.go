@@ -40,3 +40,6 @@ type OrderIdParam struct {
 type QrCodeIdParam struct {
 	QrCodeId string `json:"qrCodeId"`
 }
+type SearchApiByKey struct {
+	Key string `json:"key"`
+}
