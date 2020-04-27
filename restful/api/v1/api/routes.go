@@ -11,4 +11,6 @@ func RoutesApiList(parent *gin.RouterGroup) {
 	apiRouteGroup.GET("/getBasicApiInfoByPage/:pageNum/:pageSize", GetBasicApiInfoByPage)
 	apiRouteGroup.GET("/getApiDetailByApiId/:apiId", GetApiDetailByApiId)
 	apiRouteGroup.GET("/searchApi", SearchApi) //get newest
+
+	apiRouteGroup.POST("/searchApiByCategory", SearchApiByCategoryId)
 }

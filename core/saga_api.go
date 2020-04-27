@@ -160,12 +160,24 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 	}, nil
 }
 
-func (this *SagaApi) SearchApiIdByCategoryId(param *common2.SearchApiByCategoryId) ([]*tables.ApiBasicInfo, error) {
-	if param.Id == sagaconfig.CategoryAll {
-		return this.QueryBasicApiInfoByPage(param.PageNumber, param.PageSize)
+func (this *SagaApi) SearchApiIdByCategoryId(categoryId, pageNum, pageSize int) ([]tables.ApiBasicInfo, error) {
+	if pageNum < 1 {
+		pageNum = 1
 	}
-
-	return this.QueryBasicApiInfoByCategory(param.Id, param.PageNumber, param.PageSize)
+	start := (pageNum - 1) * pageSize
+	var result []tables.ApiBasicInfo
+	if categoryId == 1 {
+		err := dao.DefApiDb.Conn.Select(&result, "select * from tbl_api_basic_info where ApiId limit ?, ?", start, pageSize)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err := dao.DefApiDb.Conn.Select(&result, "select * from tbl_api_basic_info where ApiId in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=?))", categoryId)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
 }
 
 func (this *SagaApi) SearchApi() (map[string][]tables.ApiBasicInfo, error) {

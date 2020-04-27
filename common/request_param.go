@@ -40,12 +40,13 @@ type OrderIdParam struct {
 type QrCodeIdParam struct {
 	QrCodeId string `json:"qrCodeId"`
 }
+
 type SearchApiByKey struct {
 	Key string `json:"key"`
 }
 
-type SearchApiByCategoryId struct {
-	Id         int `json:"id"`
-	PageNumber int `json:"pageNumber"`
+type GetApiByCategoryId struct {
+	CategoryId int `json:"categoryId"`
+	PageNum    int `json:"pageNum"`
 	PageSize   int `json:"pageSize"`
 }
