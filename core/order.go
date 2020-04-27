@@ -24,14 +24,18 @@ func NewSagaOrder() *SagaOrder {
 }
 
 func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResponse, error) {
-	info, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(param.ApiId)
+	var info tables.ApiBasicInfo
+	err := dao.DefApiDb.Conn.Get(&info, "select * from tbl_api_basic_info where ApiId=?", param.ApiId)
 	if err != nil {
 		return nil, err
 	}
-	spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsBySpecificationsId(param.SpecificationsId)
+
+	var spec tables.Specifications
+	err = dao.DefApiDb.Conn.Get(&spec, "select * from tbl_specifications where Id=?", param.SpecificationsId)
 	if err != nil {
 		return nil, err
 	}
+
 	price := utils.ToIntByPrecise(spec.Price, sagaconfig.ONG_DECIMALS)
 	specifications := new(big.Int).SetUint64(uint64(spec.Amount))
 	amount := new(big.Int).Mul(price, specifications)
@@ -93,10 +97,12 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 			return nil, err
 		}
 		if apiKey == nil {
-			spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsBySpecificationsId(order.SpecificationsId)
+			var spec tables.Specifications
+			err = dao.DefApiDb.Conn.Get(&spec, "select * from tbl_specifications where Id=?", order.SpecificationsId)
 			if err != nil {
 				return nil, err
 			}
+
 			apiKey = &tables.APIKey{
 				ApiKey:       "",
 				OrderId:      order.OrderId,

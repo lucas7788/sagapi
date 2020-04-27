@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"database/sql"
+	"github.com/jmoiron/sqlx"
 	"github.com/ontio/sagapi/sagaconfig"
 	"time"
 )
@@ -32,6 +33,25 @@ func NewSagaApiDB(dbConfig *sagaconfig.DBConfig) (*SagaApiDB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	//==============
+	dbx, dberr := sqlx.Open("mysql",
+		dbConfig.ProjectDBUser+
+			":"+dbConfig.ProjectDBPassword+
+			"@tcp("+dbConfig.ProjectDBUrl+
+			")/"+dbConfig.ProjectDBName+
+			"?charset=utf8&parseTime=true&loc=Asia%2FShanghai")
+	if dberr != nil {
+		return nil, dberr
+	}
+
+	err = dbx.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	InitDefApiDb(dbx)
+	//==============
+
 	return &SagaApiDB{
 		ApiDB:    NewApiDB(db),
 		OrderDB:  NewOrderDB(db),

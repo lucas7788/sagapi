@@ -58,7 +58,7 @@ func GetApiDetailByApiId(c *gin.Context) {
 	}
 	info, err := core.DefSagaApi.QueryApiDetailInfoByApiId(apiId)
 	if err != nil {
-		log.Errorf("[GetApiDetailByApiId] QueryApiBasicInfoByApiId error: %s", err)
+		log.Errorf("[GetApiDetailByApiId] QueryApiDetailInfoByApiId error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}

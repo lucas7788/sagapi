@@ -5,77 +5,79 @@ import (
 )
 
 type ApiBasicInfo struct {
-	ApiId           int    `json:"apiId"`
-	Coin            string `json:"coin"` //ONG,ONT
-	ApiType         string `json:"type"` //api or data
-	Icon            string `json:"icon"`
-	Title           string `json:"title"`
-	ApiProvider     string `json:"provider"`
-	ApiUrl          string `json:"apiUrl"`
-	Price           string `json:"price"`
-	ApiDesc         string `json:"description"`
-	Specifications  int    `json:"specifications"`
-	Popularity      int    `json:"popularity"`
-	Delay           int    `json:"delay"`
-	SuccessRate     int    `json:"successRate"`
-	InvokeFrequency int    `json:"invokeFrequency"`
-	CreateTime      string `json:"createTime"`
+	ApiId           int    `json:"apiId" db:"ApiId"`
+	Coin            string `json:"coin" db:"Coin"`
+	ApiType         string `json:"type" db:"ApiType"`
+	Icon            string `json:"icon" db:"Icon"`
+	Title           string `json:"title" db:"Title"`
+	ApiProvider     string `json:"provider" db:"ApiProvider"`
+	ApiUrl          string `json:"apiUrl" db:"ApiUrl"`
+	Price           string `json:"price" db:"Price"`
+	ApiDesc         string `json:"description" db:"ApiDesc"`
+	Specifications  int    `json:"specifications" db:"Specifications"`
+	Popularity      int    `json:"popularity" db:"Popularity"`
+	Delay           int    `json:"delay" db:"Delay"`
+	SuccessRate     int    `json:"successRate" db:"SuccessRate"`
+	InvokeFrequency int    `json:"invokeFrequency" db:"InvokeFrequency"`
+	CreateTime      string `json:"createTime" db:"CreateTime"`
 }
 
 type ApiTag struct {
-	Id         int       `json:"id"`
-	ApiId      int       `json:"apiId"`
-	TagId      int       `json:"tagId"`
-	State      byte      `json:"state"`
-	CreateTime time.Time `json:"createTime"`
+	Id         int       `json:"id" db:"	Id"`
+	ApiId      int       `json:"apiId" db:"ApiId"`
+	TagId      int       `json:"tagId" db:"TagId"`
+	State      byte      `json:"state" db:"State"`
+	CreateTime time.Time `json:"createTime" db:"CreateTime"`
 }
 
 type Tag struct {
-	Id         int       `json:"id"`
-	Name       string    `json:"name"`
-	CategoryId int       `json:"categoryId"`
-	State      byte      `json:"state"`
-	CreateTime time.Time `json:"createTime"`
+	Id         int       `json:"id" db:"	Id"`
+	Name       string    `json:"name" db:"Name"`
+	CategoryId int       `json:"categoryId" db:"CategoryId"`
+	State      byte      `json:"state" db:"State"`
+	CreateTime time.Time `json:"createTime" db:"CreateTime"`
 }
 
 type Category struct {
-	Id     int    `json:"id"`
-	NameZh string `json:"nameZh"`
-	NameEn string `json:"nameEn"`
-	Icon   string `json:"icon"`
-	State  byte   `json:"state"`
+	Id     int    `json:"id" db:"Id"`
+	NameZh string `json:"nameZh" db:"NameZh"`
+	NameEn string `json:"nameEn" db:"NameEn"`
+	Icon   string `json:"icon" db:"Icon"`
+	State  byte   `json:"state" db:"State"`
 }
 
 type ApiDetailInfo struct {
-	Id                  int    `json:"id"`
-	ApiId               int    `json:"apiId"`
-	RequestType         string `json:"requestType"`
-	Mark                string `json:"mark"`
-	ResponseParam       string `json:"responseParam"`
-	ResponseExample     string `json:"responseExample"`
-	DataDesc            string `json:"dataDesc"`
-	DataSource          string `json:"dataSource"`
-	ApplicationScenario string `json:"applicationScenario"`
+	Id                  int    `json:"id" db:"Id"`
+	ApiId               int    `json:"apiId" db:"ApiId"`
+	RequestType         string `json:"requestType" db:"RequestType"`
+	Mark                string `json:"mark" db:"Mark"`
+	ResponseParam       string `json:"responseParam" db:"ResponseParam"`
+	ResponseExample     string `json:"responseExample" db:"ResponseExample"`
+	DataDesc            string `json:"dataDesc" db:"DataDesc"`
+	DataSource          string `json:"dataSource" db:"DataSource"`
+	ApplicationScenario string `json:"applicationScenario" db:"ApplicationScenario"`
 }
 
 type Specifications struct {
-	Id              int    `json:"id"`
-	ApiDetailInfoId int    `json:"apiDetailInfoId"`
-	Price           string `json:"price"`
-	Amount          int    `json:"amount"`
+	Id              int    `json:"id" db:"Id"`
+	ApiDetailInfoId int    `json:"apiDetailInfoId" db:"ApiDetailInfoId"`
+	Price           string `json:"price" db:"Price"`
+	Amount          int    `json:"amount" db:"Amount"`
 }
 
 type RequestParam struct {
-	ApiDetailInfoId int    `json:"apiDetailInfoId"`
-	ParamName       string `json:"paramName"`
-	Required        bool   `json:"required"`
-	ParamType       string `json:"paramType"`
-	Note            string `json:"note"`
-	ValueDesc       string `json:"valueDesc"`
+	Id              int    `json:"id" db:"Id"`
+	ApiDetailInfoId int    `json:"apiDetailInfoId" db:"ApiDetailInfoId"`
+	ParamName       string `json:"paramName" db:"ParamName"`
+	Required        bool   `json:"required" db:"Required"`
+	ParamType       string `json:"paramType" db:"ParamType"`
+	Note            string `json:"note" db:"Note"`
+	ValueDesc       string `json:"valueDesc" db:"ValueDesc"`
 }
 
 type ErrorCode struct {
-	ApiDetailInfoId int    `json:"apiDetailInfoId"`
-	ErrorCode       int    `json:"errorCode"`
-	ErrorDesc       string `json:"errorDesc"`
+	Id              int    `json:"id" db:"Id"`
+	ApiDetailInfoId int    `json:"apiDetailInfoId" db:"ApiDetailInfoId"`
+	ErrorCode       int    `json:"errorCode" db:"ErrorCode"`
+	ErrorDesc       string `json:"errorDesc" db:"ErrorDesc"`
 }

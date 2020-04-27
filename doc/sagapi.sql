@@ -135,7 +135,7 @@ create table tbl_order (
   ApiId int(11) NOT NULL COMMENT '',
   ApiUrl varchar(255) not null  default '' COMMENT '',
   SpecificationsId int(11) NOT NULL COMMENT '规格',
-	Coin varchar(20) NOT NULL COMMENT '币种',
+  Coin varchar(20) NOT NULL COMMENT '币种',
   PRIMARY KEY (OrderId),
   CONSTRAINT FK_tbl_order_id FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId),
   INDEX(OntId)

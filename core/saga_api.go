@@ -11,7 +11,6 @@ import (
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/sagaconfig"
-	"strings"
 )
 
 var DefSagaApi *SagaApi
@@ -30,13 +29,16 @@ func NewSagaApi() *SagaApi {
 }
 
 func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey, error) {
-	testKey, err := this.QueryApiTestKeyByOntIdAndApiId(ontid, apiId)
-	if err != nil && !strings.Contains(err.Error(), "not found") {
+	var testKey tables.APIKey
+	err := dao.DefApiDb.Conn.Get(testKey, "select * from tbl_api_test_key where OntId=? and ApiId=?", ontid, apiId)
+	if err != nil {
 		return nil, err
 	}
-	if testKey != nil {
-		return testKey, nil
+
+	if err != nil && !dao.IsNoEltError(err) {
+		return nil, err
 	}
+
 	key := "test_" + common.GenerateUUId()
 	apiKey := &tables.APIKey{
 		ApiKey:       key,
@@ -66,7 +68,9 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	}
 
 	apiTestKey := params[len(params)-1].ValueDesc
-	key, err := dao.DefSagaApiDB.ApiDB.QueryApiKeyAndInvokeFreByApiKey(apiTestKey)
+
+	var key tables.APIKey
+	err := dao.DefApiDb.Conn.Get(&key, "select * from tbl_api_test_key where where ApiKey=?", apiTestKey)
 	if err != nil {
 		return nil, err
 	}
@@ -80,11 +84,7 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	return nil, fmt.Errorf("not support api, apiId:%d", key.ApiId)
 }
 
-func (this *SagaApi) QueryApiTestKeyByOntIdAndApiId(ontid string, apiId int) (*tables.APIKey, error) {
-	return dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByOntIdAndApiId(ontid, apiId)
-}
-
-func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]tables.ApiBasicInfo, error) {
 	if pageNum < 1 {
 		pageNum = 1
 	}
@@ -92,7 +92,14 @@ func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.A
 		pageSize = 10
 	}
 	start := (pageNum - 1) * pageSize
-	return dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByPage(start, pageSize)
+
+	var result []tables.ApiBasicInfo
+	err := dao.DefApiDb.Conn.Select(&result, "select * from tbl_api_basic_info where ApiId limit ?, ?", start, pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize int) ([]*tables.ApiBasicInfo, error) {
@@ -107,29 +114,36 @@ func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize int) ([]*
 }
 
 func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResponse, error) {
-	basicInfo, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(apiId)
+	var basicInfo tables.ApiBasicInfo
+	err := dao.DefApiDb.Conn.Get(&basicInfo, "select * from tbl_api_basic_info where ApiId=?", apiId)
 	if err != nil {
 		return nil, err
 	}
-	apiDetail, err := dao.DefSagaApiDB.ApiDB.QueryApiDetailInfoById(apiId)
+
+	var apiDetail tables.ApiDetailInfo
+	err = dao.DefApiDb.Conn.Get(&apiDetail, "select * from tbl_api_detail_info where ApiId=?", apiId)
 	if err != nil {
 		return nil, err
 	}
-	if apiDetail == nil {
-		return nil, nil
-	}
-	requestParam, err := dao.DefSagaApiDB.ApiDB.QueryRequestParamByApiDetailInfoId(apiDetail.Id)
+
+	var requestParam []tables.RequestParam
+	err = dao.DefApiDb.Conn.Select(&requestParam, "select * from tbl_request_param where ApiDetailInfoId=?", apiDetail.Id)
 	if err != nil {
 		return nil, err
 	}
-	errCode, err := dao.DefSagaApiDB.ApiDB.QueryErrorCodeByApiDetailInfoId(apiDetail.Id)
+
+	var errCode []tables.ErrorCode
+	err = dao.DefApiDb.Conn.Select(&errCode, "select * from tbl_error_code where ApiDetailInfoId=?", apiDetail.Id)
 	if err != nil {
 		return nil, err
 	}
-	sp, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsByApiDetailId(apiDetail.Id)
+
+	var sp []tables.Specifications
+	err = dao.DefApiDb.Conn.Select(&sp, "select * from tbl_specifications where ApiDetailInfoId=?", apiDetail.Id)
 	if err != nil {
 		return nil, err
 	}
+
 	return &common.ApiDetailResponse{
 		ApiId:               apiDetail.ApiId,
 		Mark:                apiDetail.Mark,
@@ -142,7 +156,7 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 		RequestParams:       requestParam,
 		ErrorCodes:          errCode,
 		Specifications:      sp,
-		ApiBasicInfo:        basicInfo,
+		ApiBasicInfo:        &basicInfo,
 	}, nil
 }
 
@@ -154,21 +168,28 @@ func (this *SagaApi) SearchApiIdByCategoryId(param *common2.SearchApiByCategoryI
 	return this.QueryBasicApiInfoByCategory(param.Id, param.PageNumber, param.PageSize)
 }
 
-//newest hot free
-func (this *SagaApi) SearchApi() (map[string][]*tables.ApiBasicInfo, error) {
-	res := make(map[string][]*tables.ApiBasicInfo)
-	//newest
-	newest, err := dao.DefSagaApiDB.ApiDB.QueryNewestApiBasicInfo()
+func (this *SagaApi) SearchApi() (map[string][]tables.ApiBasicInfo, error) {
+	res := make(map[string][]tables.ApiBasicInfo)
+	var newestApi []tables.ApiBasicInfo
+	var hottestApi []tables.ApiBasicInfo
+	var freeApi []tables.ApiBasicInfo
+
+	err := dao.DefApiDb.Conn.Select(&newestApi, "select * from tbl_api_basic_info order by CreateTime limit ?", 10)
 	if err != nil {
 		return nil, err
 	}
-	res["newest"] = newest
-	hottest, err := dao.DefSagaApiDB.ApiDB.QueryHottestApiBasicInfo()
+	res["newest"] = newestApi
+
+	err = dao.DefApiDb.Conn.Select(&hottestApi, "select * from tbl_api_basic_info order by InvokeFrequency limit ?", 10)
 	if err != nil {
 		return nil, err
 	}
-	res["hottest"] = hottest
-	free, err := dao.DefSagaApiDB.ApiDB.QueryFreeApiBasicInfo()
-	res["free"] = free
+	res["hottest"] = hottestApi
+
+	err = dao.DefApiDb.Conn.Select(&freeApi, "select * from tbl_api_basic_info where Price='0' limit ?", 10)
+	if err != nil {
+		return nil, err
+	}
+	res["free"] = freeApi
 	return res, nil
 }

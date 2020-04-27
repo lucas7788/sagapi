@@ -22,6 +22,7 @@ type Config struct {
 	ONTAuthScanProtocol string    `json:"ontauth_scan_protocol"`
 	QrCodeCallback      string    `json:"qrcode_callback"`
 	NASAAPIKey          string    `json:"nasa_api_key"`
+	TestAPIKeyLimit     uint      `json:"10"`
 	OntIdAccount        *ontology_go_sdk.Account
 }
 
