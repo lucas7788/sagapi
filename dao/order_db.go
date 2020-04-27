@@ -20,7 +20,7 @@ func NewOrderDB(db *sql.DB) *OrderDB {
 
 func (this *OrderDB) InsertOrder(order *tables.Order) error {
 	strSql := `insert into tbl_order (OrderId,Title, ProductName, OrderType, OrderTime, OrderStatus,Amount, 
-OntId,UserName,Price,ApiId,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+OntId,UserName,Price,ApiId,ApiUrl,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -29,7 +29,7 @@ OntId,UserName,Price,ApiId,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,
 		return err
 	}
 	_, err = stmt.Exec(order.OrderId, order.Title, order.ProductName, order.OrderType, order.OrderTime, order.OrderStatus,
-		order.Amount, order.OntId, order.UserName, order.Price, order.ApiId, order.SpecificationsId, order.Coin)
+		order.Amount, order.OntId, order.UserName, order.Price, order.ApiId, order.ApiUrl, order.SpecificationsId, order.Coin)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (this *OrderDB) QueryOrderStatusByOrderId(orderId string) (sagaconfig.Order
 
 func (this *OrderDB) QueryOrderByOrderId(orderId string) (*tables.Order, error) {
 	strSql := `select OrderId,Title, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
-OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where OrderId=?`
+OntId,UserName,TxHash,Price,ApiId,ApiUrl,SpecificationsId,Coin from tbl_order where OrderId=?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -94,11 +94,11 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ord
 	}
 	for rows.Next() {
 		var orderTime, payTime int64
-		var orderId, title, productName, orderType, amount, ontId, userName, txHash, price, coin string
+		var apiUrl, orderId, title, productName, orderType, amount, ontId, userName, txHash, price, coin string
 		var specifications, apiId int
 		var orderStatus uint8
 		if err = rows.Scan(&orderId, &title, &productName, &orderType, &orderTime, &payTime, &orderStatus, &amount,
-			&ontId, &userName, &txHash, &price, &apiId, &specifications, &coin); err != nil {
+			&ontId, &userName, &txHash, &price, &apiId, &apiUrl, &specifications, &coin); err != nil {
 			return nil, err
 		}
 		return &tables.Order{
@@ -115,6 +115,7 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ord
 			TxHash:           txHash,
 			Price:            price,
 			ApiId:            apiId,
+			ApiUrl:           apiUrl,
 			SpecificationsId: specifications,
 		}, nil
 	}
@@ -148,7 +149,7 @@ func (this *OrderDB) QueryOrderSum(ontId string) (int, error) {
 }
 func (this *OrderDB) QueryOrderByPage(start, pageSize int, ontId string) ([]*tables.Order, error) {
 	strSql := `select OrderId,Title, ProductName, OrderType, OrderTime, PayTime, OrderStatus,Amount, 
-OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where OntId=? order by OrderTime desc limit ?, ?`
+OntId,UserName,TxHash,Price,ApiId,ApiUrl,SpecificationsId,Coin from tbl_order where OntId=? order by OrderTime desc limit ?, ?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -166,11 +167,11 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ont
 	res := make([]*tables.Order, 0)
 	for rows.Next() {
 		var orderTime, payTime int64
-		var orderId, title, productName, orderType, amount, ontId, userName, txHash, price, coin string
+		var apiUrl, orderId, title, productName, orderType, amount, ontId, userName, txHash, price, coin string
 		var specifications, apiId int
 		var orderStatus uint8
 		if err = rows.Scan(&orderId, &title, &productName, &orderType, &orderTime, &payTime, &orderStatus, &amount,
-			&ontId, &userName, &txHash, &price, &apiId, &specifications, &coin); err != nil {
+			&ontId, &userName, &txHash, &price, &apiId, &apiUrl, &specifications, &coin); err != nil {
 			return nil, err
 		}
 		res = append(res, &tables.Order{
@@ -187,6 +188,7 @@ OntId,UserName,TxHash,Price,ApiId,SpecificationsId,Coin from tbl_order where Ont
 			TxHash:           txHash,
 			Price:            price,
 			ApiId:            apiId,
+			ApiUrl:           apiUrl,
 			SpecificationsId: specifications,
 			Coin:             coin,
 		})

@@ -43,6 +43,7 @@ type OrderResult struct {
 	CreateTime   int64                  `json:"createTime"`
 	TxHash       string                 `json:"txHash"`
 	ApiId        int                    `json:"apiId"`
+	ApiUrl       string                 `json:"apiUrl"`
 	RequestLimit int                    `json:"requestLimit"`
 	UsedNum      int                    `json:"usedNum"`
 	Status       sagaconfig.OrderStatus `json:"status"`

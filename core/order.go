@@ -49,6 +49,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 		UserName:         param.UserName,
 		Price:            spec.Price,
 		ApiId:            info.ApiId,
+		ApiUrl:           info.ApiUrl,
 		SpecificationsId: param.SpecificationsId,
 		Coin:             sagaconfig.TOKEN_TYPE_ONG,
 	}
@@ -111,6 +112,7 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 			CreateTime:   order.OrderTime,
 			TxHash:       order.TxHash,
 			ApiId:        order.ApiId,
+			ApiUrl:       order.ApiUrl,
 			RequestLimit: apiKey.RequestLimit,
 			UsedNum:      apiKey.UsedNum,
 			Status:       order.OrderStatus,
