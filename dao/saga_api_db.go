@@ -54,7 +54,7 @@ func NewSagaApiDB(dbConfig *sagaconfig.DBConfig) (*SagaApiDB, error) {
 
 	return &SagaApiDB{
 		ApiDB:    NewApiDB(db),
-		OrderDB:  NewOrderDB(db),
+		OrderDB:  NewOrderDB(dbx),
 		QrCodeDB: NewQrCodeDB(db),
 		OtherDB:  NewOtherDB(db),
 	}, nil

@@ -17,7 +17,7 @@ var TestDB *SagaApiDB
 func TestMain(m *testing.M) {
 	fmt.Println("begin test db.")
 	var err error
-	TestDB, err = NewSagaApiDB(sagaconfig.DefDBConfigMap[sagaconfig.NETWORK_ID_TRAVIS_NET])
+	TestDB, err = NewSagaApiDB(sagaconfig.DefDBConfigMap[sagaconfig.NETWORK_ID_SOLO_NET])
 	if err != nil {
 		panic(err)
 	}
@@ -33,14 +33,30 @@ func TestOrderDB_UpdateOrderStatus(t *testing.T) {
 func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
 	orderId := "abcedkfy"
-	br := &tables.Order{
+	order := &tables.Order{
 		ApiId:     1,
 		OrderId:   orderId,
 		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 		OrderTime: tt,
 	}
-	err := TestDB.OrderDB.InsertOrder(br)
+	err := TestDB.OrderDB.InsertOrder(order)
 	assert.Nil(t, err)
+	orderFromDb, err := TestDB.OrderDB.QueryOrderByOrderId(orderId)
+	assert.Nil(t, err)
+	assert.Equal(t, orderFromDb.OrderId, orderId)
+
+	orderId2 := "abcedkfyfgt"
+	order2 := &tables.Order{
+		ApiId:     1,
+		OrderId:   orderId2,
+		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
+		OrderTime: tt,
+	}
+	err = TestDB.OrderDB.InsertOrder(order2)
+	assert.Nil(t, err)
+	err = TestDB.OrderDB.DeleteOrderByOrderId(orderId2)
+	assert.Nil(t, err)
+
 	code := &tables.QrCode{
 		QrCodeId: "qbcdab",
 		OrderId:  orderId,
@@ -62,6 +78,10 @@ func TestOrderDB_InsertOrder(t *testing.T) {
 	assert.Nil(t, err)
 	err = TestDB.OrderDB.DeleteOrderByOrderId(orderId)
 	assert.Nil(t, err)
+}
+
+func TestOrderDB_DeleteOrderByOrderId(t *testing.T) {
+
 }
 
 func TestApiDB_InsertApiKey(t *testing.T) {
@@ -101,31 +121,31 @@ func TestSagaDB_QueryRequestNum(t *testing.T) {
 	assert.Equal(t, 1, key.UsedNum)
 }
 
-func TestSagaDB_SearchApi(t *testing.T) {
-	info := &tables.ApiBasicInfo{
-		ApiDesc:        "abcdefg",
-		Price:          "0.1",
-		Specifications: 1,
-	}
-	info2 := &tables.ApiBasicInfo{
-		ApiDesc:        "cdefgty",
-		Price:          "0.1",
-		Specifications: 1,
-	}
-	err := TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info})
-	assert.Nil(t, err)
-	err = TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info2})
-	assert.Nil(t, err)
-	infos, err := TestDB.ApiDB.SearchApiByKey("cdefgty")
-	assert.Nil(t, err)
-	fmt.Println(infos)
-	infos, err = TestDB.ApiDB.QueryApiBasicInfoByPage(2, 2)
-	assert.Nil(t, err)
-	fmt.Println(infos)
-	info3, err := TestDB.ApiDB.QueryApiBasicInfoByApiId(100)
-	assert.NotNil(t, err)
-	fmt.Println(info3)
-}
+//func TestSagaDB_SearchApi(t *testing.T) {
+//	info := &tables.ApiBasicInfo{
+//		ApiDesc:        "abcdefg",
+//		Price:          "0.1",
+//		Specifications: 1,
+//	}
+//	info2 := &tables.ApiBasicInfo{
+//		ApiDesc:        "cdefgty",
+//		Price:          "0.1",
+//		Specifications: 1,
+//	}
+//	err := TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info})
+//	assert.Nil(t, err)
+//	err = TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info2})
+//	assert.Nil(t, err)
+//	infos, err := TestDB.ApiDB.SearchApiByKey("cdefgty")
+//	assert.Nil(t, err)
+//	fmt.Println(infos)
+//	infos, err = TestDB.ApiDB.QueryApiBasicInfoByPage(2, 2)
+//	assert.Nil(t, err)
+//	fmt.Println(infos)
+//	info3, err := TestDB.ApiDB.QueryApiBasicInfoByApiId(100)
+//	assert.NotNil(t, err)
+//	fmt.Println(info3)
+//}
 
 func TestSagaDB_QueryOrderStatusByOrderId(t *testing.T) {
 	_, err := TestDB.OrderDB.QueryOrderByOrderId("1")
