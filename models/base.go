@@ -39,3 +39,13 @@ type Arg struct {
 	Name  string      `json:"name"`
 	Value interface{} `json:"value"`
 }
+
+type ApiKeyInvokeFre struct {
+	ApiKey       string `json:"apiKey"`
+	OrderId      string `json:"orderId"`
+	ApiId        int    `json:"apiId"`
+	RequestLimit int    `json:"requestLimit"`
+	UsedNum      int32  `json:"usedNum"`
+	OntId        string
+	InvokeFre    int32
+}

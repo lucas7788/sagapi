@@ -21,7 +21,7 @@ func Apod(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(res))
+	common.WriteResponse(c, common.ResponseSuccess(string(res)))
 }
 
 func Feed(c *gin.Context) {
@@ -36,5 +36,5 @@ func Feed(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(res))
+	common.WriteResponse(c, common.ResponseSuccess(string(res)))
 }

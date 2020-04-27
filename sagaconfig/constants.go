@@ -22,6 +22,10 @@ const (
 	NETWORK_ID_TRAVIS_NET  = 4
 )
 
+const (
+	CategoryAll = 1
+)
+
 type OrderStatus uint8
 
 const (

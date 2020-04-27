@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `tbl_api_test_key`;
 DROP TABLE IF EXISTS `tbl_qr_code`;
 DROP TABLE IF EXISTS `tbl_api_key`;
 DROP TABLE IF EXISTS `tbl_order`;
@@ -9,7 +10,6 @@ DROP TABLE IF EXISTS `tbl_api_basic_info`;
 DROP TABLE IF EXISTS `tbl_api_tag`;
 DROP TABLE IF EXISTS `tbl_tag`;
 DROP TABLE IF EXISTS `tbl_category`;
-DROP TABLE IF EXISTS `tbl_api_test_key`;
 
 create table tbl_api_tag
 (
@@ -162,7 +162,10 @@ create table tbl_api_test_key (
   RequestLimit int(11) not null default 0,
   UsedNum int(11) not null default 0,
   OntId varchar(50) not null default '',
-  PRIMARY KEY (Id)
+  PRIMARY KEY (Id),
+  foreign key(ApiId) references tbl_api_basic_info(ApiId),
+  INDEX(ApiId),
+  INDEX(ApiKey)
 ) default charset=utf8;
 
 CREATE TABLE `tbl_qr_code` (

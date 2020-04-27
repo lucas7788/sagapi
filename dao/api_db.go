@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ontio/sagapi/common"
+	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/sagaconfig"
 	"strings"
@@ -18,6 +19,10 @@ func NewApiDB(db *sql.DB) *ApiDB {
 	return &ApiDB{
 		db: db,
 	}
+}
+
+func (this *ApiDB) DB() *sql.DB {
+	return this.db
 }
 
 func (this *ApiDB) InsertApiBasicInfo(infos []*tables.ApiBasicInfo) error {
@@ -81,6 +86,9 @@ func (this *ApiDB) QueryNewestApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
 func (this *ApiDB) QueryFreeApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
 	return this.queryApiBasicInfo(false, false, true)
 }
+func (this *ApiDB) QueryALLApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
+	return this.queryApiBasicInfo(false, false, false)
+}
 func (this *ApiDB) queryApiBasicInfo(newest, hottest, free bool) ([]*tables.ApiBasicInfo, error) {
 	var strSql string
 	if newest {
@@ -92,6 +100,9 @@ InvokeFrequency,CreateTime from tbl_api_basic_info order by CreateTime limit ?`
 	} else if free {
 		strSql = `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
 InvokeFrequency,CreateTime from tbl_api_basic_info where Price='0' limit ?`
+	} else {
+		strSql = `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
+InvokeFrequency,CreateTime from tbl_api_basic_info limit ?`
 	}
 
 	stmt, err := this.db.Prepare(strSql)
@@ -609,8 +620,16 @@ func (this *ApiDB) QueryApiTestKeyByOntIdAndApiId(ontId string, apiId int) (*tab
 	return nil, fmt.Errorf("apikey not found")
 }
 
-func (this *ApiDB) QueryApiTestKeyByApiTestKey(apiTestKey string) (*tables.APIKey, error) {
-	strSql := "select ApiId, OntId, RequestLimit, UsedNum from tbl_api_test_key where ApiKey=?"
+func (this *ApiDB) QueryApiKeyAndInvokeFreByApiKey(apiKey string) (*models.ApiKeyInvokeFre, error) {
+	var strSql string
+	if common.IsTestKey(apiKey) {
+		strSql = `select k.ApiId, k.OntId, k.RequestLimit, k.UsedNum,i.InvokeFrequency from tbl_api_test_key k,
+tbl_api_basic_info i where k.ApiKey=? and i.ApiId=k.ApiId`
+	} else {
+		strSql = `select k.ApiId, k.OntId, k.RequestLimit, k.UsedNum,i.InvokeFrequency from tbl_api_key k,
+tbl_api_basic_info i where k.ApiKey=? and i.ApiId=k.ApiId`
+	}
+
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -618,7 +637,7 @@ func (this *ApiDB) QueryApiTestKeyByApiTestKey(apiTestKey string) (*tables.APIKe
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(apiTestKey)
+	rows, err := stmt.Query(apiKey)
 	if rows != nil {
 		defer rows.Close()
 	}
@@ -627,15 +646,15 @@ func (this *ApiDB) QueryApiTestKeyByApiTestKey(apiTestKey string) (*tables.APIKe
 	}
 	for rows.Next() {
 		var ontId string
-		var apiId, limit, usedNum int
-		if err = rows.Scan(&apiId, &ontId, &limit, &usedNum); err != nil {
+		var apiId, limit, usedNum, invokeFre int
+		if err = rows.Scan(&apiId, &ontId, &limit, &usedNum, &invokeFre); err != nil {
 			return nil, err
 		}
-		return &tables.APIKey{
-			ApiKey:       apiTestKey,
+		return &models.ApiKeyInvokeFre{
+			ApiKey:       apiKey,
 			ApiId:        apiId,
 			RequestLimit: limit,
-			UsedNum:      usedNum,
+			UsedNum:      int32(usedNum),
 			OntId:        ontId,
 		}, nil
 	}
@@ -649,6 +668,7 @@ func (this *ApiDB) UpdateApiKeyInvokeFre(apiKey string, usedNum, apiId, invokeFr
 	} else {
 		strSql = "update tbl_api_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
 	}
+
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -659,6 +679,7 @@ func (this *ApiDB) UpdateApiKeyInvokeFre(apiKey string, usedNum, apiId, invokeFr
 	_, err = stmt.Exec(usedNum, invokeFre, apiKey, apiId)
 	return err
 }
+
 func (this *ApiDB) QueryApiKeyByApiKey(apiKey string) (*tables.APIKey, error) {
 	return this.queryApiKey(apiKey, "")
 }
