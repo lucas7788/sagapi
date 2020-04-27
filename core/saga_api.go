@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 	"github.com/ontio/sagapi/common"
+	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/dao"
@@ -94,6 +95,17 @@ func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.A
 	return dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByPage(start, pageSize)
 }
 
+func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize int) ([]*tables.ApiBasicInfo, error) {
+	if pageNum < 1 {
+		pageNum = 1
+	}
+	if pageSize < 1 {
+		pageSize = 10
+	}
+	start := (pageNum - 1) * pageSize
+	return dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByCategoryId(id, start, pageSize)
+}
+
 func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResponse, error) {
 	basicInfo, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(apiId)
 	if err != nil {
@@ -134,12 +146,12 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 	}, nil
 }
 
-func (this *SagaApi) SearchApiIdByCategoryId(categoryId int) ([]*tables.ApiBasicInfo, error) {
-	if categoryId == sagaconfig.CategoryAll {
-		return dao.DefSagaApiDB.ApiDB.QueryALLApiBasicInfo()
+func (this *SagaApi) SearchApiIdByCategoryId(param *common2.SearchApiByCategoryId) ([]*tables.ApiBasicInfo, error) {
+	if param.Id == sagaconfig.CategoryAll {
+		return this.QueryBasicApiInfoByPage(param.PageNumber, param.PageSize)
 	}
 
-	return dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByCategoryId(categoryId)
+	return this.QueryBasicApiInfoByCategory(param.Id, param.PageNumber, param.PageSize)
 }
 
 //newest hot free

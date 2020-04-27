@@ -86,9 +86,7 @@ func (this *ApiDB) QueryNewestApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
 func (this *ApiDB) QueryFreeApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
 	return this.queryApiBasicInfo(false, false, true)
 }
-func (this *ApiDB) QueryALLApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
-	return this.queryApiBasicInfo(false, false, false)
-}
+
 func (this *ApiDB) queryApiBasicInfo(newest, hottest, free bool) ([]*tables.ApiBasicInfo, error) {
 	var strSql string
 	if newest {
@@ -159,10 +157,10 @@ func (this *ApiDB) QueryInvokeFreByApiId(apiId int) (int, error) {
 	return 0, fmt.Errorf("not found")
 }
 
-func (this *ApiDB) QueryApiBasicInfoByCategoryId(categoryId int) ([]*tables.ApiBasicInfo, error) {
+func (this *ApiDB) QueryApiBasicInfoByCategoryId(categoryId, start, pageSize int) ([]*tables.ApiBasicInfo, error) {
 	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,
 Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId 
-in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=?))`
+in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=?)) limit ?, ?`
 	stmt, err := this.db.Prepare(strSql)
 	if stmt != nil {
 		defer stmt.Close()
@@ -170,7 +168,7 @@ in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where ca
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(categoryId)
+	rows, err := stmt.Query(categoryId, start, pageSize)
 	if rows != nil {
 		defer rows.Close()
 	}

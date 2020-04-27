@@ -88,19 +88,15 @@ func SearchApiByKey(c *gin.Context) {
 }
 
 func SearchApiByCategoryId(c *gin.Context) {
-	param, err := common.ParseGetParamByParamName(c, "categoryId")
+	key := &common2.SearchApiByCategoryId{}
+	err := common.ParsePostParam(c, key)
 	if err != nil {
-		log.Errorf("[SearchApiByCategoryId] ParseGetParam error: %s", err)
+		log.Errorf("[SearchApiByCategoryId] ParsePostParam error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	id, err := strconv.Atoi(param[0])
-	if err != nil {
-		log.Errorf("[SearchApiByCategoryId] Atoi error: %s", err)
-		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
-		return
-	}
-	infos, err := core.DefSagaApi.SearchApiIdByCategoryId(id)
+
+	infos, err := core.DefSagaApi.SearchApiIdByCategoryId(key)
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))

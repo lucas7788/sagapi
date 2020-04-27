@@ -43,3 +43,9 @@ type QrCodeIdParam struct {
 type SearchApiByKey struct {
 	Key string `json:"key"`
 }
+
+type SearchApiByCategoryId struct {
+	Id         int `json:"id"`
+	PageNumber int `json:"pageNumber"`
+	PageSize   int `json:"pageSize"`
+}
