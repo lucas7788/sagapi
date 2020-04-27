@@ -133,6 +133,7 @@ create table tbl_order (
   TxHash varchar(100) not null  default '' COMMENT '支付交易hash',
   Price varchar(50) not null default ''  COMMENT '',
   ApiId int(11) NOT NULL COMMENT '',
+  ApiUrl varchar(255) not null  default '' COMMENT '',
   SpecificationsId int(11) NOT NULL COMMENT '规格',
 	Coin varchar(20) NOT NULL COMMENT '币种',
   PRIMARY KEY (OrderId),
