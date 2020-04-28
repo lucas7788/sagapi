@@ -28,16 +28,45 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	}
 	assert.Nil(t, TestDB.ApiDB.InsertApiBasicInfo(infos))
 
-	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(0, 1)
+	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(1, 1)
 	assert.Nil(t, err)
 	info, err = TestDB.ApiDB.QueryApiBasicInfoByApiId(basic[0].ApiId)
 	assert.Nil(t, err)
 	assert.Equal(t, info.ApiId, basic[0].ApiId)
 
-	//infos, err = TestDB.ApiDB.QueryApiBasicInfoByCategoryId(1, 0, 1)
-	//assert.Nil(t, err)
-	//assert.Equal(t, 1, len(infos))
+	detail := &tables.ApiDetailInfo{
+		ApiId:               basic[0].ApiId,
+		RequestType:         "POST",
+		Mark:                "",
+		ResponseParam:       "",
+		ResponseExample:     "",
+		DataDesc:            "",
+		DataSource:          "",
+		ApplicationScenario: "",
+	}
+	err = TestDB.ApiDB.InsertApiDetailInfo(detail)
+	assert.Nil(t, err)
+	detail ,err = TestDB.ApiDB.QueryApiDetailInfoByApiId(basic[0].ApiId)
+	assert.Nil(t, err)
+	params := &tables.RequestParam{
+		ApiDetailInfoId :detail.Id,
+		ParamName       :"",
+		Required       :true,
+		ParamType       :"",
+		Note            :"",
+		ValueDesc       :"",
+	}
 
+	assert.Nil(t, TestDB.ApiDB.InsertRequestParam([]*tables.RequestParam{params}))
+
+	requestParams, err := TestDB.ApiDB.QueryRequestParamByApiDetailId(detail.Id)
+	assert.Nil(t, err)
+    assert.Equal(t, len(requestParams), 1)
+
+	infos, err = TestDB.ApiDB.QueryApiBasicInfoByCategoryId(1, 0, 1)
+	assert.Nil(t, err)
+
+	TestDB.ApiDB.ClearRequestParamDB()
 	TestDB.ApiDB.ClearApiBasicDB()
 }
 

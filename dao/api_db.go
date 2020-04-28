@@ -33,6 +33,11 @@ func (this *ApiDB) ClearApiBasicDB() error {
 	_, err := this.conn.Exec(strSql)
 	return err
 }
+func (this *ApiDB) ClearRequestParamDB() error {
+	strSql := "delete from tbl_request_param"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
 func (this *ApiDB) ClearApiDetailDB() error {
 	strSql := "delete from tbl_api_detail_info"
 	_, err := this.conn.Exec(strSql)
@@ -187,10 +192,11 @@ func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
 	return nil
 }
 
-func (this *ApiDB) QueryRequestParamByApiDetailId(id int) (params []*tables.RequestParam, err error) {
-	strSql := `select * from tbl_api_detail_info where ApiId=?`
-	err = this.conn.Get(params, strSql, id)
-	return
+func (this *ApiDB) QueryRequestParamByApiDetailId(id int) ([]*tables.RequestParam, error) {
+	strSql := `select * from tbl_request_param where ApiDetailInfoId=?`
+	var params []*tables.RequestParam
+	err := this.conn.Select(&params, strSql, id)
+	return params, err
 }
 
 func (this *ApiDB) InsertErrorCode(params []*tables.ErrorCode) error {
