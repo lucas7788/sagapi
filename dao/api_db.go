@@ -49,8 +49,7 @@ ApiDesc,Specifications, Popularity,Delay,SuccessRate,InvokeFrequency) values`
 }
 
 func (this *ApiDB) QueryApiBasicInfoByCategoryId(categoryId, start, pageSize int) ([]*tables.ApiBasicInfo, error) {
-	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,
-Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId 
+	strSql := `select * from tbl_api_basic_info where ApiId 
 in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=?)) limit ?, ?`
 
 	var res []*tables.ApiBasicInfo
@@ -62,25 +61,21 @@ in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where ca
 }
 
 func (this *ApiDB) QueryApiBasicInfoByApiId(apiId int) (*tables.ApiBasicInfo, error) {
-	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,
-Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId =?`
+	strSql := `select * from tbl_api_basic_info where ApiId =?`
 
 	info := &tables.ApiBasicInfo{}
 	err := this.conn.Get(info, strSql, apiId)
 	if err != nil {
 		return nil, err
 	}
-	common.BuildApiBasicInfo(info)
 	return info, nil
 }
 
 func (this *ApiDB) SearchApiByKey(key string) ([]*tables.ApiBasicInfo, error) {
 	k := "%" + key + "%"
-	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
-InvokeFrequency,CreateTime from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where name=?)) limit 30`
+	strSql := `select * from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where name=?)) limit 30`
 
 	var infos []*tables.ApiBasicInfo
-
 	err := this.conn.Select(&infos, strSql, k, k, key)
 	if err != nil {
 		return nil, err

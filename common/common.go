@@ -92,8 +92,3 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 		QrCodeDesc: "",
 	}
 }
-
-func BuildApiBasicInfo(info *tables.ApiBasicInfo) {
-	info.Coin = sagaconfig.TOKEN_TYPE_ONG
-	info.ApiType = sagaconfig.Api
-}
