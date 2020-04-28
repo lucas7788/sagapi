@@ -70,11 +70,34 @@ func TestApiDB_QueryApiKey(t *testing.T) {
 
 	kfre, err := TestDB.ApiDB.QueryApiKeyAndInvokeFreByApiKey("apikey")
 	assert.Nil(t, err)
-	assert.Equal(t, kfre.ApiKey, "apikey")
+	assert.Equal(t, "apikey", kfre.ApiKey)
 }
 
-func TestSagaDB_QueryRequestNum(t *testing.T) {
-	key, err := TestDB.ApiDB.QueryApiKeyByApiKey("apikey")
+
+func TestApiDB_InsertSpecifications(t *testing.T) {
+	params := []*tables.Specifications{
+		&tables.Specifications{
+			ApiDetailInfoId :1,
+			Price           :"0",
+			Amount          :500,
+		},
+		&tables.Specifications{
+			ApiDetailInfoId :1,
+			Price           :"0.01",
+			Amount          :1000,
+		},
+	}
+	err := TestDB.ApiDB.InsertSpecifications(params)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, key.UsedNum)
+}
+
+func TestApiDB_QuerySpecificationsByApiDetailId(t *testing.T) {
+	spec, err := TestDB.ApiDB.QuerySpecificationsById(1)
+	assert.Nil(t, err)
+
+	assert.Equal(t, spec.Id, 1)
+
+	specs, err := TestDB.ApiDB.QuerySpecificationsByApiDetailId(1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(specs), 5)
 }

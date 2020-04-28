@@ -62,7 +62,7 @@ func (this *Nasa) beforeCheckApiKey(apiKey string) (*models.ApiKeyInvokeFre, err
 	}
 
 	key.UsedNum += 1
-	key.InvokeFre += 1
+	key.InvokeFrequency += 1
 
 	return key, nil
 }
@@ -77,7 +77,7 @@ func (this *Nasa) Apod(apiKey string) (res []byte, e error) {
 	res, e = http.DefClient.Get(url)
 	if e != nil {
 		atomic.AddInt32(&key.UsedNum, -1)
-		atomic.AddInt32(&key.InvokeFre, -1)
+		atomic.AddInt32(&key.InvokeFrequency, -1)
 		return nil, err
 	}
 
@@ -96,7 +96,7 @@ func (this *Nasa) Feed(startDate, endDate string, apiKey string) (res []byte, e 
 	res, e = http.DefClient.Get(url)
 	if e != nil {
 		atomic.AddInt32(&key.UsedNum, -1)
-		atomic.AddInt32(&key.InvokeFre, -1)
+		atomic.AddInt32(&key.InvokeFrequency, -1)
 		return nil, err
 	}
 
@@ -134,5 +134,5 @@ func (this *Nasa) getApiKeyInvokeFre(apiKey string) (*models.ApiKeyInvokeFre, er
 }
 
 func (this *Nasa) updateApiKeyInvokeFre(key *models.ApiKeyInvokeFre) error {
-	return dao.DefSagaApiDB.ApiDB.UpdateApiKeyInvokeFre(key.ApiKey, int(key.UsedNum), key.ApiId, int(key.InvokeFre))
+	return dao.DefSagaApiDB.ApiDB.UpdateApiKeyInvokeFre(key.ApiKey, int(key.UsedNum), key.ApiId, int(key.InvokeFrequency))
 }

@@ -48,12 +48,48 @@ ApiDesc,Specifications, Popularity,Delay,SuccessRate,InvokeFrequency) values`
 	return nil
 }
 
+func (this *ApiDB) SearchApi() (map[string][]*tables.ApiBasicInfo, error) {
+	res := make(map[string][]*tables.ApiBasicInfo)
+	var newestApi []*tables.ApiBasicInfo
+	var hottestApi []*tables.ApiBasicInfo
+	var freeApi []*tables.ApiBasicInfo
+
+	err := this.conn.Select(&newestApi, "select * from tbl_api_basic_info order by CreateTime limit ?", 10)
+	if err != nil {
+		return nil, err
+	}
+	res["newest"] = newestApi
+
+	err = this.conn.Select(&hottestApi, "select * from tbl_api_basic_info order by InvokeFrequency limit ?", 10)
+	if err != nil {
+		return nil, err
+	}
+	res["hottest"] = hottestApi
+
+	err = this.conn.Select(&freeApi, "select * from tbl_api_basic_info where Price='0' limit ?", 10)
+	if err != nil {
+		return nil, err
+	}
+	res["free"] = freeApi
+	return res, nil
+}
+
 func (this *ApiDB) QueryApiBasicInfoByCategoryId(categoryId, start, pageSize int) ([]*tables.ApiBasicInfo, error) {
 	strSql := `select * from tbl_api_basic_info where ApiId 
 in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=?)) limit ?, ?`
 
 	var res []*tables.ApiBasicInfo
 	err := this.conn.Select(&res, strSql, categoryId, start, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (this *ApiDB) QueryApiBasicInfoByPage(start, pageSize int) ([]*tables.ApiBasicInfo, error) {
+	strSql := `select * from tbl_api_basic_info where ApiId limit ?, ?`
+	var res []*tables.ApiBasicInfo
+	err := this.conn.Select(&res, strSql, start, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -94,6 +130,12 @@ DataSource,ApplicationScenario) values (?,?,?,?,?,?,?,?)`
 	return nil
 }
 
+func (this *ApiDB) QueryApiDetailInfoByApiId(apiId int) (info *tables.ApiDetailInfo, err error) {
+	strSql := `select * from tbl_api_detail_info where ApiId=?`
+	err = this.conn.Get(info, strSql, apiId)
+	return
+}
+
 func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
 	if len(params) == 0 {
 		return nil
@@ -118,6 +160,12 @@ func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
 	return nil
 }
 
+func (this *ApiDB) QueryRequestParamByApiDetailId(id int) (params []*tables.RequestParam, err error) {
+	strSql := `select * from tbl_api_detail_info where ApiId=?`
+	err = this.conn.Get(params, strSql, id)
+	return
+}
+
 func (this *ApiDB) InsertErrorCode(params []*tables.ErrorCode) error {
 	if len(params) == 0 {
 		return nil
@@ -134,6 +182,12 @@ func (this *ApiDB) InsertErrorCode(params []*tables.ErrorCode) error {
 		return err
 	}
 	return nil
+}
+
+func (this *ApiDB) QueryErrorCodeByApiDetailId(id int) (params []*tables.ErrorCode, err error) {
+	strSql := `select * from tbl_error_code where ApiId=?`
+	err = this.conn.Get(params, strSql, id)
+	return
 }
 
 func (this *ApiDB) InsertSpecifications(params []*tables.Specifications) error {
@@ -154,9 +208,16 @@ func (this *ApiDB) InsertSpecifications(params []*tables.Specifications) error {
 	return nil
 }
 
-func (this *ApiDB) QuerySpecificationsById(id int) (ss *tables.Specifications, err error) {
+func (this *ApiDB) QuerySpecificationsById(id int) (*tables.Specifications, error) {
 	strSql := `select * from tbl_specifications where Id=?`
-	err = this.conn.Get(ss, strSql, id)
+	ss := &tables.Specifications{}
+	err := this.conn.Get(ss, strSql, id)
+	return ss, err
+}
+
+func (this *ApiDB) QuerySpecificationsByApiDetailId(id int) (ss []*tables.Specifications, err error) {
+	strSql := `select * from tbl_specifications where ApiDetailInfoId=?`
+	err = this.conn.Select(&ss, strSql, id)
 	return
 }
 
@@ -196,6 +257,7 @@ tbl_api_basic_info i where k.ApiKey=? and i.ApiId=k.ApiId`
 	if err != nil {
 		return nil, err
 	}
+	key.ApiKey = apiKey
 	return key, nil
 }
 
@@ -206,14 +268,25 @@ func (this *ApiDB) QueryApiKeyByOrderId(orderId string) (*tables.APIKey, error) 
 	return this.queryApiKey("", orderId)
 }
 
+func (this *ApiDB) QueryApiTestKeyByOntidAndApiId(ontid string, apiId int) (key *tables.APIKey, err error) {
+	strSql := "select * from tbl_api_test_key where OntId=? and ApiId=?"
+	err = this.conn.Get(key, strSql, ontid, apiId)
+	return
+}
+
 func (this *ApiDB) queryApiKey(key, orderId string) (*tables.APIKey, error) {
 	var strSql string
 	var where string
 	if key != "" {
-		strSql = "select ApiKey, OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where ApiKey=?"
+		if common.IsTestKey(key) {
+			strSql = "select * from tbl_api_test_key where ApiKey=?"
+		} else {
+			strSql = "select * from tbl_api_key where ApiKey=?"
+		}
+
 		where = key
 	} else if orderId != "" {
-		strSql = "select ApiKey, OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where OrderId=?"
+		strSql = "select * from tbl_api_key where OrderId=?"
 		where = orderId
 	}
 	k := &tables.APIKey{}

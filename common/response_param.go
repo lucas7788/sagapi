@@ -29,9 +29,9 @@ type ApiDetailResponse struct {
 	DataDesc            string                  `json:"dataDesc"`
 	DataSource          string                  `json:"dataSource"`
 	ApplicationScenario string                  `json:"applicationScenario"`
-	RequestParams       []tables.RequestParam   `json:"requestParams"`
-	ErrorCodes          []tables.ErrorCode      `json:"errorCodes"`
-	Specifications      []tables.Specifications `json:"specifications"`
+	RequestParams       []*tables.RequestParam   `json:"requestParams"`
+	ErrorCodes          []*tables.ErrorCode      `json:"errorCodes"`
+	Specifications      []*tables.Specifications `json:"specifications"`
 	ApiBasicInfo        *tables.ApiBasicInfo    `json:"apiBasicInfo"`
 }
 
