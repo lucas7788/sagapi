@@ -73,18 +73,17 @@ func TestApiDB_QueryApiKey(t *testing.T) {
 	assert.Equal(t, "apikey", kfre.ApiKey)
 }
 
-
 func TestApiDB_InsertSpecifications(t *testing.T) {
 	params := []*tables.Specifications{
 		&tables.Specifications{
-			ApiDetailInfoId :1,
-			Price           :"0",
-			Amount          :500,
+			ApiDetailInfoId: 1,
+			Price:           "0",
+			Amount:          500,
 		},
 		&tables.Specifications{
-			ApiDetailInfoId :1,
-			Price           :"0.01",
-			Amount          :1000,
+			ApiDetailInfoId: 1,
+			Price:           "0.01",
+			Amount:          1000,
 		},
 	}
 	err := TestDB.ApiDB.InsertSpecifications(params)

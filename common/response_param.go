@@ -21,18 +21,18 @@ type QrCode struct {
 }
 
 type ApiDetailResponse struct {
-	ApiId               int                     `json:"apiId"`
-	Mark                string                  `json:"mark"`
-	ResponseParam       string                  `json:"responseParam"`
-	ResponseType        string                  `json:"responseType"`
-	ResponseExample     string                  `json:"responseExample"`
-	DataDesc            string                  `json:"dataDesc"`
-	DataSource          string                  `json:"dataSource"`
-	ApplicationScenario string                  `json:"applicationScenario"`
+	ApiId               int                      `json:"apiId"`
+	Mark                string                   `json:"mark"`
+	ResponseParam       string                   `json:"responseParam"`
+	ResponseType        string                   `json:"responseType"`
+	ResponseExample     string                   `json:"responseExample"`
+	DataDesc            string                   `json:"dataDesc"`
+	DataSource          string                   `json:"dataSource"`
+	ApplicationScenario string                   `json:"applicationScenario"`
 	RequestParams       []*tables.RequestParam   `json:"requestParams"`
 	ErrorCodes          []*tables.ErrorCode      `json:"errorCodes"`
 	Specifications      []*tables.Specifications `json:"specifications"`
-	ApiBasicInfo        *tables.ApiBasicInfo    `json:"apiBasicInfo"`
+	ApiBasicInfo        *tables.ApiBasicInfo     `json:"apiBasicInfo"`
 }
 
 type OrderResult struct {
