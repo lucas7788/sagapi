@@ -5,7 +5,6 @@ import (
 
 	"fmt"
 	"github.com/ontio/sagapi/common"
-	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/dao"

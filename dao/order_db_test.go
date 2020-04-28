@@ -114,68 +114,6 @@ func TestOrderDB_DeleteOrderByOrderId(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestApiDB_InsertApiKey(t *testing.T) {
-	orderId := "145e89f6-850e-44a7-be3e-9224fd066858"
-	key := &tables.APIKey{
-		ApiId:        1,
-		OrderId:      orderId,
-		ApiKey:       "apikey",
-		RequestLimit: 2,
-		UsedNum:      1,
-		OntId:        "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
-	}
-
-	err := TestDB.ApiDB.InsertApiKey(key)
-	assert.NotNil(t, err)
-
-	ord := &tables.Order{
-		ApiId:   1,
-		OrderId: orderId,
-		OntId:   "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
-	}
-	err = TestDB.OrderDB.InsertOrder(ord)
-	assert.Nil(t, err)
-	err = TestDB.ApiDB.InsertApiKey(key)
-	assert.Nil(t, err)
-}
-
-func TestApiDB_QueryApiKey(t *testing.T) {
-	key, err := TestDB.ApiDB.QueryApiKeyByApiKey("apikey")
-	assert.Nil(t, err)
-	assert.Equal(t, 1, key.UsedNum)
-}
-
-func TestSagaDB_QueryRequestNum(t *testing.T) {
-	key, err := TestDB.ApiDB.QueryApiKeyByApiKey("apikey")
-	assert.Nil(t, err)
-	assert.Equal(t, 1, key.UsedNum)
-}
-
-//func TestSagaDB_SearchApi(t *testing.T) {
-//	info := &tables.ApiBasicInfo{
-//		ApiDesc:        "abcdefg",
-//		Price:          "0.1",
-//		Specifications: 1,
-//	}
-//	info2 := &tables.ApiBasicInfo{
-//		ApiDesc:        "cdefgty",
-//		Price:          "0.1",
-//		Specifications: 1,
-//	}
-//	err := TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info})
-//	assert.Nil(t, err)
-//	err = TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info2})
-//	assert.Nil(t, err)
-//	infos, err := TestDB.ApiDB.SearchApiByKey("cdefgty")
-//	assert.Nil(t, err)
-//	fmt.Println(infos)
-//	infos, err = TestDB.ApiDB.QueryApiBasicInfoByPage(2, 2)
-//	assert.Nil(t, err)
-//	fmt.Println(infos)
-//	info3, err := TestDB.ApiDB.QueryApiBasicInfoByApiId(100)
-//	assert.NotNil(t, err)
-//	fmt.Println(info3)
-//}
 
 func TestSagaDB_QueryOrderStatusByOrderId(t *testing.T) {
 	_, err := TestDB.OrderDB.QueryOrderByOrderId("1")

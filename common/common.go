@@ -93,23 +93,7 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 	}
 }
 
-func BuildApiBasicInfo(apiId int, icon, title, apiProvider, apiUrl, price, apiDesc string, specifications, popularity,
-	delay, successRate, invokeFrequency int, createTime string) *tables.ApiBasicInfo {
-	return &tables.ApiBasicInfo{
-		ApiId:           apiId,
-		Coin:            sagaconfig.TOKEN_TYPE_ONG,
-		ApiType:         sagaconfig.Api,
-		Icon:            icon,
-		Title:           title,
-		ApiProvider:     apiProvider,
-		ApiUrl:          apiUrl,
-		Price:           price,
-		ApiDesc:         apiDesc,
-		Specifications:  specifications,
-		Popularity:      popularity,
-		Delay:           delay,
-		SuccessRate:     successRate,
-		InvokeFrequency: invokeFrequency,
-		CreateTime:      createTime,
-	}
+func BuildApiBasicInfo(info *tables.ApiBasicInfo) {
+	info.Coin = sagaconfig.TOKEN_TYPE_ONG
+	info.ApiType = sagaconfig.Api
 }

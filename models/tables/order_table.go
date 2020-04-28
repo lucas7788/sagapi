@@ -16,6 +16,7 @@ type Order struct {
 	TxHash           string                 `json:"txHash" db:"TxHash"`
 	Price            string                 `json:"price" db:"Price"`
 	ApiId            int                    `json:"apiId" db:"ApiId"`
+	ApiUrl           string                 `json:"apiUrl" db:"ApiUrl"`
 	SpecificationsId int                    `json:"specificationsId" db:"SpecificationsId"`
 	Coin             string                 `json:"coin" db:"Coin"`
 }

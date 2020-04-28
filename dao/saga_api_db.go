@@ -49,17 +49,16 @@ func NewSagaApiDB(dbConfig *sagaconfig.DBConfig) (*SagaApiDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	InitDefApiDb(dbx)
 	//==============
 
 	return &SagaApiDB{
-		ApiDB:    NewApiDB(db),
+		ApiDB:    NewApiDB(dbx),
 		OrderDB:  NewOrderDB(dbx),
-		QrCodeDB: NewQrCodeDB(db),
+		QrCodeDB: NewQrCodeDB(dbx),
 		OtherDB:  NewOtherDB(db),
 	}, nil
 }
 
 func (this *SagaApiDB) Close() error {
-	return this.ApiDB.db.Close()
+	return this.ApiDB.conn.Close()
 }
