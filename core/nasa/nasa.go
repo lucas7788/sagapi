@@ -69,7 +69,7 @@ func (this *Nasa) beforeCheckApiKey(apiKey string, apiId int) (*models.ApiKeyInv
 }
 
 func (this *Nasa) Apod(apiKey string) (res []byte, e error) {
-	key, err := this.beforeCheckApiKey(apiKey, 1)
+	key, err := this.beforeCheckApiKey(apiKey, sagaconfig.APOD)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (this *Nasa) Apod(apiKey string) (res []byte, e error) {
 }
 
 func (this *Nasa) Feed(startDate, endDate string, apiKey string) (res []byte, e error) {
-	key, err := this.beforeCheckApiKey(apiKey, 2)
+	key, err := this.beforeCheckApiKey(apiKey, sagaconfig.FEED)
 	if err != nil {
 		return nil, err
 	}

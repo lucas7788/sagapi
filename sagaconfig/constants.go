@@ -63,3 +63,7 @@ const (
 	OntId        = "did:ont:AYCcjQuB6xgXm2vKku9Vb6bdTcEguXqbt1"
 	OntIdPrivate = "ae1bab4364ec7966ab8e8a1db43cf7162b6e619bcab9ce0af4d1763bc4a62186"
 )
+const (
+	APOD = 1
+	FEED = 2
+)
