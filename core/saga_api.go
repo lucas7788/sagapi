@@ -71,6 +71,10 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 		return nil, err
 	}
 
+	if key.ApiId != params[0].ApiDetailInfoId {
+		return nil, fmt.Errorf("apiKey:%s can not invoke this api", apiTestKey)
+	}
+
 	switch key.ApiId {
 	case 1:
 		return this.Nasa.ApodParams(params)

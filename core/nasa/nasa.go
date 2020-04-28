@@ -19,14 +19,14 @@ var (
 
 type Nasa struct {
 	apiKeyInvokeFreCache *sync.Map //apikey -> ApiKeyInvokeFre
-	freqlock             *sync.Mutex
+	freqLock             *sync.Mutex
 	updateFreq           chan string
 }
 
 func NewNasa() *Nasa {
 	res := &Nasa{
 		apiKeyInvokeFreCache: new(sync.Map),
-		freqlock:             new(sync.Mutex),
+		freqLock:             new(sync.Mutex),
 		updateFreq:           make(chan string, 20),
 	}
 
@@ -49,9 +49,9 @@ func (this *Nasa) UpdateFreqDataBase() {
 	}
 }
 
-func (this *Nasa) beforeCheckApiKey(apiKey string) (*models.ApiKeyInvokeFre, error) {
-	this.freqlock.Lock()
-	defer this.freqlock.Unlock()
+func (this *Nasa) beforeCheckApiKey(apiKey string, apiId int) (*models.ApiKeyInvokeFre, error) {
+	this.freqLock.Lock()
+	defer this.freqLock.Unlock()
 	key, err := this.getApiKeyInvokeFre(apiKey)
 	if err != nil {
 		return nil, err
@@ -60,19 +60,19 @@ func (this *Nasa) beforeCheckApiKey(apiKey string) (*models.ApiKeyInvokeFre, err
 	if key.UsedNum >= int32(key.RequestLimit) {
 		return nil, fmt.Errorf("apikey: %s, useNum: %d, limit:%d", apiKey, key.UsedNum, key.RequestLimit)
 	}
-
+	if key.ApiId != apiId {
+		return nil, fmt.Errorf("this apikey: %s can not invoke this api", apiKey)
+	}
 	key.UsedNum += 1
 	key.InvokeFre += 1
-
 	return key, nil
 }
 
 func (this *Nasa) Apod(apiKey string) (res []byte, e error) {
-	key, err := this.beforeCheckApiKey(apiKey)
+	key, err := this.beforeCheckApiKey(apiKey, 1)
 	if err != nil {
 		return nil, err
 	}
-
 	url := fmt.Sprintf(apod, sagaconfig.DefSagaConfig.NASAAPIKey)
 	res, e = http.DefClient.Get(url)
 	if e != nil {
@@ -87,7 +87,7 @@ func (this *Nasa) Apod(apiKey string) (res []byte, e error) {
 }
 
 func (this *Nasa) Feed(startDate, endDate string, apiKey string) (res []byte, e error) {
-	key, err := this.beforeCheckApiKey(apiKey)
+	key, err := this.beforeCheckApiKey(apiKey, 2)
 	if err != nil {
 		return nil, err
 	}
