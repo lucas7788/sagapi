@@ -16,7 +16,11 @@ func NewOrderDB(cn *sqlx.DB) *OrderDB {
 		conn: cn,
 	}
 }
-
+func (this *OrderDB) ClearOrderDB() error {
+	strSql := "delete from tbl_order"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
 func (this *OrderDB) InsertOrder(order *tables.Order) error {
 	strSql := `insert into tbl_order (OrderId,Title, ProductName, OrderType, OrderTime, OrderStatus,Amount, 
 OntId,UserName,Price,ApiId,ApiUrl,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`

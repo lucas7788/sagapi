@@ -33,6 +33,7 @@ type APIKey struct {
 }
 
 type QrCode struct {
+	Id         int    `json:"id" db:"Id"`
 	QrCodeId   string `json:"id" db:"QrCodeId"`
 	Ver        string `json:"ver" db:"Ver"`
 	OrderId    string `json:"orderId" db:"OrderId"`

@@ -28,6 +28,32 @@ func NewApiDB(db *sqlx.DB) *ApiDB {
 	}
 }
 
+func (this *ApiDB) ClearApiBasicDB() error {
+	strSql := "delete from tbl_api_basic_info"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
+func (this *ApiDB) ClearApiDetailDB() error {
+	strSql := "delete from tbl_api_detail_info"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
+func (this *ApiDB) ClearSpecificationsDB() error {
+	strSql := "delete from tbl_specifications"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
+func (this *ApiDB) ClearApiKeyDB() error {
+	strSql := "delete from tbl_api_key"
+	_, err := this.conn.Exec(strSql)
+	if err != nil {
+		return err
+	}
+	strSql2 := "delete from tbl_api_test_key"
+	_, err = this.conn.Exec(strSql2)
+	return err
+}
+
 func (this *ApiDB) InsertApiBasicInfo(infos []*tables.ApiBasicInfo) error {
 	if len(infos) == 0 {
 		return nil
@@ -130,10 +156,11 @@ DataSource,ApplicationScenario) values (?,?,?,?,?,?,?,?)`
 	return nil
 }
 
-func (this *ApiDB) QueryApiDetailInfoByApiId(apiId int) (info *tables.ApiDetailInfo, err error) {
+func (this *ApiDB) QueryApiDetailInfoByApiId(apiId int) (*tables.ApiDetailInfo, error) {
 	strSql := `select * from tbl_api_detail_info where ApiId=?`
-	err = this.conn.Get(info, strSql, apiId)
-	return
+	info := &tables.ApiDetailInfo{}
+	err := this.conn.Get(info, strSql, apiId)
+	return info, err
 }
 
 func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {

@@ -21,33 +21,73 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
+	info := &tables.ApiBasicInfo{
+		Icon:            "",
+		Title:           "mytestasd",
+		ApiProvider:     "",
+		ApiUrl:          "",
+		Price:           "",
+		ApiDesc:         "",
+		Specifications:  1,
+		Popularity:      0,
+		Delay:           0,
+		SuccessRate:     0,
+		InvokeFrequency: 0,
+	}
+	err = TestDB.ApiDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info})
+	if err != nil {
+		fmt.Println("err:", err)
+		return
+	}
+	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(0, 1)
+	detail := &tables.ApiDetailInfo{
+		ApiId:               basic[0].ApiId,
+		RequestType:         "POST",
+		Mark:                "",
+		ResponseParam:       "",
+		ResponseExample:     "",
+		DataDesc:            "",
+		DataSource:          "",
+		ApplicationScenario: "",
+	}
+	TestDB.ApiDB.InsertApiDetailInfo(detail)
 	m.Run()
 	fmt.Println("end")
-}
-
-func TestOrderDB_UpdateOrderStatus(t *testing.T) {
-	err := TestDB.OrderDB.UpdateOrderStatus("cc5ebaf6-24cb-423b-a590-e05a41f8c1f5", sagaconfig.Canceled)
-	assert.Nil(t, err)
+	err = TestDB.ApiDB.ClearApiDetailDB()
+	if err != nil {
+		fmt.Println("err:", err)
+		return
+	}
+	err = TestDB.ApiDB.ClearApiBasicDB()
+	if err != nil {
+		fmt.Println("err:", err)
+		return
+	}
 }
 
 func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
+	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(0, 1)
+	assert.Nil(t, err)
 	orderId := "abcedkfy"
 	order := &tables.Order{
-		ApiId:     1,
+		ApiId:     basic[0].ApiId,
 		OrderId:   orderId,
 		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 		OrderTime: tt,
 	}
-	err := TestDB.OrderDB.InsertOrder(order)
+	err = TestDB.OrderDB.InsertOrder(order)
 	assert.Nil(t, err)
 	orderFromDb, err := TestDB.OrderDB.QueryOrderByOrderId(orderId)
 	assert.Nil(t, err)
 	assert.Equal(t, orderFromDb.OrderId, orderId)
 
+	err = TestDB.OrderDB.UpdateOrderStatus(orderId, sagaconfig.Canceled)
+	assert.Nil(t, err)
+
 	orderId2 := "abcedkfyfgt"
 	order2 := &tables.Order{
-		ApiId:     1,
+		ApiId:     basic[0].ApiId,
 		OrderId:   orderId2,
 		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 		OrderTime: tt,
@@ -72,18 +112,35 @@ func TestOrderDB_InsertOrder(t *testing.T) {
 	code, err = TestDB.QrCodeDB.QueryQrCodeByOrderId(orderId)
 	assert.Nil(t, err)
 	fmt.Println(code)
+	_, err = TestDB.QrCodeDB.QueryQrCodeResultByQrCodeId(code.QrCodeId)
+	assert.Nil(t, err)
+
 	err = TestDB.QrCodeDB.DeleteQrCodeByOrderId(orderId)
 	assert.Nil(t, err)
 	err = TestDB.OrderDB.DeleteOrderByOrderId(orderId)
 	assert.Nil(t, err)
+	err = TestDB.OrderDB.DeleteOrderByOrderId(orderId2)
+	assert.Nil(t, err)
 }
 
 func TestOrderDB_QueryOrderByOrderId(t *testing.T) {
+	TestDB.OrderDB.ClearOrderDB()
+	tt := time.Now().Unix()
+	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(0, 1)
+	assert.Nil(t, err)
 	orderId := "abcedkfy"
-	err := TestDB.OrderDB.UpdateTxInfoByOrderId(orderId, "", sagaconfig.Canceled)
+	order := &tables.Order{
+		ApiId:     basic[0].ApiId,
+		OrderId:   orderId,
+		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
+		OrderTime: tt,
+	}
+	err = TestDB.OrderDB.InsertOrder(order)
+	assert.Nil(t, err)
+	err = TestDB.OrderDB.UpdateTxInfoByOrderId(orderId, "", sagaconfig.Canceled)
 	assert.Nil(t, err)
 
-	order, err := TestDB.OrderDB.QueryOrderByOrderId(orderId)
+	order, err = TestDB.OrderDB.QueryOrderByOrderId(orderId)
 	assert.Nil(t, err)
 	assert.Equal(t, order.OrderId, orderId)
 	assert.Equal(t, order.OrderStatus, sagaconfig.Canceled)
@@ -97,41 +154,29 @@ func TestOrderDB_QueryOrderByOrderId(t *testing.T) {
 	status, err := TestDB.OrderDB.QueryOrderStatusByOrderId(orderId)
 	assert.Nil(t, err)
 	assert.Equal(t, sagaconfig.Completed, status)
+
+	TestDB.OrderDB.ClearOrderDB()
 }
 
 func TestOrderDB_DeleteOrderByOrderId(t *testing.T) {
 	orderId := "abcedkfyfgtghj"
+	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(0, 1)
+	assert.Nil(t, err)
 	tt := time.Now().Unix()
 	order2 := &tables.Order{
-		ApiId:     1,
+		ApiId:     basic[0].ApiId,
 		OrderId:   orderId,
 		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 		OrderTime: tt,
 	}
-	err := TestDB.OrderDB.InsertOrder(order2)
+	err = TestDB.OrderDB.InsertOrder(order2)
 	assert.Nil(t, err)
 	err = TestDB.OrderDB.DeleteOrderByOrderId(orderId)
 	assert.Nil(t, err)
 }
 
-func TestSagaDB_QueryOrderStatusByOrderId(t *testing.T) {
-	_, err := TestDB.OrderDB.QueryOrderByOrderId("1")
-	assert.NotNil(t, err)
-}
-
 func TestOrderDB_QueryOrderByPage(t *testing.T) {
-	order, err := TestDB.OrderDB.QueryOrderByPage(1, 2, "")
+	order, err := TestDB.OrderDB.QueryOrderByPage(0, 2, "")
 	assert.Nil(t, err)
 	fmt.Println(order)
-}
-
-func TestOrderDB_UpdateTxInfoByOrderId(t *testing.T) {
-	err := TestDB.OrderDB.UpdateTxInfoByOrderId("145e89f6-850e-44a7-be3e-9224fd066858", "", sagaconfig.Processing)
-	assert.Nil(t, err)
-}
-
-func TestOrderDB_QueryQrCodeResultByQrCodeId(t *testing.T) {
-	status, err := TestDB.QrCodeDB.QueryQrCodeResultByQrCodeId("bb5b68d4-0282-469d-936b-ae43e30c5de5")
-	assert.Nil(t, err)
-	fmt.Println(status)
 }
