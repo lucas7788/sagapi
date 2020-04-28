@@ -24,14 +24,12 @@ func NewSagaOrder() *SagaOrder {
 }
 
 func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResponse, error) {
-	var info tables.ApiBasicInfo
-	err := dao.DefApiDb.Conn.Get(&info, "select * from tbl_api_basic_info where ApiId=?", param.ApiId)
+	info, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(param.ApiId)
 	if err != nil {
 		return nil, err
 	}
 
-	var spec tables.Specifications
-	err = dao.DefApiDb.Conn.Get(&spec, "select * from tbl_specifications where Id=?", param.SpecificationsId)
+	spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsById(param.SpecificationsId)
 	if err != nil {
 		return nil, err
 	}
@@ -97,12 +95,10 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 			return nil, err
 		}
 		if apiKey == nil {
-			var spec tables.Specifications
-			err = dao.DefApiDb.Conn.Get(&spec, "select * from tbl_specifications where Id=?", order.SpecificationsId)
+			spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsById(order.SpecificationsId)
 			if err != nil {
 				return nil, err
 			}
-
 			apiKey = &tables.APIKey{
 				ApiKey:       "",
 				OrderId:      order.OrderId,

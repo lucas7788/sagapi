@@ -154,6 +154,12 @@ func (this *ApiDB) InsertSpecifications(params []*tables.Specifications) error {
 	return nil
 }
 
+func (this *ApiDB) QuerySpecificationsById(id int) (ss *tables.Specifications, err error) {
+	strSql := `select * from tbl_specifications where Id=?`
+	err = this.conn.Get(ss, strSql, id)
+	return
+}
+
 //dependent on orderId
 func (this *ApiDB) InsertApiKey(key *tables.APIKey) error {
 	strSql := `insert into tbl_api_key (ApiKey,OrderId, ApiId, RequestLimit, UsedNum, OntId) values (?,?,?,?,?,?)`
