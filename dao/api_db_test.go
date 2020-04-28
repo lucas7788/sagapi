@@ -33,11 +33,10 @@ func TestApiDB_QueryApiBasicInfoByApiId(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, info.ApiId, 1)
 
-	infos, err := TestDB.ApiDB.QueryApiBasicInfoByCategoryId(10, 0,1)
+	infos, err := TestDB.ApiDB.QueryApiBasicInfoByCategoryId(10, 0, 1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(infos), 1)
 }
-
 
 func TestApiDB_InsertApiKey(t *testing.T) {
 	orderId := "145e89f6-850e-44a7-be3e-9224fd066858"
@@ -69,7 +68,7 @@ func TestApiDB_QueryApiKey(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, key.UsedNum)
 
-	kfre,err := TestDB.ApiDB.QueryApiKeyAndInvokeFreByApiKey("apikey")
+	kfre, err := TestDB.ApiDB.QueryApiKeyAndInvokeFreByApiKey("apikey")
 	assert.Nil(t, err)
 	assert.Equal(t, kfre.ApiKey, "apikey")
 }

@@ -114,7 +114,6 @@ func TestOrderDB_DeleteOrderByOrderId(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-
 func TestSagaDB_QueryOrderStatusByOrderId(t *testing.T) {
 	_, err := TestDB.OrderDB.QueryOrderByOrderId("1")
 	assert.NotNil(t, err)
