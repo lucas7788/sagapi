@@ -217,10 +217,11 @@ func (this *ApiDB) InsertErrorCode(params []*tables.ErrorCode) error {
 	return nil
 }
 
-func (this *ApiDB) QueryErrorCodeByApiDetailId(id int) (params []*tables.ErrorCode, err error) {
-	strSql := `select * from tbl_error_code where ApiId=?`
-	err = this.conn.Get(params, strSql, id)
-	return
+func (this *ApiDB) QueryErrorCodeByApiDetailId(id int) ([]*tables.ErrorCode, error) {
+	strSql := `select * from tbl_error_code where ApiDetailInfoId=?`
+	var params []*tables.ErrorCode
+	err := this.conn.Select(&params, strSql, id)
+	return params, err
 }
 
 func (this *ApiDB) InsertSpecifications(params []*tables.Specifications) error {
@@ -248,10 +249,11 @@ func (this *ApiDB) QuerySpecificationsById(id int) (*tables.Specifications, erro
 	return ss, err
 }
 
-func (this *ApiDB) QuerySpecificationsByApiDetailId(id int) (ss []*tables.Specifications, err error) {
+func (this *ApiDB) QuerySpecificationsByApiDetailId(id int) ([]*tables.Specifications, error) {
 	strSql := `select * from tbl_specifications where ApiDetailInfoId=?`
-	err = this.conn.Select(&ss, strSql, id)
-	return
+	var ss []*tables.Specifications
+	err := this.conn.Select(&ss, strSql, id)
+	return ss, err
 }
 
 //dependent on orderId
@@ -301,10 +303,11 @@ func (this *ApiDB) QueryApiKeyByOrderId(orderId string) (*tables.APIKey, error) 
 	return this.queryApiKey("", orderId)
 }
 
-func (this *ApiDB) QueryApiTestKeyByOntidAndApiId(ontid string, apiId int) (key *tables.APIKey, err error) {
+func (this *ApiDB) QueryApiTestKeyByOntidAndApiId(ontid string, apiId int) (*tables.APIKey, error) {
 	strSql := "select * from tbl_api_test_key where OntId=? and ApiId=?"
-	err = this.conn.Get(key, strSql, ontid, apiId)
-	return
+	key := &tables.APIKey{}
+	err := this.conn.Get(key, strSql, ontid, apiId)
+	return key, err
 }
 
 func (this *ApiDB) queryApiKey(key, orderId string) (*tables.APIKey, error) {

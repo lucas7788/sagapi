@@ -46,22 +46,22 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	}
 	err = TestDB.ApiDB.InsertApiDetailInfo(detail)
 	assert.Nil(t, err)
-	detail ,err = TestDB.ApiDB.QueryApiDetailInfoByApiId(basic[0].ApiId)
+	detail, err = TestDB.ApiDB.QueryApiDetailInfoByApiId(basic[0].ApiId)
 	assert.Nil(t, err)
 	params := &tables.RequestParam{
-		ApiDetailInfoId :detail.Id,
-		ParamName       :"",
-		Required       :true,
-		ParamType       :"",
-		Note            :"",
-		ValueDesc       :"",
+		ApiDetailInfoId: detail.Id,
+		ParamName:       "",
+		Required:        true,
+		ParamType:       "",
+		Note:            "",
+		ValueDesc:       "",
 	}
 
 	assert.Nil(t, TestDB.ApiDB.InsertRequestParam([]*tables.RequestParam{params}))
 
 	requestParams, err := TestDB.ApiDB.QueryRequestParamByApiDetailId(detail.Id)
 	assert.Nil(t, err)
-    assert.Equal(t, len(requestParams), 1)
+	assert.Equal(t, len(requestParams), 1)
 
 	infos, err = TestDB.ApiDB.QueryApiBasicInfoByCategoryId(1, 0, 1)
 	assert.Nil(t, err)
