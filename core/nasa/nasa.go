@@ -3,6 +3,7 @@ package nasa
 import (
 	"errors"
 	"fmt"
+	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
@@ -81,7 +82,10 @@ func (this *Nasa) beforeCheckApiKey(apiKey string, apiId int) (*tables.APIKey, *
 	}
 
 	key.UsedNum += 1
-	atomic.AddInt32(apiCounterP, 1)
+	if !common.IsTestKey(apiKey) {
+		atomic.AddInt32(apiCounterP, 1)
+	}
+
 	return key, apiCounterP, nil
 }
 
