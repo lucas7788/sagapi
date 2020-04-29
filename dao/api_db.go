@@ -6,7 +6,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/ontio/sagapi/common"
-	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
 	"strings"
 )

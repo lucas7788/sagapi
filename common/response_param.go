@@ -44,8 +44,8 @@ type OrderResult struct {
 	TxHash       string                 `json:"txHash"`
 	ApiId        int                    `json:"apiId"`
 	ApiUrl       string                 `json:"apiUrl"`
-	RequestLimit int                    `json:"requestLimit"`
-	UsedNum      int                    `json:"usedNum"`
+	RequestLimit int32                    `json:"requestLimit"`
+	UsedNum      int32                    `json:"usedNum"`
 	Status       sagaconfig.OrderStatus `json:"status"`
 	ApiKey       string                 `json:"apiKey"`
 	Price        string                 `json:"price"`

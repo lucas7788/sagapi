@@ -24,6 +24,7 @@ type Config struct {
 	NASAAPIKey          string    `json:"nasa_api_key"`
 	TestAPIKeyLimit     uint      `json:"10"`
 	OntIdAccount        *ontology_go_sdk.Account
+	NetType             string `json:"net_type"`
 }
 
 type DBConfig struct {

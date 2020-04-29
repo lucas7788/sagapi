@@ -63,7 +63,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	if len(arr) < 3 {
 		return nil, fmt.Errorf("error ontid: %s", param.OntId)
 	}
-	code := common.BuildTestNetQrCode(orderId, param.OntId, arr[2], arr[2], "AbtTQJYKfQxq4UdygDsbLVjE8uRrJ2H3tP", amountStr)
+	code := common.BuildQrCode(orderId, param.OntId, arr[2], arr[2], sagaconfig.Collect_Money_Address, amountStr)
 	//this.qrCodeCache.Store(code.QrCodeId, code)
 	err = dao.DefSagaApiDB.QrCodeDB.InsertQrCode(code)
 	if err != nil {
@@ -139,7 +139,7 @@ func (this *SagaOrder) GetQrCodeByOrderId(ontId, orderId string) (*common.QrCode
 	if err != nil {
 		return nil, err
 	}
-	code := common.BuildTestNetQrCode(orderId, ontId, arr[2], arr[2], sagaconfig.Collect_Money_Address, order.Amount)
+	code := common.BuildQrCode(orderId, ontId, arr[2], arr[2], sagaconfig.Collect_Money_Address, order.Amount)
 	err = dao.DefSagaApiDB.QrCodeDB.InsertQrCode(code)
 	if err != nil {
 		return nil, err

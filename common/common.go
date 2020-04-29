@@ -31,8 +31,8 @@ func BuildQrCodeResponse(id string) *QrCodeResponse {
 	}
 }
 
-func BuildTestNetQrCode(orderId, ontid, payer, from, to, value string) *tables.QrCode {
-	return buildQrCode("Testnet", orderId, ontid, payer, from, to, value)
+func BuildQrCode(orderId, ontid, payer, from, to, value string) *tables.QrCode {
+	return buildQrCode(sagaconfig.DefSagaConfig.NetType, orderId, ontid, payer, from, to, value)
 }
 
 func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.QrCode {

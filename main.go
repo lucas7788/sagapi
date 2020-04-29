@@ -85,20 +85,24 @@ func initLog(ctx *cli.Context) {
 }
 
 func initDB(ctx *cli.Context) error {
+	//if sagaconfig.DefSagaConfig.NetWorkId == sagaconfig.NETWORK_ID_MAIN_NET {
+	//	userName, err := getDBUserName()
+	//	if err != nil {
+	//		return fmt.Errorf("getDBUserName failed, error: %s", err)
+	//	}
+	//	pwd, err := getDBPassword()
+	//	if err != nil {
+	//		return fmt.Errorf("getDBPassword failed, error: %s", err)
+	//	}
+	//	sagaconfig.DefSagaConfig.DbConfig.ProjectDBUser = userName
+	//	sagaconfig.DefSagaConfig.DbConfig.ProjectDBPassword = string(pwd)
+	//}
 	if sagaconfig.DefSagaConfig.NetWorkId == sagaconfig.NETWORK_ID_MAIN_NET {
-		userName, err := getDBUserName()
-		if err != nil {
-			return fmt.Errorf("getDBUserName failed, error: %s", err)
-		}
-		pwd, err := getDBPassword()
-		if err != nil {
-			return fmt.Errorf("getDBPassword failed, error: %s", err)
-		}
-		sagaconfig.DefSagaConfig.DbConfig.ProjectDBUser = userName
-		sagaconfig.DefSagaConfig.DbConfig.ProjectDBPassword = string(pwd)
+		sagaconfig.DefSagaConfig.NetType = sagaconfig.MainNet
+	} else {
+		sagaconfig.DefSagaConfig.NetType = sagaconfig.TestNet
 	}
-
-	var dbConfig sagaconfig.DBConfig = *sagaconfig.DefSagaConfig.DbConfig
+	var dbConfig = *sagaconfig.DefSagaConfig.DbConfig
 	db, err := dao.NewSagaApiDB(&dbConfig)
 	if err != nil {
 		return err

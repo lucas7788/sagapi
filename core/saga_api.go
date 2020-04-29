@@ -69,7 +69,6 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	}
 
 	apiTestKey := params[len(params)-1].ValueDesc
-
 	key, err := dao.DefSagaApiDB.ApiDB.QueryApiKeyByApiKey(apiTestKey)
 	if err != nil {
 		return nil, err
