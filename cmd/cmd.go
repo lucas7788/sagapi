@@ -33,7 +33,22 @@ func SetOntologyConfig(ctx *cli.Context) error {
 		return err
 	}
 	*sagaconfig.DefSagaConfig = *cfg
-	updateConfigByCmd(ctx)
+
+	sdk := ontology_go_sdk.NewOntologySdk()
+	switch sagaconfig.DefSagaConfig.NetWorkId {
+	case sagaconfig.NETWORK_ID_MAIN_NET:
+		sdk.NewRpcClient().SetAddress(sagaconfig.ONT_MAIN_NET)
+		sagaconfig.DefSagaConfig.NetType = sagaconfig.MainNet
+	case sagaconfig.NETWORK_ID_POLARIS_NET:
+		sdk.NewRpcClient().SetAddress(sagaconfig.ONT_TEST_NET)
+		sagaconfig.DefSagaConfig.NetType = sagaconfig.TestNet
+	case sagaconfig.NETWORK_ID_SOLO_NET:
+		sdk.NewRpcClient().SetAddress(sagaconfig.ONT_SOLO_NET)
+	default:
+		return fmt.Errorf("error network id %d", sagaconfig.DefSagaConfig.NetWorkId)
+	}
+
+	sagaconfig.DefSagaConfig.OntSdk = sdk
 	return nil
 }
 

@@ -13,18 +13,19 @@ var (
 )
 
 type Config struct {
-	NetWorkId           uint `json:"network_id"`
-	OntSdk              *ontology_go_sdk.OntologySdk
-	RestPort            uint      `json:"rest_port"`
-	Version             string    `json:"version"`
-	DbConfig            *DBConfig `json:"db_config"`
-	OperatorPublicKey   string    `json:"operator_public_key"`
-	ONTAuthScanProtocol string    `json:"ontauth_scan_protocol"`
-	QrCodeCallback      string    `json:"qrcode_callback"`
-	NASAAPIKey          string    `json:"nasa_api_key"`
-	TestAPIKeyLimit     uint      `json:"10"`
-	OntIdAccount        *ontology_go_sdk.Account
-	NetType             string `json:"net_type"`
+	NetWorkId             uint      `json:"network_id"`
+	RestPort              uint      `json:"rest_port"`
+	Version               string    `json:"version"`
+	DbConfig              *DBConfig `json:"db_config"`
+	OperatorPublicKey     string    `json:"operator_public_key"`
+	ONTAuthScanProtocol   string    `json:"ontauth_scan_protocol"`
+	QrCodeCallback        string    `json:"qrcode_callback"`
+	NASAAPIKey            string    `json:"nasa_api_key"`
+	Collect_Money_Address string    `json:"collect_money_address"`
+	NetType               string    `json:"net_type"`
+	OntIdPrivate          string    `json:"ontid_private"`
+	OntSdk                *ontology_go_sdk.OntologySdk
+	OntIdAccount          *ontology_go_sdk.Account
 }
 
 type DBConfig struct {
@@ -56,12 +57,14 @@ var DefDBConfigMap = map[int]*DBConfig{
 }
 
 var DefSagaConfig = &Config{
-	RestPort:            DEFAULT_REST_PORT,
-	Version:             "1.0.0",
-	NetWorkId:           NETWORK_ID_POLARIS_NET,
-	DbConfig:            DefDBConfigMap[NETWORK_ID_SOLO_NET],
-	OperatorPublicKey:   "02b8fcf42deecc7cccb574ba145f2f627339fbd3ba2b63fda99af0a26a8d5a01da",
-	ONTAuthScanProtocol: "http://192.168.1.175:8080/api/v1/onto/getQrCodeDataByQrCodeId",
-	QrCodeCallback:      "http://192.168.1.175:8080/api/v1/onto/sendTx",
-	NASAAPIKey:          NASA_API_KEY,
+	RestPort:              DEFAULT_REST_PORT,
+	Version:               "1.0.0",
+	NetWorkId:             NETWORK_ID_POLARIS_NET,
+	DbConfig:              DefDBConfigMap[NETWORK_ID_SOLO_NET],
+	OperatorPublicKey:     "02b8fcf42deecc7cccb574ba145f2f627339fbd3ba2b63fda99af0a26a8d5a01da",
+	ONTAuthScanProtocol:   "http://192.168.1.175:8080/api/v1/onto/getQrCodeDataByQrCodeId",
+	QrCodeCallback:        "http://192.168.1.175:8080/api/v1/onto/sendTx",
+	NASAAPIKey:            NASA_API_KEY,
+	OntIdPrivate:          OntIdPrivate,
+	Collect_Money_Address: Collect_Money_Address,
 }

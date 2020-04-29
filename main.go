@@ -61,6 +61,7 @@ func startSaga(ctx *cli.Context) {
 		return
 	}
 	core.DefSagaApi = core.NewSagaApi()
+	log.Infof("config: %v\n", sagaconfig.DefSagaConfig)
 	log.Info("ONTAuthScanProtocol:", sagaconfig.DefSagaConfig.ONTAuthScanProtocol)
 	log.Info("QrCodeCallback:", sagaconfig.DefSagaConfig.QrCodeCallback)
 	startServer()
@@ -68,7 +69,7 @@ func startSaga(ctx *cli.Context) {
 }
 
 func initAccount() error {
-	pri, _ := common.HexToBytes(sagaconfig.OntIdPrivate)
+	pri, _ := common.HexToBytes(sagaconfig.DefSagaConfig.OntIdPrivate)
 	acc, err := ontology_go_sdk.NewAccountFromPrivateKey(pri, signature.SHA256withECDSA)
 	if err != nil {
 		return err
@@ -85,23 +86,6 @@ func initLog(ctx *cli.Context) {
 }
 
 func initDB(ctx *cli.Context) error {
-	//if sagaconfig.DefSagaConfig.NetWorkId == sagaconfig.NETWORK_ID_MAIN_NET {
-	//	userName, err := getDBUserName()
-	//	if err != nil {
-	//		return fmt.Errorf("getDBUserName failed, error: %s", err)
-	//	}
-	//	pwd, err := getDBPassword()
-	//	if err != nil {
-	//		return fmt.Errorf("getDBPassword failed, error: %s", err)
-	//	}
-	//	sagaconfig.DefSagaConfig.DbConfig.ProjectDBUser = userName
-	//	sagaconfig.DefSagaConfig.DbConfig.ProjectDBPassword = string(pwd)
-	//}
-	if sagaconfig.DefSagaConfig.NetWorkId == sagaconfig.NETWORK_ID_MAIN_NET {
-		sagaconfig.DefSagaConfig.NetType = sagaconfig.MainNet
-	} else {
-		sagaconfig.DefSagaConfig.NetType = sagaconfig.TestNet
-	}
 	var dbConfig = *sagaconfig.DefSagaConfig.DbConfig
 	db, err := dao.NewSagaApiDB(&dbConfig)
 	if err != nil {
