@@ -23,6 +23,7 @@ type Config struct {
 	NASAAPIKey            string    `json:"nasa_api_key"`
 	Collect_Money_Address string    `json:"collect_money_address"`
 	NetType               string    `json:"net_type"`
+	OntId                 string    `json:"ont_id"`
 	OntIdPrivate          string    `json:"ontid_private"`
 	OntSdk                *ontology_go_sdk.OntologySdk
 	OntIdAccount          *ontology_go_sdk.Account
@@ -65,6 +66,7 @@ var DefSagaConfig = &Config{
 	ONTAuthScanProtocol:   "http://192.168.1.175:8080/api/v1/onto/getQrCodeDataByQrCodeId",
 	QrCodeCallback:        "http://192.168.1.175:8080/api/v1/onto/sendTx",
 	NASAAPIKey:            NASA_API_KEY,
+	OntId:                 OntId,
 	OntIdPrivate:          OntIdPrivate,
 	Collect_Money_Address: Collect_Money_Address,
 }

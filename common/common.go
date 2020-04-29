@@ -82,7 +82,7 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 		Ver:        "1.0.0",
 		QrCodeId:   id,
 		OrderId:    orderId,
-		Requester:  sagaconfig.OntId,
+		Requester:  sagaconfig.DefSagaConfig.OntId,
 		Signature:  common.ToHexString(sig),
 		Signer:     ontid,
 		QrCodeData: string(databs),
