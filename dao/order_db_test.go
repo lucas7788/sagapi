@@ -112,6 +112,7 @@ func TestOrderDB_InsertOrder(t *testing.T) {
 	code, err = TestDB.QrCodeDB.QueryQrCodeByOrderId(orderId)
 	assert.Nil(t, err)
 	fmt.Println(code)
+	fmt.Println(code.QrCodeId)
 	_, err = TestDB.QrCodeDB.QueryQrCodeResultByQrCodeId(code.QrCodeId)
 	assert.Nil(t, err)
 

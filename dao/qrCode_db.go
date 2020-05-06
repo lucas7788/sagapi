@@ -76,9 +76,9 @@ func (this *QrCodeDB) QueryQrCodeResultByQrCodeId(qrCodeId string) (string, erro
 func (this *QrCodeDB) queryQrCodeById(orderId, qrCodeId string) (*tables.QrCode, error) {
 	var strSql string
 	if orderId != "" {
-		strSql = `select Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where OrderId=?`
+		strSql = `select QrCodeId,Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where OrderId=?`
 	} else if qrCodeId != "" {
-		strSql = `select Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where QrCodeId=?`
+		strSql = `select QrCodeId,Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where QrCodeId=?`
 	}
 
 	var where string
