@@ -5,22 +5,14 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
 	"strings"
 )
 
-var DefApiDb = ApiDb{}
-
-type ApiDb struct {
-	Conn *sqlx.DB
-}
-
-func InitDefApiDb(db *sqlx.DB) {
-	log.Info("InitDefApiDb Done.")
-	DefApiDb.Conn = db
+type ApiDB struct {
+	conn *sqlx.DB
 }
 
 func IsNoEltError(err error) bool {
@@ -30,18 +22,41 @@ func IsNoEltError(err error) bool {
 	return false
 }
 
-type ApiDB struct {
-	db *sql.DB
-}
-
-func NewApiDB(db *sql.DB) *ApiDB {
+func NewApiDB(db *sqlx.DB) *ApiDB {
 	return &ApiDB{
-		db: db,
+		conn: db,
 	}
 }
 
-func (this *ApiDB) DB() *sql.DB {
-	return this.db
+func (this *ApiDB) ClearApiBasicDB() error {
+	strSql := "delete from tbl_api_basic_info"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
+func (this *ApiDB) ClearRequestParamDB() error {
+	strSql := "delete from tbl_request_param"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
+func (this *ApiDB) ClearApiDetailDB() error {
+	strSql := "delete from tbl_api_detail_info"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
+func (this *ApiDB) ClearSpecificationsDB() error {
+	strSql := "delete from tbl_specifications"
+	_, err := this.conn.Exec(strSql)
+	return err
+}
+func (this *ApiDB) ClearApiKeyDB() error {
+	strSql := "delete from tbl_api_key"
+	_, err := this.conn.Exec(strSql)
+	if err != nil {
+		return err
+	}
+	strSql2 := "delete from tbl_api_test_key"
+	_, err = this.conn.Exec(strSql2)
+	return err
 }
 
 func (this *ApiDB) InsertApiBasicInfo(infos []*tables.ApiBasicInfo) error {
@@ -57,181 +72,80 @@ func (this *ApiDB) InsertApiBasicInfo(infos []*tables.ApiBasicInfo) error {
 	strSql := `insert into tbl_api_basic_info (Coin,ApiType,Icon, Title, ApiProvider, ApiUrl, Price, 
 ApiDesc,Specifications, Popularity,Delay,SuccessRate,InvokeFrequency) values`
 	strSql += strings.Join(sqlStrArr, ",")
-	_, err := this.db.Exec(strSql)
+	_, err := this.conn.Exec(strSql)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (this *ApiDB) QueryHottestApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
-	return this.queryApiBasicInfo(false, true, false)
-}
-func (this *ApiDB) QueryNewestApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
-	return this.queryApiBasicInfo(true, false, false)
-}
-func (this *ApiDB) QueryFreeApiBasicInfo() ([]*tables.ApiBasicInfo, error) {
-	return this.queryApiBasicInfo(false, false, true)
-}
+func (this *ApiDB) SearchApi() (map[string][]*tables.ApiBasicInfo, error) {
+	res := make(map[string][]*tables.ApiBasicInfo)
+	var newestApi []*tables.ApiBasicInfo
+	var hottestApi []*tables.ApiBasicInfo
+	var freeApi []*tables.ApiBasicInfo
 
-func (this *ApiDB) QueryInvokeFreByApiId(apiId int) (int, error) {
-	strSql := `select InvokeFrequency from tbl_api_basic_info where ApiId =?`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
+	err := this.conn.Select(&newestApi, "select * from tbl_api_basic_info order by CreateTime limit ?", 10)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	rows, err := stmt.Query(apiId)
-	if rows != nil {
-		defer rows.Close()
-	}
+	res["newest"] = newestApi
+
+	err = this.conn.Select(&hottestApi, "select * from tbl_api_basic_info order by InvokeFrequency limit ?", 10)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	for rows.Next() {
-		var invokeFrequency int
-		if err = rows.Scan(&invokeFrequency); err != nil {
-			return 0, err
-		}
-		return invokeFrequency, nil
+	res["hottest"] = hottestApi
+
+	err = this.conn.Select(&freeApi, "select * from tbl_api_basic_info where Price='0' limit ?", 10)
+	if err != nil {
+		return nil, err
 	}
-	return 0, fmt.Errorf("not found")
+	res["free"] = freeApi
+	return res, nil
 }
 
 func (this *ApiDB) QueryApiBasicInfoByCategoryId(categoryId, start, pageSize int) ([]*tables.ApiBasicInfo, error) {
-	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,
-Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId 
+	strSql := `select * from tbl_api_basic_info where ApiId 
 in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where category_id=?)) limit ?, ?`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
+
+	var res []*tables.ApiBasicInfo
+	err := this.conn.Select(&res, strSql, categoryId, start, pageSize)
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(categoryId, start, pageSize)
-	if rows != nil {
-		defer rows.Close()
-	}
+	return res, nil
+}
+
+func (this *ApiDB) QueryApiBasicInfoByPage(start, pageSize int) ([]*tables.ApiBasicInfo, error) {
+	strSql := `select * from tbl_api_basic_info where ApiId limit ?, ?`
+	var res []*tables.ApiBasicInfo
+	err := this.conn.Select(&res, strSql, start, pageSize)
 	if err != nil {
 		return nil, err
-	}
-	res := make([]*tables.ApiBasicInfo, 0)
-	for rows.Next() {
-		var apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, createTime string
-		var apiId, specifications, popularity, delay, successRate, invokeFrequency int
-		if err = rows.Scan(&apiId, &apiLogo, &apiName, &apiProvider, &apiUrl, &apiPrice, &apiDesc, &specifications,
-			&popularity, &delay, &successRate, &invokeFrequency, &createTime); err != nil {
-			return nil, err
-		}
-		res = append(res, common.BuildApiBasicInfo(apiId, apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, specifications,
-			popularity, delay, successRate, invokeFrequency, createTime))
 	}
 	return res, nil
 }
 
 func (this *ApiDB) QueryApiBasicInfoByApiId(apiId int) (*tables.ApiBasicInfo, error) {
-	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,
-Delay,SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId =?`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	rows, err := stmt.Query(apiId)
-	if rows != nil {
-		defer rows.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		var apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, createTime string
-		var apiId, specifications, popularity, delay, successRate, invokeFrequency int
-		if err = rows.Scan(&apiId, &apiLogo, &apiName, &apiProvider, &apiUrl, &apiPrice, &apiDesc, &specifications,
-			&popularity, &delay, &successRate, &invokeFrequency, &createTime); err != nil {
-			return nil, err
-		}
-		return common.BuildApiBasicInfo(apiId, apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, specifications,
-			popularity, delay, successRate, invokeFrequency, createTime), nil
-	}
-	return nil, fmt.Errorf("not found")
-}
+	strSql := `select * from tbl_api_basic_info where ApiId =?`
 
-func (this *ApiDB) QueryApiByApiIds(apiIds []int) ([]*tables.ApiBasicInfo, error) {
-	res := make([]*tables.ApiBasicInfo, len(apiIds))
-	for i, apiId := range apiIds {
-		info, err := this.QueryApiBasicInfoByApiId(apiId)
-		if err != nil {
-			return nil, err
-		}
-		res[i] = info
-	}
-	return res, nil
-}
-
-func (this *ApiDB) QueryApiByApiId(apiId int) (*tables.ApiBasicInfo, error) {
-	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,Delay,
-SuccessRate,InvokeFrequency,CreateTime from tbl_api_basic_info where ApiId=?`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
+	info := &tables.ApiBasicInfo{}
+	err := this.conn.Get(info, strSql, apiId)
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(apiId)
-	if rows != nil {
-		defer rows.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		var apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, createTime string
-		var apiId, specifications, popularity, delay, successRate, invokeFrequency int
-		if err = rows.Scan(&apiId, &apiLogo, &apiName, &apiProvider, &apiUrl, &apiPrice, &apiDesc, &specifications,
-			&popularity, &delay, &successRate, &invokeFrequency, &createTime); err != nil {
-			return nil, err
-		}
-		return common.BuildApiBasicInfo(apiId, apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, specifications, popularity,
-			delay, successRate, invokeFrequency, createTime), nil
-	}
-	return nil, fmt.Errorf("not found")
+	return info, nil
 }
 
 func (this *ApiDB) SearchApiByKey(key string) ([]*tables.ApiBasicInfo, error) {
 	k := "%" + key + "%"
-	strSql := `select ApiId, Icon, Title, ApiProvider, ApiUrl, Price, ApiDesc,Specifications,Popularity,Delay,SuccessRate,
-InvokeFrequency,CreateTime from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where name=?)) limit 30`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
+	strSql := `select * from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where name=?)) limit 30`
+
+	var infos []*tables.ApiBasicInfo
+	err := this.conn.Select(&infos, strSql, k, k, key)
 	if err != nil {
 		return nil, err
-	}
-	rows, err := stmt.Query(k, k, key)
-	if rows != nil {
-		defer rows.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	infos := make([]*tables.ApiBasicInfo, 0)
-	for rows.Next() {
-		var apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, createTime string
-		var apiId, specifications, popularity, delay, successRate, invokeFrequency int
-		if err = rows.Scan(&apiId, &apiLogo, &apiName, &apiProvider, &apiUrl, &apiPrice, &apiDesc, &specifications,
-			&popularity, &delay, &successRate, &invokeFrequency, &createTime); err != nil {
-			return nil, err
-		}
-		infos = append(infos, common.BuildApiBasicInfo(apiId, apiLogo, apiName, apiProvider, apiUrl, apiPrice, apiDesc, specifications, popularity,
-			delay, successRate, invokeFrequency, createTime))
 	}
 	return infos, nil
 }
@@ -239,18 +153,19 @@ InvokeFrequency,CreateTime from tbl_api_basic_info where ApiDesc like ? or Title
 func (this *ApiDB) InsertApiDetailInfo(info *tables.ApiDetailInfo) error {
 	strSql := `insert into tbl_api_detail_info (ApiId,RequestType, Mark, ResponseParam, ResponseExample, DataDesc, 
 DataSource,ApplicationScenario) values (?,?,?,?,?,?,?,?)`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(info.ApiId, info.RequestType, info.Mark, info.ResponseParam, info.ResponseExample, info.DataDesc, info.DataSource, info.ApplicationScenario)
+
+	_, err := this.conn.Exec(strSql, info.ApiId, info.RequestType, info.Mark, info.ResponseParam, info.ResponseExample, info.DataDesc, info.DataSource, info.ApplicationScenario)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (this *ApiDB) QueryApiDetailInfoByApiId(apiId int) (*tables.ApiDetailInfo, error) {
+	strSql := `select * from tbl_api_detail_info where ApiId=?`
+	info := &tables.ApiDetailInfo{}
+	err := this.conn.Get(info, strSql, apiId)
+	return info, err
 }
 
 func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
@@ -270,11 +185,18 @@ func (this *ApiDB) InsertRequestParam(params []*tables.RequestParam) error {
 	}
 	strSql := `insert into tbl_request_param (ApiDetailInfoId,ParamName,ParamType,Required,ValueDesc) values`
 	strSql += strings.Join(sqlStrArr, ",")
-	_, err := this.db.Exec(strSql)
+	_, err := this.conn.Exec(strSql)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (this *ApiDB) QueryRequestParamByApiDetailId(id int) ([]*tables.RequestParam, error) {
+	strSql := `select * from tbl_request_param where ApiDetailInfoId=?`
+	var params []*tables.RequestParam
+	err := this.conn.Select(&params, strSql, id)
+	return params, err
 }
 
 func (this *ApiDB) InsertErrorCode(params []*tables.ErrorCode) error {
@@ -288,12 +210,20 @@ func (this *ApiDB) InsertErrorCode(params []*tables.ErrorCode) error {
 	}
 	strSql := `insert into tbl_error_code (ApiDetailInfoId,ErrorCode,ErrorDesc) values`
 	strSql += strings.Join(sqlStrArr, ",")
-	_, err := this.db.Exec(strSql)
+	_, err := this.conn.Exec(strSql)
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
+func (this *ApiDB) QueryErrorCodeByApiDetailId(id int) ([]*tables.ErrorCode, error) {
+	strSql := `select * from tbl_error_code where ApiDetailInfoId=?`
+	var params []*tables.ErrorCode
+	err := this.conn.Select(&params, strSql, id)
+	return params, err
+}
+
 func (this *ApiDB) InsertSpecifications(params []*tables.Specifications) error {
 	if len(params) == 0 {
 		return nil
@@ -305,50 +235,32 @@ func (this *ApiDB) InsertSpecifications(params []*tables.Specifications) error {
 	}
 	strSql := `insert into tbl_specifications (ApiDetailInfoId,Price,Amount) values`
 	strSql += strings.Join(sqlStrArr, ",")
-	_, err := this.db.Exec(strSql)
+	_, err := this.conn.Exec(strSql)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (this *ApiDB) QueryPriceByApiId(ApiId int) (string, error) {
-	strSql := "select Price from tbl_api_basic_info where ApiId=?"
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return "", err
-	}
-	rows, err := stmt.Query(ApiId)
-	if rows != nil {
-		defer rows.Close()
-	}
-	if err != nil {
-		return "", err
-	}
-	for rows.Next() {
-		var price string
-		if err = rows.Scan(&price); err != nil {
-			return "", err
-		}
-		return price, nil
-	}
-	return "", nil
+func (this *ApiDB) QuerySpecificationsById(id int) (*tables.Specifications, error) {
+	strSql := `select * from tbl_specifications where Id=?`
+	ss := &tables.Specifications{}
+	err := this.conn.Get(ss, strSql, id)
+	return ss, err
+}
+
+func (this *ApiDB) QuerySpecificationsByApiDetailId(id int) ([]*tables.Specifications, error) {
+	strSql := `select * from tbl_specifications where ApiDetailInfoId=?`
+	var ss []*tables.Specifications
+	err := this.conn.Select(&ss, strSql, id)
+	return ss, err
 }
 
 //dependent on orderId
 func (this *ApiDB) InsertApiKey(key *tables.APIKey) error {
 	strSql := `insert into tbl_api_key (ApiKey,OrderId, ApiId, RequestLimit, UsedNum, OntId) values (?,?,?,?,?,?)`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(key.ApiKey, key.OrderId, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
+
+	_, err := this.conn.Exec(strSql, key.ApiKey, key.OrderId, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
 	if err != nil {
 		return err
 	}
@@ -358,14 +270,7 @@ func (this *ApiDB) InsertApiKey(key *tables.APIKey) error {
 //dependent on orderId
 func (this *ApiDB) InsertApiTestKey(key *tables.APIKey) error {
 	strSql := `insert into tbl_api_test_key (ApiKey, ApiId, RequestLimit, UsedNum, OntId) values (?,?,?,?,?)`
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(key.ApiKey, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
+	_, err := this.conn.Exec(strSql, key.ApiKey, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
 	if err != nil {
 		return err
 	}
@@ -382,35 +287,13 @@ tbl_api_basic_info i where k.ApiKey=? and i.ApiId=k.ApiId`
 tbl_api_basic_info i where k.ApiKey=? and i.ApiId=k.ApiId`
 	}
 
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
+	key := &models.ApiKeyInvokeFre{}
+	err := this.conn.Get(key, strSql, apiKey)
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(apiKey)
-	if rows != nil {
-		defer rows.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		var ontId string
-		var apiId, limit, usedNum, invokeFre int
-		if err = rows.Scan(&apiId, &ontId, &limit, &usedNum, &invokeFre); err != nil {
-			return nil, err
-		}
-		return &models.ApiKeyInvokeFre{
-			ApiKey:       apiKey,
-			ApiId:        apiId,
-			RequestLimit: limit,
-			UsedNum:      int32(usedNum),
-			OntId:        ontId,
-		}, nil
-	}
-	return nil, fmt.Errorf("not found")
+	key.ApiKey = apiKey
+	return key, nil
 }
 
 func (this *ApiDB) QueryApiKeyByApiKey(apiKey string) (*tables.APIKey, error) {
@@ -420,46 +303,34 @@ func (this *ApiDB) QueryApiKeyByOrderId(orderId string) (*tables.APIKey, error) 
 	return this.queryApiKey("", orderId)
 }
 
+func (this *ApiDB) QueryApiTestKeyByOntidAndApiId(ontid string, apiId int) (*tables.APIKey, error) {
+	strSql := "select * from tbl_api_test_key where OntId=? and ApiId=?"
+	key := &tables.APIKey{}
+	err := this.conn.Get(key, strSql, ontid, apiId)
+	return key, err
+}
+
 func (this *ApiDB) queryApiKey(key, orderId string) (*tables.APIKey, error) {
 	var strSql string
 	var where string
 	if key != "" {
-		strSql = "select ApiKey, OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where ApiKey=?"
+		if common.IsTestKey(key) {
+			strSql = "select * from tbl_api_test_key where ApiKey=?"
+		} else {
+			strSql = "select * from tbl_api_key where ApiKey=?"
+		}
+
 		where = key
 	} else if orderId != "" {
-		strSql = "select ApiKey, OrderId, ApiId, RequestLimit, UsedNum, OntId from tbl_api_key where OrderId=?"
+		strSql = "select * from tbl_api_key where OrderId=?"
 		where = orderId
 	}
-	stmt, err := this.db.Prepare(strSql)
-	if stmt != nil {
-		defer stmt.Close()
-	}
+	k := &tables.APIKey{}
+	err := this.conn.Get(k, strSql, where)
 	if err != nil {
 		return nil, err
 	}
-	rows, err := stmt.Query(where)
-	if rows != nil {
-		defer rows.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		var ontId, orderId, apiKey string
-		var apiId, limit, usedNum int
-		if err = rows.Scan(&apiKey, &orderId, &apiId, &limit, &usedNum, &ontId); err != nil {
-			return nil, err
-		}
-		return &tables.APIKey{
-			OrderId:      orderId,
-			ApiKey:       apiKey,
-			ApiId:        apiId,
-			RequestLimit: limit,
-			UsedNum:      usedNum,
-			OntId:        ontId,
-		}, nil
-	}
-	return nil, fmt.Errorf("not found")
+	return k, nil
 }
 
 func (this *ApiDB) VerifyApiKey(apiKey string) error {
@@ -474,4 +345,16 @@ func (this *ApiDB) VerifyApiKey(apiKey string) error {
 		return fmt.Errorf("available times:%d, has used times: %d", key.RequestLimit, key.UsedNum)
 	}
 	return nil
+}
+
+func (this *ApiDB) UpdateApiKeyInvokeFre(apiKey string, usedNum, apiId, invokeFre int) error {
+	var strSql string
+	if common.IsTestKey(apiKey) {
+		strSql = "update tbl_api_test_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
+	} else {
+		strSql = "update tbl_api_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
+	}
+
+	_, err := this.conn.Exec(strSql, usedNum, invokeFre, apiKey, apiId)
+	return err
 }

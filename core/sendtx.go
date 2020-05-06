@@ -63,8 +63,7 @@ func generateApiKey(orderId, ontId string) error {
 		return err
 	}
 
-	var spec tables.Specifications
-	err = dao.DefApiDb.Conn.Get(&spec, "select * from tbl_specifications where Id=?", order.SpecificationsId)
+	spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsById(order.SpecificationsId)
 	if err != nil {
 		return err
 	}

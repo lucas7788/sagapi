@@ -41,11 +41,11 @@ type Arg struct {
 }
 
 type ApiKeyInvokeFre struct {
-	ApiKey       string `json:"apiKey"`
-	OrderId      string `json:"orderId"`
-	ApiId        int    `json:"apiId"`
-	RequestLimit int    `json:"requestLimit"`
-	UsedNum      int32  `json:"usedNum"`
-	OntId        string
-	InvokeFre    int32
+	ApiKey          string `json:"apiKey" db:"ApiKey"`
+	OrderId         string `json:"orderId" db:"OrderId"`
+	ApiId           int    `json:"apiId" db:"ApiId"`
+	RequestLimit    int    `json:"requestLimit" db:"RequestLimit"`
+	UsedNum         int32  `json:"usedNum" db:"UsedNum"`
+	OntId           string `json:"ontId" db:"OntId"`
+	InvokeFrequency int32  `json:"invokeFre" db:"InvokeFrequency"`
 }

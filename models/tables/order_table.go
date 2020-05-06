@@ -16,6 +16,7 @@ type Order struct {
 	TxHash           string                 `json:"txHash" db:"TxHash"`
 	Price            string                 `json:"price" db:"Price"`
 	ApiId            int                    `json:"apiId" db:"ApiId"`
+	ApiUrl           string                 `json:"apiUrl" db:"ApiUrl"`
 	SpecificationsId int                    `json:"specificationsId" db:"SpecificationsId"`
 	Coin             string                 `json:"coin" db:"Coin"`
 }
@@ -32,6 +33,7 @@ type APIKey struct {
 }
 
 type QrCode struct {
+	Id         int    `json:"id" db:"Id"`
 	QrCodeId   string `json:"id" db:"QrCodeId"`
 	Ver        string `json:"ver" db:"Ver"`
 	OrderId    string `json:"orderId" db:"OrderId"`
