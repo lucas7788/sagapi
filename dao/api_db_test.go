@@ -103,11 +103,7 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 
 	key, err = TestDB.ApiDB.QueryApiKeyByApiKey(apikey)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, key.UsedNum)
-
-	kfre, err := TestDB.ApiDB.QueryApiKeyAndInvokeFreByApiKey(apikey)
-	assert.Nil(t, err)
-	assert.Equal(t, "apikey", kfre.ApiKey)
+	assert.Equal(t, int32(1), key.UsedNum)
 
 	TestDB.ApiDB.ClearApiKeyDB()
 	TestDB.OrderDB.ClearOrderDB()

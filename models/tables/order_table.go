@@ -27,7 +27,7 @@ type APIKey struct {
 	OrderId      string                 `json:"orderId" db:"OrderId"`
 	ApiId        int                    `json:"apiId" db:"ApiId"`
 	RequestLimit int                    `json:"requestLimit" db:"RequestLimit"`
-	UsedNum      int                    `json:"usedNum" db:"UsedNum"`
+	UsedNum      int32                  `json:"usedNum" db:"UsedNum"`
 	OntId        string                 `json:"ontId" db:"OntId"`
 	OrderStatus  sagaconfig.OrderStatus `json:"orderStatus" db:"OrderStatus"`
 }

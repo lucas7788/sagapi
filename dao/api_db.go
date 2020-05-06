@@ -276,23 +276,15 @@ func (this *ApiDB) InsertApiTestKey(key *tables.APIKey) error {
 	return nil
 }
 
-func (this *ApiDB) QueryApiKeyAndInvokeFreByApiKey(apiKey string) (*models.ApiKeyInvokeFre, error) {
-	var strSql string
-	if common.IsTestKey(apiKey) {
-		strSql = `select k.ApiId, k.OntId, k.RequestLimit, k.UsedNum,i.InvokeFrequency from tbl_api_test_key k,
-tbl_api_basic_info i where k.ApiKey=? and i.ApiId=k.ApiId`
-	} else {
-		strSql = `select k.ApiId, k.OntId, k.RequestLimit, k.UsedNum,i.InvokeFrequency from tbl_api_key k,
-tbl_api_basic_info i where k.ApiKey=? and i.ApiId=k.ApiId`
+func (this *ApiDB) QueryInvokeFreByApiId(apiId int) (int32, error) {
+	var freq int32
+	strSql := `select InvokeFrequency from tbl_api_basic_info where ApiId =?`
+	err := this.conn.Get(freq, strSql, apiId)
+	if err != nil {
+		return 0, err
 	}
 
-	key := &models.ApiKeyInvokeFre{}
-	err := this.conn.Get(key, strSql, apiKey)
-	if err != nil {
-		return nil, err
-	}
-	key.ApiKey = apiKey
-	return key, nil
+	return freq, nil
 }
 
 func (this *ApiDB) QueryApiKeyByApiKey(apiKey string) (*tables.APIKey, error) {
@@ -340,13 +332,13 @@ func (this *ApiDB) VerifyApiKey(apiKey string) error {
 	if key == nil {
 		return fmt.Errorf("invalid api key: %s", apiKey)
 	}
-	if key.UsedNum >= key.RequestLimit {
+	if int(key.UsedNum) >= key.RequestLimit {
 		return fmt.Errorf("available times:%d, has used times: %d", key.RequestLimit, key.UsedNum)
 	}
 	return nil
 }
 
-func (this *ApiDB) UpdateApiKeyInvokeFre(apiKey string, usedNum, apiId, invokeFre int) error {
+func (this *ApiDB) UpdateApiKeyInvokeFre(apiKey string, apiId int, usedNum, invokeFre int32) error {
 	var strSql string
 	if common.IsTestKey(apiKey) {
 		strSql = "update tbl_api_test_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
