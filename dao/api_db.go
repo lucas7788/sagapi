@@ -332,7 +332,7 @@ func (this *ApiDB) VerifyApiKey(apiKey string) error {
 	if key == nil {
 		return fmt.Errorf("invalid api key: %s", apiKey)
 	}
-	if int(key.UsedNum) >= key.RequestLimit {
+	if key.UsedNum >= key.RequestLimit {
 		return fmt.Errorf("available times:%d, has used times: %d", key.RequestLimit, key.UsedNum)
 	}
 	return nil

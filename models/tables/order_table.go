@@ -26,14 +26,13 @@ type APIKey struct {
 	ApiKey       string                 `json:"apiKey" db:"ApiKey"`
 	OrderId      string                 `json:"orderId" db:"OrderId"`
 	ApiId        int                    `json:"apiId" db:"ApiId"`
-	RequestLimit int                    `json:"requestLimit" db:"RequestLimit"`
+	RequestLimit int32                  `json:"requestLimit" db:"RequestLimit"`
 	UsedNum      int32                  `json:"usedNum" db:"UsedNum"`
 	OntId        string                 `json:"ontId" db:"OntId"`
 	OrderStatus  sagaconfig.OrderStatus `json:"orderStatus" db:"OrderStatus"`
 }
 
 type QrCode struct {
-	Id         int    `json:"id" db:"Id"`
 	QrCodeId   string `json:"id" db:"QrCodeId"`
 	Ver        string `json:"ver" db:"Ver"`
 	OrderId    string `json:"orderId" db:"OrderId"`

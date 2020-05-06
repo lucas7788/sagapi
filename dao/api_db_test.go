@@ -44,6 +44,7 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 		DataSource:          "",
 		ApplicationScenario: "",
 	}
+	//fmt.Printf("detail api id: %d\n", detail.ApiId)
 	err = TestDB.ApiDB.InsertApiDetailInfo(detail)
 	assert.Nil(t, err)
 	detail, err = TestDB.ApiDB.QueryApiDetailInfoByApiId(basic[0].ApiId)

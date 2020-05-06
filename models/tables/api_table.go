@@ -62,7 +62,7 @@ type Specifications struct {
 	Id              int    `json:"id" db:"Id"`
 	ApiDetailInfoId int    `json:"apiDetailInfoId" db:"ApiDetailInfoId"`
 	Price           string `json:"price" db:"Price"`
-	Amount          int    `json:"amount" db:"Amount"`
+	Amount          int32  `json:"amount" db:"Amount"`
 }
 
 type RequestParam struct {
