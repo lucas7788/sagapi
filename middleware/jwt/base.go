@@ -17,4 +17,5 @@ type Payload struct {
 type Content struct {
 	Type  string `json:"type"`
 	OntId string `json:"ontId"`
+	Role  string `json:"role"`
 }

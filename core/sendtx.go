@@ -33,14 +33,14 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	orderId, err := dao.DefSagaApiDB.QrCodeDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
+	orderId, err := dao.DefSagaApiDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
 	if err != nil {
 		return err
 	}
 	err = verifyTx(hash.ToHexString())
 	if err != nil {
 		log.Errorf("verifyTx failed: %s", err)
-		err2 := dao.DefSagaApiDB.OrderDB.UpdateTxInfoByOrderId(orderId, "", sagaconfig.Failed)
+		err2 := dao.DefSagaApiDB.UpdateTxInfoByOrderId(orderId, "", sagaconfig.Failed)
 		if err2 != nil {
 			return err2
 		}
@@ -50,7 +50,7 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	err = dao.DefSagaApiDB.OrderDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), sagaconfig.Completed)
+	err = dao.DefSagaApiDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), sagaconfig.Completed)
 	if err != nil {
 		return err
 	}
@@ -58,12 +58,12 @@ func SendTX(param *common2.SendTxParam) error {
 }
 
 func generateApiKey(orderId, ontId string) error {
-	order, err := dao.DefSagaApiDB.OrderDB.QueryOrderByOrderId(orderId)
+	order, err := dao.DefSagaApiDB.QueryOrderByOrderId(orderId)
 	if err != nil {
 		return err
 	}
 
-	spec, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsById(order.SpecificationsId)
+	spec, err := dao.DefSagaApiDB.QuerySpecificationsById(order.SpecificationsId)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func generateApiKey(orderId, ontId string) error {
 		UsedNum:      0,
 		OntId:        ontId,
 	}
-	return dao.DefSagaApiDB.ApiDB.InsertApiKey(apiKey)
+	return dao.DefSagaApiDB.InsertApiKey(apiKey)
 }
 
 func verifyTx(txHash string) error {

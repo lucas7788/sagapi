@@ -27,8 +27,8 @@ func NewSagaApi() *SagaApi {
 	}
 }
 
-func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey, error) {
-	testKey, err := dao.DefSagaApiDB.ApiDB.QueryApiTestKeyByOntidAndApiId(ontid, apiId)
+func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string) (*tables.APIKey, error) {
+	testKey, err := dao.DefSagaApiDB.QueryApiTestKeyByOntidAndApiId(ontid, apiId)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (this *SagaApi) GenerateApiTestKey(apiId int, ontid string) (*tables.APIKey
 		UsedNum:      0,
 		OntId:        ontid,
 	}
-	err = dao.DefSagaApiDB.ApiDB.InsertApiTestKey(apiKey)
+	err = dao.DefSagaApiDB.InsertApiTestKey(apiKey)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 		return nil, errors.New("param is nil")
 	}
 	for i, _ := range params {
-		if (i != len(params)-1) && params[i].ApiDetailInfoId != params[i+1].ApiDetailInfoId {
+		if (i != len(params)-1) && params[i].ApiId != params[i+1].ApiId {
 			return nil, errors.New("params should to the same api")
 		}
 		if params[i].ValueDesc == "" {
@@ -69,12 +69,12 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	}
 
 	apiTestKey := params[len(params)-1].ValueDesc
-	key, err := dao.DefSagaApiDB.ApiDB.QueryApiKeyByApiKey(apiTestKey)
+	key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(apiTestKey)
 	if err != nil {
 		return nil, err
 	}
 
-	if key.ApiId != params[0].ApiDetailInfoId {
+	if key.ApiId != params[0].ApiId {
 		return nil, fmt.Errorf("apiKey:%s can not invoke this api", apiTestKey)
 	}
 
@@ -87,7 +87,7 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	return nil, fmt.Errorf("not support api, apiId:%d", key.ApiId)
 }
 
-func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
 	if pageNum < 1 {
 		pageNum = 1
 	}
@@ -95,10 +95,10 @@ func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize int) ([]*tables.A
 		pageSize = 10
 	}
 	start := (pageNum - 1) * pageSize
-	return dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByPage(start, pageSize)
+	return dao.DefSagaApiDB.QueryApiBasicInfoByPage(start, pageSize)
 }
 
-func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize int) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
 	if pageNum < 1 {
 		pageNum = 1
 	}
@@ -106,44 +106,39 @@ func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize int) ([]*
 		pageSize = 10
 	}
 	start := (pageNum - 1) * pageSize
-	return dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByCategoryId(id, start, pageSize)
+	return dao.DefSagaApiDB.QueryApiBasicInfoByCategoryId(id, start, pageSize)
 }
 
-func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResponse, error) {
-	basicInfo, err := dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByApiId(apiId)
+func (this *SagaApi) QueryApiDetailInfoByApiId(apiId uint32) (*common.ApiDetailResponse, error) {
+	basicInfo, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(apiId)
 	if err != nil {
 		return nil, err
 	}
 
-	apiDetail, err := dao.DefSagaApiDB.ApiDB.QueryApiDetailInfoByApiId(apiId)
+	requestParam, err := dao.DefSagaApiDB.QueryRequestParamByApiDetailId(basicInfo.ApiId)
 	if err != nil {
 		return nil, err
 	}
 
-	requestParam, err := dao.DefSagaApiDB.ApiDB.QueryRequestParamByApiDetailId(apiDetail.Id)
+	errCode, err := dao.DefSagaApiDB.QueryErrorCodeByApiDetailId(basicInfo.ApiId)
 	if err != nil {
 		return nil, err
 	}
 
-	errCode, err := dao.DefSagaApiDB.ApiDB.QueryErrorCodeByApiDetailId(apiDetail.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	sp, err := dao.DefSagaApiDB.ApiDB.QuerySpecificationsByApiDetailId(apiDetail.Id)
+	sp, err := dao.DefSagaApiDB.QuerySpecificationsByApiDetailId(basicInfo.ApiId)
 	if err != nil {
 		return nil, err
 	}
 
 	return &common.ApiDetailResponse{
-		ApiId:               apiDetail.ApiId,
-		Mark:                apiDetail.Mark,
-		ResponseType:        apiDetail.RequestType,
-		ResponseParam:       apiDetail.ResponseParam,
-		ResponseExample:     apiDetail.ResponseExample,
-		DataDesc:            apiDetail.DataDesc,
-		DataSource:          apiDetail.DataSource,
-		ApplicationScenario: apiDetail.ApplicationScenario,
+		ApiId:               basicInfo.ApiId,
+		Mark:                basicInfo.Mark,
+		ResponseType:        basicInfo.RequestType,
+		ResponseParam:       basicInfo.ResponseParam,
+		ResponseExample:     basicInfo.ResponseExample,
+		DataDesc:            basicInfo.DataDesc,
+		DataSource:          basicInfo.DataSource,
+		ApplicationScenario: basicInfo.ApplicationScenario,
 		RequestParams:       requestParam,
 		ErrorCodes:          errCode,
 		Specifications:      sp,
@@ -151,14 +146,14 @@ func (this *SagaApi) QueryApiDetailInfoByApiId(apiId int) (*common.ApiDetailResp
 	}, nil
 }
 
-func (this *SagaApi) SearchApiIdByCategoryId(categoryId, pageNum, pageSize int) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApi) SearchApiIdByCategoryId(categoryId, pageNum, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
 	if pageNum < 1 {
 		pageNum = 1
 	}
 	start := (pageNum - 1) * pageSize
-	return dao.DefSagaApiDB.ApiDB.QueryApiBasicInfoByCategoryId(categoryId, start, pageSize)
+	return dao.DefSagaApiDB.QueryApiBasicInfoByCategoryId(categoryId, start, pageSize)
 }
 
 func (this *SagaApi) SearchApi() (map[string][]*tables.ApiBasicInfo, error) {
-	return dao.DefSagaApiDB.ApiDB.SearchApi()
+	return dao.DefSagaApiDB.SearchApi()
 }

@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"github.com/jmoiron/sqlx"
+	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/sagaconfig"
 	"time"
 )
@@ -10,9 +11,7 @@ import (
 var DefSagaApiDB *SagaApiDB
 
 type SagaApiDB struct {
-	ApiDB    *ApiDB
-	OrderDB  *OrderDB
-	QrCodeDB *QrCodeDB
+	DB *sqlx.DB
 }
 
 func NewSagaApiDB(dbConfig *sagaconfig.DBConfig) (*SagaApiDB, error) {
@@ -34,12 +33,59 @@ func NewSagaApiDB(dbConfig *sagaconfig.DBConfig) (*SagaApiDB, error) {
 		return nil, err
 	}
 	return &SagaApiDB{
-		ApiDB:    NewApiDB(dbx),
-		OrderDB:  NewOrderDB(dbx),
-		QrCodeDB: NewQrCodeDB(dbx),
+		DB: dbx,
 	}, nil
 }
 
+func (this *SagaApiDB) Exec(tx *sqlx.Tx, query string, args ...interface{}) error {
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(query, args...)
+	} else {
+		_, err = this.DB.Exec(query, args...)
+	}
+	return err
+}
+
+func (this *SagaApiDB) Select(tx *sqlx.Tx, dest interface{}, query string, args ...interface{}) error {
+	var err error
+	if tx != nil {
+		err = tx.Select(dest, query, args...)
+	} else {
+		err = this.DB.Select(dest, query, args...)
+	}
+	return err
+}
+
+func (this *SagaApiDB) Get(tx *sqlx.Tx, dest interface{}, query string, args ...interface{}) error {
+	var err error
+	if tx != nil {
+		err = tx.Get(dest, query, args...)
+	} else {
+		err = this.DB.Get(dest, query, args...)
+	}
+	return err
+}
+
+/////////////////////
+func (this *SagaApiDB) InsertApiTag(tx *sqlx.Tx, apiTag *tables.ApiTag) error {
+	sqlStr := `insert into tbl_api_tag (ApiId, TagId, State) values (?,?,?)`
+	err := this.Exec(tx, sqlStr, apiTag.ApiId, apiTag.TagId, apiTag.State)
+	return err
+}
+
+func (this *SagaApiDB) InsertTag(tx *sqlx.Tx, Tag *tables.Tag) error {
+	sqlStr := `insert into tbl_tag (Name, CategoryId, State) values (?,?,?)`
+	err := this.Exec(tx, sqlStr, Tag.Name, Tag.CategoryId, Tag.State)
+	return err
+}
+
+func (this *SagaApiDB) InsertCategory(tx *sqlx.Tx, cat *tables.Category) error {
+	sqlStr := `insert into tbl_tag (NameZh, NameEn,Icon,State) values (?,?,?,?)`
+	err := this.Exec(tx, sqlStr, cat.NameZh, cat.NameEn, cat.Icon, cat.State)
+	return err
+}
+
 func (this *SagaApiDB) Close() error {
-	return this.ApiDB.conn.Close()
+	return this.DB.Close()
 }

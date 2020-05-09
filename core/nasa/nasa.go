@@ -55,13 +55,13 @@ func (this *Nasa) UpdateFreqDataBase() {
 				continue
 			}
 
-			counter := atomic.LoadInt32(apiCounterP.(*int32))
+			counter := atomic.LoadUint64(apiCounterP.(*uint64))
 			this.updateApiKeyInvokeFre(key, counter)
 		}
 	}
 }
 
-func (this *Nasa) beforeCheckApiKey(apiKey string, apiId int) (*tables.APIKey, *int32, error) {
+func (this *Nasa) beforeCheckApiKey(apiKey string, apiId uint32) (*tables.APIKey, *uint64, error) {
 	this.freqLock.Lock()
 	defer this.freqLock.Unlock()
 	key, err := this.getApiKeyCache(apiKey)
@@ -83,7 +83,7 @@ func (this *Nasa) beforeCheckApiKey(apiKey string, apiId int) (*tables.APIKey, *
 
 	key.UsedNum += 1
 	if !common.IsTestKey(apiKey) {
-		atomic.AddInt32(apiCounterP, 1)
+		atomic.AddUint64(apiCounterP, 1)
 	}
 
 	return key, apiCounterP, nil
@@ -97,8 +97,8 @@ func (this *Nasa) Apod(apiKey string) ([]byte, error) {
 	url := fmt.Sprintf(apod, sagaconfig.DefSagaConfig.NASAAPIKey)
 	res, err := http.DefClient.Get(url)
 	if err != nil {
-		atomic.AddInt32(&key.UsedNum, -1)
-		atomic.AddInt32(apiCounterP, -1)
+		atomic.AddUint64(&key.UsedNum, ^uint64(0))
+		atomic.AddUint64(apiCounterP, ^uint64(0))
 		return nil, err
 	}
 
@@ -116,8 +116,8 @@ func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error)
 	url := fmt.Sprintf(feed, startDate, endDate, sagaconfig.DefSagaConfig.NASAAPIKey)
 	res, err := http.DefClient.Get(url)
 	if err != nil {
-		atomic.AddInt32(&key.UsedNum, -1)
-		atomic.AddInt32(apiCounterP, -1)
+		atomic.AddUint64(&key.UsedNum, ^uint64(0))
+		atomic.AddUint64(apiCounterP, ^uint64(0))
 		return nil, err
 	}
 
@@ -139,24 +139,24 @@ func (this *Nasa) FeedParams(params []tables.RequestParam) ([]byte, error) {
 	return nil, errors.New("Apod params error")
 }
 
-func (this *Nasa) getApiIdFreqCounter(ApiId int) (*int32, error) {
+func (this *Nasa) getApiIdFreqCounter(ApiId uint32) (*uint64, error) {
 	apiCounterP, ok := this.apiFreqCache.Load(ApiId)
 	if !ok || apiCounterP == nil {
-		freq, err := dao.DefSagaApiDB.ApiDB.QueryInvokeFreByApiId(ApiId)
+		freq, err := dao.DefSagaApiDB.QueryInvokeFreByApiId(ApiId)
 		if err != nil {
 			return nil, err
 		}
 		this.apiFreqCache.Store(ApiId, &freq)
 		return &freq, nil
 	} else {
-		return apiCounterP.(*int32), nil
+		return apiCounterP.(*uint64), nil
 	}
 }
 
 func (this *Nasa) getApiKeyCache(apiKey string) (*tables.APIKey, error) {
 	keyIn, ok := this.apiKeyCache.Load(apiKey)
 	if !ok || keyIn == nil {
-		key, err := dao.DefSagaApiDB.ApiDB.QueryApiKeyByApiKey(apiKey)
+		key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(apiKey)
 		if err != nil {
 			return nil, err
 		}
@@ -167,6 +167,6 @@ func (this *Nasa) getApiKeyCache(apiKey string) (*tables.APIKey, error) {
 	}
 }
 
-func (this *Nasa) updateApiKeyInvokeFre(key *tables.APIKey, freqCounter int32) error {
-	return dao.DefSagaApiDB.ApiDB.UpdateApiKeyInvokeFre(key.ApiKey, key.ApiId, key.UsedNum, freqCounter)
+func (this *Nasa) updateApiKeyInvokeFre(key *tables.APIKey, freqCounter uint64) error {
+	return dao.DefSagaApiDB.UpdateApiKeyInvokeFre(key.ApiKey, key.ApiId, key.UsedNum, freqCounter)
 }

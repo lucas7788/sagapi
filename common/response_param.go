@@ -21,7 +21,7 @@ type QrCode struct {
 }
 
 type ApiDetailResponse struct {
-	ApiId               int                      `json:"apiId"`
+	ApiId               uint32                   `json:"apiId"`
 	Mark                string                   `json:"mark"`
 	ResponseParam       string                   `json:"responseParam"`
 	ResponseType        string                   `json:"responseType"`
@@ -37,15 +37,15 @@ type ApiDetailResponse struct {
 
 type OrderResult struct {
 	Title        string                 `json:"title"`
-	Total        int                    `json:"total"`
+	Total        uint32                 `json:"total"`
 	OrderId      string                 `json:"orderId"`
 	Amount       string                 `json:"amount"`
 	CreateTime   int64                  `json:"createTime"`
 	TxHash       string                 `json:"txHash"`
-	ApiId        int                    `json:"apiId"`
+	ApiId        uint32                 `json:"apiId"`
 	ApiUrl       string                 `json:"apiUrl"`
-	RequestLimit int32                  `json:"requestLimit"`
-	UsedNum      int32                  `json:"usedNum"`
+	RequestLimit uint64                 `json:"requestLimit"`
+	UsedNum      uint64                 `json:"usedNum"`
 	Status       sagaconfig.OrderStatus `json:"status"`
 	ApiKey       string                 `json:"apiKey"`
 	Price        string                 `json:"price"`

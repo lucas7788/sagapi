@@ -4,12 +4,12 @@ type TakeOrderParam struct {
 	ProductName      string `json:"productName"`
 	OntId            string `json:"ontId"`
 	UserName         string `json:"userName"`
-	ApiId            int    `json:"apiId"`
-	SpecificationsId int    `json:"specificationsId"`
+	ApiId            uint32 `json:"apiId"`
+	SpecificationsId uint32 `json:"specificationsId"`
 }
 
 type GenerateTestKeyParam struct {
-	ApiId int `json:"apiId"`
+	ApiId uint32 `json:"apiId"`
 }
 
 type GetPayQrCode struct {
@@ -46,7 +46,7 @@ type SearchApiByKey struct {
 }
 
 type GetApiByCategoryId struct {
-	CategoryId int `json:"categoryId"`
-	PageNum    int `json:"pageNum"`
-	PageSize   int `json:"pageSize"`
+	CategoryId uint32 `json:"categoryId"`
+	PageNum    uint32 `json:"pageNum"`
+	PageSize   uint32 `json:"pageSize"`
 }

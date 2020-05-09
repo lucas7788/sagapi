@@ -34,7 +34,7 @@ func GetBasicApiInfoByPage(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	infos, err := core.DefSagaApi.QueryBasicApiInfoByPage(pageNum, pageSize)
+	infos, err := core.DefSagaApi.QueryBasicApiInfoByPage(uint32(pageNum), uint32(pageSize))
 	if err != nil {
 		log.Errorf("[GetBasicApiInfoByPage] QueryApiBasicInfoByPage error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
@@ -56,7 +56,7 @@ func GetApiDetailByApiId(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	info, err := core.DefSagaApi.QueryApiDetailInfoByApiId(apiId)
+	info, err := core.DefSagaApi.QueryApiDetailInfoByApiId(uint32(apiId))
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] QueryApiDetailInfoByApiId error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
@@ -78,7 +78,7 @@ func SearchApiByKey(c *gin.Context) {
 		return
 	}
 	//todo key.Key should not have sql statement
-	infos, err := dao.DefSagaApiDB.ApiDB.SearchApiByKey(key.Key)
+	infos, err := dao.DefSagaApiDB.SearchApiByKey(key.Key)
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))

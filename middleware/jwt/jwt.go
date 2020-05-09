@@ -13,6 +13,11 @@ import (
 	"github.com/ontio/sagapi/sagaconfig"
 	"net/http"
 	"strings"
+	"time"
+)
+
+const (
+	ROLE_ADMIN string = "ADMIN"
 )
 
 func JWT() gin.HandlerFunc {
@@ -24,7 +29,7 @@ func JWT() gin.HandlerFunc {
 		if token == nil || token[0] == "" {
 			err = fmt.Errorf("token is nil")
 		} else {
-			ontid, err = validateToken(token[0])
+			ontid, err = validateToken(token[0], false)
 		}
 		if err != nil {
 			log.Errorf("token error:%s", err)
@@ -37,7 +42,29 @@ func JWT() gin.HandlerFunc {
 	}
 }
 
-func validateToken(token string) (string, error) {
+func JWTAdmin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var err error
+		header := map[string][]string(c.Request.Header)
+		token := header["Authorization"]
+		var ontid string
+		if token == nil || token[0] == "" {
+			err = fmt.Errorf("token is nil")
+		} else {
+			ontid, err = validateToken(token[0], true)
+		}
+		if err != nil {
+			log.Errorf("token error:%s", err)
+			c.JSON(http.StatusUnauthorized, common.ResponseFailed(common.VERIFY_TOKEN_ERROR, err))
+			c.Abort()
+			return
+		}
+		c.Set(sagaconfig.Key_OntId, ontid)
+		c.Next()
+	}
+}
+
+func validateToken(token string, admin bool) (string, error) {
 	//header.payloadBs.sig
 	arr := strings.Split(token, ".")
 	if len(arr) != 3 {
@@ -70,5 +97,15 @@ func validateToken(token string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	now := time.Now().Unix()
+	if pl.Exp > int(now) {
+		return "", fmt.Errorf("jwt token expired")
+	}
+
+	if admin && pl.Content.Role != ROLE_ADMIN {
+		return "", fmt.Errorf("jwt token sould be admin")
+	}
+
 	return pl.Content.OntId, nil
 }

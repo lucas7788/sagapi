@@ -15,19 +15,19 @@ type Order struct {
 	UserName         string                 `json:"userName" db:"UserName"`
 	TxHash           string                 `json:"txHash" db:"TxHash"`
 	Price            string                 `json:"price" db:"Price"`
-	ApiId            int                    `json:"apiId" db:"ApiId"`
+	ApiId            uint32                 `json:"apiId" db:"ApiId"`
 	ApiUrl           string                 `json:"apiUrl" db:"ApiUrl"`
-	SpecificationsId int                    `json:"specificationsId" db:"SpecificationsId"`
+	SpecificationsId uint32                 `json:"specificationsId" db:"SpecificationsId"`
 	Coin             string                 `json:"coin" db:"Coin"`
 }
 
 type APIKey struct {
-	Id           int                    `json:"id" db:"Id"`
+	Id           uint32                 `json:"id" db:"Id"`
 	ApiKey       string                 `json:"apiKey" db:"ApiKey"`
 	OrderId      string                 `json:"orderId" db:"OrderId"`
-	ApiId        int                    `json:"apiId" db:"ApiId"`
-	RequestLimit int32                  `json:"requestLimit" db:"RequestLimit"`
-	UsedNum      int32                  `json:"usedNum" db:"UsedNum"`
+	ApiId        uint32                 `json:"apiId" db:"ApiId"`
+	RequestLimit uint64                 `json:"requestLimit" db:"RequestLimit"`
+	UsedNum      uint64                 `json:"usedNum" db:"UsedNum"`
 	OntId        string                 `json:"ontId" db:"OntId"`
 	OrderStatus  sagaconfig.OrderStatus `json:"orderStatus" db:"OrderStatus"`
 }

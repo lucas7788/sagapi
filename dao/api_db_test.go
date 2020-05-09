@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -11,7 +12,7 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	info := &tables.ApiBasicInfo{
 		Icon:            "",
 		Title:           "mytestasd",
-		ApiProvider:     "",
+		ApiProvider:     common.GenerateUUId(),
 		ApiUrl:          "",
 		Price:           "",
 		ApiDesc:         "",
@@ -24,60 +25,102 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	l := 11
 	infos := make([]*tables.ApiBasicInfo, l)
 	for i := 0; i < len(infos); i++ {
+		info.ApiProvider = common.GenerateUUId()
 		infos[i] = info
 	}
-	assert.Nil(t, TestDB.ApiDB.InsertApiBasicInfo(infos))
+	assert.Nil(t, TestDB.InsertApiBasicInfo(infos))
 
-	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(1, 1)
+	Coin := "ONG"
+	ApiType := "ApiType"
+	Icon := "Icon"
+	Title := "Title"
+	ApiProvider := "ApiProvider"
+	ApiSagaUrlKey := "ApiSagaUrlKey"
+	ApiUrl := "ApiUrl"
+	Price := "Price"
+	ApiDesc := "ApiDesc"
+	ErrorDesc := "ErrorDesc"
+	Specifications := uint32(9)
+	Popularity := uint32(10)
+	Delay := uint32(11)
+	SuccessRate := uint32(100)
+	InvokeFrequency := uint64(12345)
+	ApiState := int32(99)
+	RequestType := "RequestType"
+	Mark := "Mark"
+	ResponseParam := "ResponseParam"
+	ResponseExample := "ResponseExample"
+	DataDesc := "DataDesc"
+	DataSource := "DataSource"
+	ApplicationScenario := "ApplicationScenario"
+
+	info2 := &tables.ApiBasicInfo{
+		Coin:                Coin,
+		ApiType:             ApiType,
+		Icon:                Icon,
+		Title:               Title,
+		ApiProvider:         ApiProvider,
+		ApiSagaUrlKey:       ApiSagaUrlKey,
+		ApiUrl:              ApiUrl,
+		Price:               Price,
+		ApiDesc:             ApiDesc,
+		ErrorDesc:           ErrorDesc,
+		Specifications:      Specifications,
+		Popularity:          Popularity,
+		Delay:               Delay,
+		SuccessRate:         SuccessRate,
+		InvokeFrequency:     InvokeFrequency,
+		ApiState:            ApiState,
+		RequestType:         RequestType,
+		Mark:                Mark,
+		ResponseParam:       ResponseParam,
+		ResponseExample:     ResponseExample,
+		DataDesc:            DataDesc,
+		DataSource:          DataSource,
+		ApplicationScenario: ApplicationScenario,
+	}
+
+	assert.Nil(t, TestDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info2}))
+
+	basic, err := TestDB.QueryApiBasicInfoByPage(1, 1)
 	assert.Nil(t, err)
-	info, err = TestDB.ApiDB.QueryApiBasicInfoByApiId(basic[0].ApiId)
+	info, err = TestDB.QueryApiBasicInfoByApiId(basic[0].ApiId)
 	assert.Nil(t, err)
 	assert.Equal(t, info.ApiId, basic[0].ApiId)
 
-	detail := &tables.ApiDetailInfo{
-		ApiId:               basic[0].ApiId,
-		RequestType:         "POST",
-		Mark:                "",
-		ResponseParam:       "",
-		ResponseExample:     "",
-		DataDesc:            "",
-		DataSource:          "",
-		ApplicationScenario: "",
-	}
-	//fmt.Printf("detail api id: %d\n", detail.ApiId)
-	err = TestDB.ApiDB.InsertApiDetailInfo(detail)
-	assert.Nil(t, err)
-	detail, err = TestDB.ApiDB.QueryApiDetailInfoByApiId(basic[0].ApiId)
 	assert.Nil(t, err)
 	params := &tables.RequestParam{
-		ApiDetailInfoId: detail.Id,
-		ParamName:       "",
-		Required:        true,
-		ParamType:       "",
-		Note:            "",
-		ValueDesc:       "",
+		ApiId:      info.ApiId,
+		ParamName:  "",
+		Required:   true,
+		ParamType:  "",
+		ParamWhere: tables.URL_PARAM_RESTFUL,
+		Note:       "",
+		ValueDesc:  "",
 	}
 
-	assert.Nil(t, TestDB.ApiDB.InsertRequestParam([]*tables.RequestParam{params}))
+	assert.Nil(t, TestDB.InsertRequestParam([]*tables.RequestParam{params}))
 
-	requestParams, err := TestDB.ApiDB.QueryRequestParamByApiDetailId(detail.Id)
+	requestParams, err := TestDB.QueryRequestParamByApiDetailId(detail.Id)
 	assert.Nil(t, err)
 	assert.Equal(t, len(requestParams), 1)
 
-	infos, err = TestDB.ApiDB.QueryApiBasicInfoByCategoryId(1, 0, 1)
+	infos, err = TestDB.QueryApiBasicInfoByCategoryId(1, 0, 1)
 	assert.Nil(t, err)
 
-	TestDB.ApiDB.ClearRequestParamDB()
-	TestDB.ApiDB.ClearApiBasicDB()
+	err = TestDB.ClearRequestParamDB()
+	assert.Nil(t, err)
+	err = TestDB.ClearApiBasicDB()
+	assert.Nil(t, err)
 }
 
 func TestApiDB_InsertApiKey(t *testing.T) {
 
-	TestDB.ApiDB.ClearApiKeyDB()
-	TestDB.OrderDB.ClearOrderDB()
-	TestDB.ApiDB.ClearApiBasicDB()
+	TestDB.ClearApiKeyDB()
+	TestDB.ClearOrderDB()
+	TestDB.ClearApiBasicDB()
 
-	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(0, 1)
+	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1)
 
 	orderId := "orderId"
 	tt := time.Now().Unix()
@@ -87,7 +130,7 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 		OrderTime: tt,
 	}
-	err = TestDB.OrderDB.InsertOrder(order)
+	err = TestDB.InsertOrder(order)
 	assert.Nil(t, err)
 	apikey := "apikey"
 	key := &tables.APIKey{
@@ -99,46 +142,67 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 		OntId:        "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 	}
 
-	err = TestDB.ApiDB.InsertApiKey(key)
+	err = TestDB.InsertApiKey(key)
 	assert.Nil(t, err)
 
-	key, err = TestDB.ApiDB.QueryApiKeyByApiKey(apikey)
+	key, err = TestDB.QueryApiKeyByApiKey(apikey)
 	assert.Nil(t, err)
 	assert.Equal(t, int32(1), key.UsedNum)
 
-	TestDB.ApiDB.ClearApiKeyDB()
-	TestDB.OrderDB.ClearOrderDB()
-	TestDB.ApiDB.ClearApiBasicDB()
+	TestDB.ClearApiKeyDB()
+	TestDB.ClearOrderDB()
+	TestDB.ClearApiBasicDB()
 }
 
 func TestApiDB_QuerySpecificationsByApiDetailId(t *testing.T) {
-	assert.Nil(t, TestDB.ApiDB.ClearSpecificationsDB())
-	basic, err := TestDB.ApiDB.QueryApiBasicInfoByPage(0, 1)
-	detail, err := TestDB.ApiDB.QueryApiDetailInfoByApiId(basic[0].ApiId)
+	assert.Nil(t, TestDB.ClearSpecificationsDB())
+	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1)
+	detail, err := TestDB.QueryApiDetailInfoByApiId(basic[0].ApiId)
 	assert.Nil(t, err)
 	params := []*tables.Specifications{
 		&tables.Specifications{
-			ApiDetailInfoId: detail.Id,
-			Price:           "0",
-			Amount:          500,
+			ApiId:  detail.Id,
+			Price:  "0",
+			Amount: 500,
 		},
 		&tables.Specifications{
-			ApiDetailInfoId: detail.Id,
-			Price:           "0.01",
-			Amount:          1000,
+			ApiId:  detail.Id,
+			Price:  "0.01",
+			Amount: 1000,
 		},
 	}
-	err = TestDB.ApiDB.InsertSpecifications(params)
+	err = TestDB.InsertSpecifications(params)
 	assert.Nil(t, err)
 
-	specs, err := TestDB.ApiDB.QuerySpecificationsByApiDetailId(detail.Id)
+	specs, err := TestDB.QuerySpecificationsByApiDetailId(detail.Id)
 	assert.Nil(t, err)
-	assert.Equal(t, specs[0].ApiDetailInfoId, detail.Id)
+	assert.Equal(t, specs[0].ApiId, detail.Id)
 
-	spec, err := TestDB.ApiDB.QuerySpecificationsById(specs[0].Id)
+	spec, err := TestDB.QuerySpecificationsById(specs[0].Id)
 	assert.Nil(t, err)
 
 	assert.Equal(t, spec.Id, specs[0].Id)
 
-	assert.Nil(t, TestDB.ApiDB.ClearSpecificationsDB())
+	assert.Nil(t, TestDB.ClearSpecificationsDB())
+}
+
+func TestApiDB_QueryApiBasicInfoBySagaUrlKey(t *testing.T) {
+	info := &tables.ApiBasicInfo{
+		Icon:            "",
+		Title:           "mytestasd",
+		ApiSagaUrlKey:   "sagaurl_" + common.GenerateUUId(),
+		ApiProvider:     "",
+		ApiUrl:          "",
+		Price:           "",
+		ApiDesc:         "",
+		Specifications:  1,
+		Popularity:      0,
+		Delay:           0,
+		SuccessRate:     0,
+		InvokeFrequency: 0,
+	}
+
+	assert.Nil(t, TestDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info}))
+	_, err := TestDB.QueryApiBasicInfoBySagaUrlKey(info.ApiSagaUrlKey)
+	assert.Nil(t, err)
 }
