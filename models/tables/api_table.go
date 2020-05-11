@@ -18,6 +18,11 @@ const (
 	URL_PARAM_BODY    int32 = 3
 )
 
+const (
+	API_REQUEST_POST string = "POST"
+	API_REQUEST_GET  string = "GET"
+)
+
 type ApiBasicInfo struct {
 	ApiId               uint32    `json:"apiId" db:"ApiId"`
 	Coin                string    `json:"coin" db:"Coin"`

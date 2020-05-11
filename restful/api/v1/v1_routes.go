@@ -14,4 +14,6 @@ func RoutesV1(parent *gin.RouterGroup) {
 	nasa.RoutesNasa(v1Route)
 	order.RoutesOrder(v1Route)
 	api.RoutesApiList(v1Route)
+
+	v1Route.POST("/data_source/:sagaUrlKey/:apikey", HandleDataSourceReq)
 }

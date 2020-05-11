@@ -94,10 +94,10 @@ func (this *SagaApiDB) InsertApiBasicInfo(tx *sqlx.Tx, infos []*tables.ApiBasicI
 
 func (this *SagaApiDB) QueryApiBasicInfoByApiId(tx *sqlx.Tx, apiId uint32) (*tables.ApiBasicInfo, error) {
 	var err error
-	strSql := `select * from tbl_api_basic_info where ApiId=?`
+	strSql := `select * from tbl_api_basic_info where ApiId=? and ApiState=?`
 
 	info := &tables.ApiBasicInfo{}
-	err = this.Get(tx, info, strSql, apiId)
+	err = this.Get(tx, info, strSql, apiId, tables.API_STATE_BUILTIN)
 	if err != nil {
 		return nil, err
 	}
@@ -107,9 +107,9 @@ func (this *SagaApiDB) QueryApiBasicInfoByApiId(tx *sqlx.Tx, apiId uint32) (*tab
 
 func (this *SagaApiDB) QueryApiBasicInfoBySagaUrlKey(tx *sqlx.Tx, urlkey string) (*tables.ApiBasicInfo, error) {
 	var err error
-	strSql := `select * from tbl_api_basic_info where ApiSagaUrlKey=?`
+	strSql := `select * from tbl_api_basic_info where ApiSagaUrlKey=? and ApiState=?`
 	info := &tables.ApiBasicInfo{}
-	err = this.Get(tx, info, strSql, urlkey)
+	err = this.Get(tx, info, strSql, urlkey, tables.API_STATE_BUILTIN)
 	if err != nil {
 		return nil, err
 	}
@@ -147,10 +147,10 @@ func (this *SagaApiDB) SearchApi(tx *sqlx.Tx) (map[string][]*tables.ApiBasicInfo
 }
 
 func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, start, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
-	strSql := `select * from tbl_api_basic_info where ApiId in (select ApiId from tbl_api_tag where TagId=(select Id from tbl_tag where CategoryId=?)) limit ?, ?`
+	strSql := `select * from tbl_api_basic_info where ApiState=? and ApiId in (select ApiId from tbl_api_tag where TagId=(select Id from tbl_tag where CategoryId=?)) limit ?, ?`
 
 	var res []*tables.ApiBasicInfo
-	err := this.Select(tx, &res, strSql, categoryId, start, pageSize)
+	err := this.Select(tx, &res, strSql, tables.API_STATE_BUILTIN, categoryId, start, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -159,9 +159,9 @@ func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, st
 }
 
 func (this *SagaApiDB) QueryApiBasicInfoByPage(start, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
-	strSql := `select * from tbl_api_basic_info where ApiId limit ?, ?`
+	strSql := `select * from tbl_api_basic_info where ApiState=? and ApiId limit ?, ?`
 	var res []*tables.ApiBasicInfo
-	err := this.DB.Select(&res, strSql, start, pageSize)
+	err := this.DB.Select(&res, strSql, tables.API_STATE_BUILTIN, start, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -337,13 +337,15 @@ func (this *SagaApiDB) queryApiKey(tx *sqlx.Tx, key, orderId string) (*tables.AP
 
 func (this *SagaApiDB) UpdateApiKeyInvokeFre(tx *sqlx.Tx, apiKey string, apiId uint32, usedNum, invokeFre uint64) error {
 	var strSql string
+	var err error
 	if common.IsTestKey(apiKey) {
 		// here no need update invokefreq.
-		strSql = "update tbl_api_test_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
+		strSql = "update tbl_api_test_key set UsedNum=? where ApiKey=?"
+		err = this.Exec(tx, strSql, usedNum, apiKey)
 	} else {
 		strSql = "update tbl_api_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
+		err = this.Exec(tx, strSql, usedNum, invokeFre, apiKey, apiId)
 	}
 
-	err := this.Exec(tx, strSql, usedNum, invokeFre, apiKey, apiId)
 	return err
 }

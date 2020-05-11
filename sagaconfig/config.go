@@ -25,6 +25,7 @@ type Config struct {
 	NetType               string    `json:"net_type"`
 	OntId                 string    `json:"ont_id"`
 	OntIdPrivate          string    `json:"ontid_private"`
+	SagaHost              string    `json:"saga_host"`
 	OntSdk                *ontology_go_sdk.OntologySdk
 	OntIdAccount          *ontology_go_sdk.Account
 }

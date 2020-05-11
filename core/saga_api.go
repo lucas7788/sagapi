@@ -6,6 +6,7 @@ import (
 
 	"fmt"
 	"github.com/ontio/sagapi/common"
+	"github.com/ontio/sagapi/core/freq"
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/core/nasa"
 	"github.com/ontio/sagapi/dao"
@@ -18,13 +19,16 @@ var DefSagaApi *SagaApi
 type SagaApi struct {
 	Nasa      *nasa.Nasa
 	SagaOrder *SagaOrder
+	Cache     *freq.DBCache
 }
 
 func NewSagaApi() *SagaApi {
 	http.DefClient = http.NewClient()
+	cache := freq.NewDBCache()
 	return &SagaApi{
-		Nasa:      nasa.NewNasa(),
+		Nasa:      nasa.NewNasa(cache),
 		SagaOrder: NewSagaOrder(),
+		Cache:     cache,
 	}
 }
 

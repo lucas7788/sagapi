@@ -31,6 +31,12 @@ func PublishAPIHandle(c *gin.Context) {
 	common.WriteResponse(c, common.ResponseSuccess(nil))
 }
 
+func VerifyAPIHandle(c *gin.Context) {
+}
+
+func GetALLPublishPage(c *gin.Context) {
+}
+
 func ParseUrl(url string) ([]UrlParams, error) {
 	params := make([]UrlParams, 0)
 	key := url

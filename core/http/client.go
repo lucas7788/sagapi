@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
 	"io/ioutil"
@@ -36,6 +37,20 @@ func (this *Client) Get(url string) ([]byte, error) {
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("[Get] read http body error:%s", err)
+	}
+	return data, nil
+}
+
+func (this *Client) Post(url string, bodyParam []byte) ([]byte, error) {
+	// to do. other common type
+	resp, err := this.client.Post(url, "application/json", bytes.NewReader(bodyParam))
+	if err != nil {
+		return nil, fmt.Errorf("[Post] send http post request error:%s", err)
+	}
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("[Post] read http body error:%s", err)
 	}
 	return data, nil
 }

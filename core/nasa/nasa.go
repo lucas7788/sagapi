@@ -3,12 +3,10 @@ package nasa
 import (
 	"errors"
 	"fmt"
-	"github.com/ontio/sagapi/common"
+	"github.com/ontio/sagapi/core/freq"
 	"github.com/ontio/sagapi/core/http"
-	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/sagaconfig"
-	"sync"
 	"sync/atomic"
 )
 
@@ -18,79 +16,19 @@ var (
 )
 
 type Nasa struct {
-	apiKeyCache  *sync.Map //apikey -> ApiKey
-	freqLock     *sync.Mutex
-	updateFreq   chan string
-	apiFreqCache *sync.Map //ApiID -> int32
+	Cache *freq.DBCache
 }
 
-func NewNasa() *Nasa {
+func NewNasa(cache *freq.DBCache) *Nasa {
 	res := &Nasa{
-		apiKeyCache:  new(sync.Map),
-		apiFreqCache: new(sync.Map),
-		freqLock:     new(sync.Mutex),
-		updateFreq:   make(chan string, 20),
+		Cache: cache,
 	}
 
-	go res.UpdateFreqDataBase()
 	return res
 }
 
-func (this *Nasa) UpdateFreqDataBase() {
-	for {
-		select {
-		case apiKey := <-this.updateFreq:
-			keyIn, ok := this.apiKeyCache.Load(apiKey)
-			if !ok {
-				fmt.Printf("apikey cache not exist")
-				continue
-			}
-
-			key := keyIn.(*tables.APIKey)
-			apiId := key.ApiId
-
-			apiCounterP, ok := this.apiFreqCache.Load(apiId)
-			if !ok {
-				fmt.Printf("apicounter cache not exist")
-				continue
-			}
-
-			counter := atomic.LoadUint64(apiCounterP.(*uint64))
-			this.updateApiKeyInvokeFre(key, counter)
-		}
-	}
-}
-
-func (this *Nasa) beforeCheckApiKey(apiKey string, apiId uint32) (*tables.APIKey, *uint64, error) {
-	this.freqLock.Lock()
-	defer this.freqLock.Unlock()
-	key, err := this.getApiKeyCache(apiKey)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	apiCounterP, err := this.getApiIdFreqCounter(apiId)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if key.UsedNum >= key.RequestLimit {
-		return nil, nil, fmt.Errorf("apikey: %s, useNum: %d, limit:%d", apiKey, key.UsedNum, key.RequestLimit)
-	}
-	if key.ApiId != apiId {
-		return nil, nil, fmt.Errorf("this apikey: %s can not invoke this api", apiKey)
-	}
-
-	key.UsedNum += 1
-	if !common.IsTestKey(apiKey) {
-		atomic.AddUint64(apiCounterP, 1)
-	}
-
-	return key, apiCounterP, nil
-}
-
 func (this *Nasa) Apod(apiKey string) ([]byte, error) {
-	key, apiCounterP, err := this.beforeCheckApiKey(apiKey, sagaconfig.APOD)
+	key, apiCounterP, err := this.Cache.BeforeCheckApiKey(apiKey, sagaconfig.APOD)
 	if err != nil {
 		return nil, err
 	}
@@ -102,13 +40,13 @@ func (this *Nasa) Apod(apiKey string) ([]byte, error) {
 		return nil, err
 	}
 
-	this.updateFreq <- apiKey
+	this.Cache.UpdateFreq <- apiKey
 
 	return res, nil
 }
 
 func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error) {
-	key, apiCounterP, err := this.beforeCheckApiKey(apiKey, sagaconfig.FEED)
+	key, apiCounterP, err := this.Cache.BeforeCheckApiKey(apiKey, sagaconfig.FEED)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +59,7 @@ func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error)
 		return nil, err
 	}
 
-	this.updateFreq <- apiKey
+	this.Cache.UpdateFreq <- apiKey
 	return res, nil
 }
 
@@ -137,36 +75,4 @@ func (this *Nasa) FeedParams(params []tables.RequestParam) ([]byte, error) {
 		return this.Feed(params[0].ValueDesc, params[1].ValueDesc, params[2].ValueDesc)
 	}
 	return nil, errors.New("Apod params error")
-}
-
-func (this *Nasa) getApiIdFreqCounter(ApiId uint32) (*uint64, error) {
-	apiCounterP, ok := this.apiFreqCache.Load(ApiId)
-	if !ok || apiCounterP == nil {
-		freq, err := dao.DefSagaApiDB.QueryInvokeFreByApiId(nil, ApiId)
-		if err != nil {
-			return nil, err
-		}
-		this.apiFreqCache.Store(ApiId, &freq)
-		return &freq, nil
-	} else {
-		return apiCounterP.(*uint64), nil
-	}
-}
-
-func (this *Nasa) getApiKeyCache(apiKey string) (*tables.APIKey, error) {
-	keyIn, ok := this.apiKeyCache.Load(apiKey)
-	if !ok || keyIn == nil {
-		key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(nil, apiKey)
-		if err != nil {
-			return nil, err
-		}
-		this.apiKeyCache.Store(apiKey, key)
-		return key, nil
-	} else {
-		return keyIn.(*tables.APIKey), nil
-	}
-}
-
-func (this *Nasa) updateApiKeyInvokeFre(key *tables.APIKey, freqCounter uint64) error {
-	return dao.DefSagaApiDB.UpdateApiKeyInvokeFre(nil, key.ApiKey, key.ApiId, key.UsedNum, freqCounter)
 }
