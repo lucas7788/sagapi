@@ -6,6 +6,7 @@ import (
 	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/dao"
+	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/restful/api/common"
 	"strconv"
 )
@@ -78,8 +79,13 @@ func SearchApiByKey(c *gin.Context) {
 		return
 	}
 	//todo key.Key should not have sql statement
+	var infonil []*tables.ApiBasicInfo
 	infos, err := dao.DefSagaApiDB.SearchApiByKey(key.Key)
-	if err != nil {
+	if err != nil && dao.IsErrNoRows(err) {
+		// empty
+		common.WriteResponse(c, common.ResponseSuccess(infonil))
+		return
+	} else if err != nil {
 		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
@@ -95,12 +101,15 @@ func SearchApiByCategoryId(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
+
 	infos, err := core.DefSagaApi.SearchApiIdByCategoryId(param.CategoryId, param.PageNum, param.PageSize)
 	if err != nil {
-		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
+		log.Errorf("[SearchApiByCategoryId] SearchApiByKey error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
+
+	log.Debugf("SearchApiByCategoryId: num %d", len(infos))
 	common.WriteResponse(c, common.ResponseSuccess(infos))
 }
 

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func IsNoEltError(err error) bool {
+func IsErrNoRows(err error) bool {
 	if err == sql.ErrNoRows {
 		return true
 	}
@@ -68,7 +68,7 @@ func (this *SagaApiDB) InsertApiBasicInfo(tx *sqlx.Tx, infos []*tables.ApiBasicI
 
 func (this *SagaApiDB) QueryApiBasicInfoByApiId(tx *sqlx.Tx, apiId uint32) (*tables.ApiBasicInfo, error) {
 	var err error
-	strSql := `select * from tbl_api_basic_info where ApiId =?`
+	strSql := `select * from tbl_api_basic_info where ApiId=?`
 
 	info := &tables.ApiBasicInfo{}
 	err = this.Get(tx, info, strSql, apiId)
@@ -128,6 +128,7 @@ func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, st
 	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
@@ -183,32 +184,31 @@ func (this *SagaApiDB) QueryRequestParamByApiId(tx *sqlx.Tx, apiId uint32) ([]*t
 	return params, nil
 }
 
-func (this *SagaApiDB) InsertErrorCode(params []*tables.ErrorCode) error {
+// unit test none.
+func (this *SagaApiDB) InsertErrorCode(tx *sqlx.Tx, params []*tables.ErrorCode) error {
 	if len(params) == 0 {
 		return nil
 	}
 	sqlStrArr := make([]string, len(params))
 	for i, param := range params {
-		sqlStrArr[i] = fmt.Sprintf("('%d','%d','%s')",
-			param.ApiId, param.ErrorCode, param.ErrorDesc)
+		sqlStrArr[i] = fmt.Sprintf("('%d','%s')",
+			param.ErrorCode, param.ErrorDesc)
 	}
-	strSql := `insert into tbl_error_code (ApiId,ErrorCode,ErrorDesc) values`
+	strSql := `insert into tbl_error_code (ErrorCode,ErrorDesc) values`
 	strSql += strings.Join(sqlStrArr, ",")
-	_, err := this.DB.Exec(strSql)
-	if err != nil {
-		return err
-	}
-	return nil
+	err := this.Exec(tx, strSql)
+	return err
 }
 
-func (this *SagaApiDB) QueryErrorCodeByApiDetailId(id uint32) ([]*tables.ErrorCode, error) {
-	strSql := `select * from tbl_error_code where ApiId=?`
+// unit test none.
+func (this *SagaApiDB) QueryErrorCode(tx *sqlx.Tx) ([]*tables.ErrorCode, error) {
+	strSql := `select * from tbl_error_code`
 	var params []*tables.ErrorCode
-	err := this.DB.Select(&params, strSql, id)
+	err := this.Select(tx, &params, strSql)
 	return params, err
 }
 
-func (this *SagaApiDB) InsertSpecifications(params []*tables.Specifications) error {
+func (this *SagaApiDB) InsertSpecifications(tx *sqlx.Tx, params []*tables.Specifications) error {
 	if len(params) == 0 {
 		return nil
 	}
@@ -219,52 +219,48 @@ func (this *SagaApiDB) InsertSpecifications(params []*tables.Specifications) err
 	}
 	strSql := `insert into tbl_specifications (ApiId,Price,Amount) values`
 	strSql += strings.Join(sqlStrArr, ",")
-	_, err := this.DB.Exec(strSql)
-	if err != nil {
-		return err
-	}
-	return nil
+	err := this.Exec(tx, strSql)
+	return err
 }
 
-func (this *SagaApiDB) QuerySpecificationsById(id uint32) (*tables.Specifications, error) {
+func (this *SagaApiDB) QuerySpecificationsById(tx *sqlx.Tx, id uint32) (*tables.Specifications, error) {
 	strSql := `select * from tbl_specifications where Id=?`
 	ss := &tables.Specifications{}
-	err := this.DB.Get(ss, strSql, id)
-	return ss, err
+	err := this.Get(tx, ss, strSql, id)
+	if err != nil {
+		return nil, err
+	}
+	return ss, nil
 }
 
-func (this *SagaApiDB) QuerySpecificationsByApiDetailId(id uint32) ([]*tables.Specifications, error) {
+func (this *SagaApiDB) QuerySpecificationsByApiId(tx *sqlx.Tx, apiId uint32) ([]*tables.Specifications, error) {
 	strSql := `select * from tbl_specifications where ApiId=?`
 	var ss []*tables.Specifications
-	err := this.DB.Select(&ss, strSql, id)
-	return ss, err
+	err := this.Select(tx, &ss, strSql, apiId)
+	if err != nil {
+		return nil, err
+	}
+	return ss, nil
 }
 
-//dependent on orderId
-func (this *SagaApiDB) InsertApiKey(key *tables.APIKey) error {
+//dependent on orderId.
+func (this *SagaApiDB) InsertApiKey(tx *sqlx.Tx, key *tables.APIKey) error {
 	strSql := `insert into tbl_api_key (ApiKey,OrderId, ApiId, RequestLimit, UsedNum, OntId) values (?,?,?,?,?,?)`
-
-	_, err := this.DB.Exec(strSql, key.ApiKey, key.OrderId, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
-	if err != nil {
-		return err
-	}
-	return nil
+	err := this.Exec(tx, strSql, key.ApiKey, key.OrderId, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
+	return err
 }
 
-//dependent on orderId
-func (this *SagaApiDB) InsertApiTestKey(key *tables.APIKey) error {
+//dependent on orderId. use default.
+func (this *SagaApiDB) InsertApiTestKey(tx *sqlx.Tx, key *tables.APIKey) error {
 	strSql := `insert into tbl_api_test_key (ApiKey, ApiId, RequestLimit, UsedNum, OntId) values (?,?,?,?,?)`
-	_, err := this.DB.Exec(strSql, key.ApiKey, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
-	if err != nil {
-		return err
-	}
-	return nil
+	err := this.Exec(tx, strSql, key.ApiKey, key.ApiId, key.RequestLimit, key.UsedNum, key.OntId)
+	return err
 }
 
-func (this *SagaApiDB) QueryInvokeFreByApiId(apiId uint32) (uint64, error) {
+func (this *SagaApiDB) QueryInvokeFreByApiId(tx *sqlx.Tx, apiId uint32) (uint64, error) {
 	var freq uint64
 	strSql := `select InvokeFrequency from tbl_api_basic_info where ApiId =?`
-	err := this.DB.Get(freq, strSql, apiId)
+	err := this.Get(tx, freq, strSql, apiId)
 	if err != nil {
 		return 0, err
 	}
@@ -272,21 +268,24 @@ func (this *SagaApiDB) QueryInvokeFreByApiId(apiId uint32) (uint64, error) {
 	return freq, nil
 }
 
-func (this *SagaApiDB) QueryApiKeyByApiKey(apiKey string) (*tables.APIKey, error) {
-	return this.queryApiKey(apiKey, "")
+func (this *SagaApiDB) QueryApiKeyByApiKey(tx *sqlx.Tx, apiKey string) (*tables.APIKey, error) {
+	return this.queryApiKey(tx, apiKey, "")
 }
-func (this *SagaApiDB) QueryApiKeyByOrderId(orderId string) (*tables.APIKey, error) {
-	return this.queryApiKey("", orderId)
+func (this *SagaApiDB) QueryApiKeyByOrderId(tx *sqlx.Tx, orderId string) (*tables.APIKey, error) {
+	return this.queryApiKey(tx, "", orderId)
 }
 
-func (this *SagaApiDB) QueryApiTestKeyByOntidAndApiId(ontid string, apiId uint32) (*tables.APIKey, error) {
+func (this *SagaApiDB) QueryApiTestKeyByOntidAndApiId(tx *sqlx.Tx, ontid string, apiId uint32) (*tables.APIKey, error) {
 	strSql := "select * from tbl_api_test_key where OntId=? and ApiId=?"
 	key := &tables.APIKey{}
-	err := this.DB.Get(key, strSql, ontid, apiId)
-	return key, err
+	err := this.Get(tx, key, strSql, ontid, apiId)
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
 }
 
-func (this *SagaApiDB) queryApiKey(key, orderId string) (*tables.APIKey, error) {
+func (this *SagaApiDB) queryApiKey(tx *sqlx.Tx, key, orderId string) (*tables.APIKey, error) {
 	var strSql string
 	var where string
 	if key != "" {
@@ -301,36 +300,24 @@ func (this *SagaApiDB) queryApiKey(key, orderId string) (*tables.APIKey, error) 
 		strSql = "select * from tbl_api_key where OrderId=?"
 		where = orderId
 	}
+
 	k := &tables.APIKey{}
-	err := this.DB.Get(k, strSql, where)
+	err := this.Get(tx, k, strSql, where)
 	if err != nil {
 		return nil, err
 	}
 	return k, nil
 }
 
-func (this *SagaApiDB) VerifyApiKey(apiKey string) error {
-	key, err := this.QueryApiKeyByApiKey(apiKey)
-	if err != nil {
-		return err
-	}
-	if key == nil {
-		return fmt.Errorf("invalid api key: %s", apiKey)
-	}
-	if key.UsedNum >= key.RequestLimit {
-		return fmt.Errorf("available times:%d, has used times: %d", key.RequestLimit, key.UsedNum)
-	}
-	return nil
-}
-
-func (this *SagaApiDB) UpdateApiKeyInvokeFre(apiKey string, apiId uint32, usedNum, invokeFre uint64) error {
+func (this *SagaApiDB) UpdateApiKeyInvokeFre(tx *sqlx.Tx, apiKey string, apiId uint32, usedNum, invokeFre uint64) error {
 	var strSql string
 	if common.IsTestKey(apiKey) {
+		// here no need update invokefreq.
 		strSql = "update tbl_api_test_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
 	} else {
 		strSql = "update tbl_api_key k,tbl_api_basic_info i set k.UsedNum=?,i.InvokeFrequency=? where k.ApiKey=? and i.ApiId=?"
 	}
 
-	_, err := this.DB.Exec(strSql, usedNum, invokeFre, apiKey, apiId)
+	err := this.Exec(tx, strSql, usedNum, invokeFre, apiKey, apiId)
 	return err
 }

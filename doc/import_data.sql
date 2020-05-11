@@ -38,11 +38,9 @@ insert into tbl_request_param (ApiId,ParamName,ParamType,ParamWhere,Required,Not
 insert into tbl_request_param (ApiId,ParamName,ParamType,ParamWhere,Required,Note,ValueDesc) values (2,'startDate','string',2,true,'2016-06-06','');
 insert into tbl_request_param (ApiId,ParamName,ParamType,ParamWhere,Required,Note,ValueDesc) values (2,'endDate','string',2,true,'2016-06-07 (Specified time interval must not exceed 7 days)','');
 insert into tbl_request_param (ApiId,ParamName,ParamType,ParamWhere,Required,Note,ValueDesc) values (2,'apiKey','string',2,true,'90b169de-f99f-4eb6-ad07-0653d1df1f8f','');
-insert into tbl_error_code (ApiId,ErrorCode,ErrorDesc) values (1,40001,'inter error');
-insert into tbl_error_code (ApiId,ErrorCode,ErrorDesc) values (1,40005,'api key is nil');
-insert into tbl_error_code (ApiId,ErrorCode,ErrorDesc) values (2,40001,'inter error');
-insert into tbl_error_code (ApiId,ErrorCode,ErrorDesc) values (2,40002,'param error');
-insert into tbl_error_code (ApiId,ErrorCode,ErrorDesc) values (2,40005,'api key is nil');
+insert into tbl_error_code (ErrorCode,ErrorDesc) values (40001,'inter error');
+insert into tbl_error_code (ErrorCode,ErrorDesc) values (40002,'param error');
+insert into tbl_error_code (ErrorCode,ErrorDesc) values (40005,'api key is nil');
 insert into tbl_api_tag (ApiId, TagId,state) values (1,10,1);
 insert into tbl_api_tag (ApiId, TagId,state) values (2,10,1);
 insert into tbl_specifications (ApiId,Price,Amount) values (1,'0',500);

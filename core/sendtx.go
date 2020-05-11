@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/ontology/core/types"
@@ -33,42 +34,59 @@ func SendTX(param *common2.SendTxParam) error {
 	if err != nil {
 		return err
 	}
-	orderId, err := dao.DefSagaApiDB.QueryOrderIdByQrCodeId(param.ExtraData.Id)
+
+	txdb, errl := dao.DefSagaApiDB.DB.Beginx()
+	if errl != nil {
+		return errl
+	}
+
+	defer func() {
+		if errl != nil {
+			txdb.Rollback()
+		}
+	}()
+
+	orderId, err := dao.DefSagaApiDB.QueryOrderIdByQrCodeId(nil, param.ExtraData.Id)
 	if err != nil {
 		return err
 	}
 	err = verifyTx(hash.ToHexString())
 	if err != nil {
 		log.Errorf("verifyTx failed: %s", err)
-		err2 := dao.DefSagaApiDB.UpdateTxInfoByOrderId(orderId, "", sagaconfig.Failed)
+		err2 := dao.DefSagaApiDB.UpdateTxInfoByOrderId(txdb, orderId, "", sagaconfig.Failed)
 		if err2 != nil {
+			errl = err2
 			return err2
 		}
 		return err
 	}
-	err = generateApiKey(orderId, param.Signer)
+	err = generateApiKey(txdb, orderId, param.Signer)
 	if err != nil {
+		errl = err
 		return err
 	}
-	err = dao.DefSagaApiDB.UpdateTxInfoByOrderId(orderId, hash.ToHexString(), sagaconfig.Completed)
+	err = dao.DefSagaApiDB.UpdateTxInfoByOrderId(txdb, orderId, hash.ToHexString(), sagaconfig.Completed)
 	if err != nil {
+		errl = err
 		return err
 	}
-	return nil
+	err = txdb.Commit()
+	errl = err
+	return err
 }
 
-func generateApiKey(orderId, ontId string) error {
-	order, err := dao.DefSagaApiDB.QueryOrderByOrderId(orderId)
+func generateApiKey(tx *sqlx.Tx, orderId, ontId string) error {
+	order, err := dao.DefSagaApiDB.QueryOrderByOrderId(tx, orderId)
 	if err != nil {
 		return err
 	}
 
-	spec, err := dao.DefSagaApiDB.QuerySpecificationsById(order.SpecificationsId)
+	spec, err := dao.DefSagaApiDB.QuerySpecificationsById(tx, order.SpecificationsId)
 	if err != nil {
 		return err
 	}
 
-	id := common2.GenerateUUId()
+	id := common2.GenerateUUId(common2.UUID_TYPE_RAW)
 	apiKey := &tables.APIKey{
 		OrderId:      orderId,
 		ApiKey:       id,
@@ -77,7 +95,7 @@ func generateApiKey(orderId, ontId string) error {
 		UsedNum:      0,
 		OntId:        ontId,
 	}
-	return dao.DefSagaApiDB.InsertApiKey(apiKey)
+	return dao.DefSagaApiDB.InsertApiKey(tx, apiKey)
 }
 
 func verifyTx(txHash string) error {

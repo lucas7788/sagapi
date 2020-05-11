@@ -80,8 +80,19 @@ func (this *SagaApiDB) InsertTag(tx *sqlx.Tx, Tag *tables.Tag) error {
 	return err
 }
 
+func (this *SagaApiDB) QueryTagByNameId(tx *sqlx.Tx, categoryId uint32, name string) (*tables.Tag, error) {
+	var res tables.Tag
+	strSql := `select * from tbl_tag where CategoryId=? and Name=?`
+	err := this.Get(tx, &res, strSql, categoryId, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 func (this *SagaApiDB) InsertCategory(tx *sqlx.Tx, cat *tables.Category) error {
-	sqlStr := `insert into tbl_tag (NameZh, NameEn,Icon,State) values (?,?,?,?)`
+	sqlStr := `insert into tbl_category (NameZh, NameEn,Icon,State) values (?,?,?,?)`
 	err := this.Exec(tx, sqlStr, cat.NameZh, cat.NameEn, cat.Icon, cat.State)
 	return err
 }

@@ -24,13 +24,26 @@ func NewSagaOrder() *SagaOrder {
 }
 
 func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResponse, error) {
-	info, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(param.ApiId)
+	tx, errl := dao.DefSagaApiDB.DB.Beginx()
+	if errl != nil {
+		return nil, errl
+	}
+
+	defer func() {
+		if errl != nil {
+			tx.Rollback()
+		}
+	}()
+
+	info, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(tx, param.ApiId)
 	if err != nil {
+		errl = err
 		return nil, err
 	}
 
-	spec, err := dao.DefSagaApiDB.QuerySpecificationsById(param.SpecificationsId)
+	spec, err := dao.DefSagaApiDB.QuerySpecificationsById(tx, param.SpecificationsId)
 	if err != nil {
+		errl = err
 		return nil, err
 	}
 
@@ -38,7 +51,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	specifications := new(big.Int).SetUint64(uint64(spec.Amount))
 	amount := new(big.Int).Mul(price, specifications)
 	amountStr := utils.ToStringByPrecise(amount, sagaconfig.ONG_DECIMALS)
-	orderId := common.GenerateUUId()
+	orderId := common.GenerateUUId(common.UUID_TYPE_RAW)
 	order := &tables.Order{
 		OrderId:          orderId,
 		Title:            info.Title,
@@ -55,20 +68,34 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 		SpecificationsId: param.SpecificationsId,
 		Coin:             sagaconfig.TOKEN_TYPE_ONG,
 	}
-	err = dao.DefSagaApiDB.InsertOrder(order)
+	err = dao.DefSagaApiDB.InsertOrder(tx, order)
 	if err != nil {
+		errl = err
 		return nil, err
 	}
 	arr := strings.Split(param.OntId, ":")
 	if len(arr) < 3 {
-		return nil, fmt.Errorf("error ontid: %s", param.OntId)
+		errl = fmt.Errorf("error ontid: %s", param.OntId)
+		return nil, errl
 	}
-	code := common.BuildQrCode(orderId, param.OntId, arr[2], arr[2], sagaconfig.DefSagaConfig.Collect_Money_Address, amountStr)
-	//this.qrCodeCache.Store(code.QrCodeId, code)
-	err = dao.DefSagaApiDB.InsertQrCode(code)
+	code, err := common.BuildQrCode(orderId, param.OntId, arr[2], arr[2], sagaconfig.DefSagaConfig.Collect_Money_Address, amountStr)
 	if err != nil {
+		errl = err
 		return nil, err
 	}
+	//this.qrCodeCache.Store(code.QrCodeId, code)
+	err = dao.DefSagaApiDB.InsertQrCode(tx, code)
+	if err != nil {
+		errl = err
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		errl = err
+		return nil, err
+	}
+
 	return common.BuildQrCodeResponse(code.QrCodeId), nil
 }
 
@@ -79,23 +106,23 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 	if pageSize < 0 {
 		pageSize = 0
 	}
-	total, err := dao.DefSagaApiDB.QueryOrderSum(ontid)
+	total, err := dao.DefSagaApiDB.QueryOrderSum(nil, ontid)
 	if err != nil {
 		return nil, err
 	}
 	start := (pageNum - 1) * pageSize
-	orders, err := dao.DefSagaApiDB.QueryOrderByPage(start, pageSize, ontid)
+	orders, err := dao.DefSagaApiDB.QueryOrderByPage(nil, start, pageSize, ontid)
 	if err != nil {
 		return nil, err
 	}
 	res := make([]*common.OrderResult, len(orders))
 	for i, order := range orders {
-		apiKey, err := dao.DefSagaApiDB.QueryApiKeyByOrderId(order.OrderId)
-		if err != nil && !strings.Contains(err.Error(), "not found") {
+		apiKey, err := dao.DefSagaApiDB.QueryApiKeyByOrderId(nil, order.OrderId)
+		if err != nil && !dao.IsErrNoRows(err) {
 			return nil, err
 		}
 		if apiKey == nil {
-			spec, err := dao.DefSagaApiDB.QuerySpecificationsById(order.SpecificationsId)
+			spec, err := dao.DefSagaApiDB.QuerySpecificationsById(nil, order.SpecificationsId)
 			if err != nil {
 				return nil, err
 			}
@@ -131,59 +158,126 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 
 //every time generate new qrcode
 func (this *SagaOrder) GetQrCodeByOrderId(ontId, orderId string) (*common.QrCodeResponse, error) {
+	tx, err := dao.DefSagaApiDB.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	var errl error
+	defer func() {
+		if errl != nil {
+			tx.Rollback()
+		}
+	}()
+
 	arr := strings.Split(ontId, ":")
 	if len(arr) != 3 {
 		return nil, fmt.Errorf("error ontId: %s", ontId)
 	}
-	order, err := dao.DefSagaApiDB.QueryOrderByOrderId(orderId)
+	order, err := dao.DefSagaApiDB.QueryOrderByOrderId(tx, orderId)
 	if err != nil {
+		errl = err
 		return nil, err
 	}
-	code := common.BuildQrCode(orderId, ontId, arr[2], arr[2], sagaconfig.DefSagaConfig.Collect_Money_Address, order.Amount)
-	err = dao.DefSagaApiDB.InsertQrCode(code)
+	code, err := common.BuildQrCode(orderId, ontId, arr[2], arr[2], sagaconfig.DefSagaConfig.Collect_Money_Address, order.Amount)
+	err = dao.DefSagaApiDB.InsertQrCode(tx, code)
 	if err != nil {
+		errl = err
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		errl = err
 		return nil, err
 	}
 	return common.BuildQrCodeResponse(code.QrCodeId), nil
 }
 
 func (this *SagaOrder) GetQrCodeDataById(id string) (*tables.QrCode, error) {
-	return dao.DefSagaApiDB.QueryQrCodeByQrCodeId(id)
+	return dao.DefSagaApiDB.QueryQrCodeByQrCodeId(nil, id)
 }
 func (this *SagaOrder) GetQrCodeResultById(id string) (string, error) {
-	return dao.DefSagaApiDB.QueryQrCodeResultByQrCodeId(id)
+	return dao.DefSagaApiDB.QueryQrCodeResultByQrCodeId(nil, id)
 }
 
 //1. delete qrCodeId
 //2. cancel order
 func (this *SagaOrder) CancelOrder(orderId string) error {
-	status, err := dao.DefSagaApiDB.QueryOrderStatusByOrderId(orderId)
+	tx, err := dao.DefSagaApiDB.DB.Beginx()
 	if err != nil {
+		return err
+	}
+
+	var errl error
+	defer func() {
+		if errl != nil {
+			tx.Rollback()
+		}
+	}()
+
+	status, err := dao.DefSagaApiDB.QueryOrderStatusByOrderId(tx, orderId)
+	if err != nil {
+		errl = err
 		return err
 	}
 	if status == sagaconfig.Processing {
 		//delete qrCodeId
-		err = dao.DefSagaApiDB.DeleteQrCodeByOrderId(orderId)
+		err = dao.DefSagaApiDB.DeleteQrCodeByOrderId(tx, orderId)
 		if err != nil {
+			errl = err
 			return err
 		}
-		return dao.DefSagaApiDB.UpdateOrderStatus(orderId, sagaconfig.Canceled)
+		err = dao.DefSagaApiDB.UpdateOrderStatus(tx, orderId, sagaconfig.Canceled)
+		if err != nil {
+			errl = err
+			return err
+		}
+
+		errl = tx.Commit()
+		if errl != nil {
+			return errl
+		}
 	}
-	return fmt.Errorf("only processing order can be canceled")
+
+	errl = fmt.Errorf("only processing order can be canceled")
+	return errl
 }
 
 //1. delete qrCodeId
 //2. cancel order
 func (this *SagaOrder) DeleteOrderByOrderId(orderId string) error {
-	err := dao.DefSagaApiDB.DeleteQrCodeByOrderId(orderId)
+	tx, errl := dao.DefSagaApiDB.DB.Beginx()
+	if errl != nil {
+		return errl
+	}
+
+	defer func() {
+		if errl != nil {
+			tx.Rollback()
+		}
+	}()
+
+	err := dao.DefSagaApiDB.DeleteQrCodeByOrderId(tx, orderId)
 	if err != nil {
+		errl = err
 		return err
 	}
-	return dao.DefSagaApiDB.DeleteOrderByOrderId(orderId)
+	err = dao.DefSagaApiDB.DeleteOrderByOrderId(tx, orderId)
+	if err != nil {
+		errl = err
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		errl = err
+		return err
+	}
+	return nil
 }
 
 func (this *SagaOrder) GetTxResult(orderId string) (*common.GetOrderResponse, error) {
-	order, err := dao.DefSagaApiDB.QueryOrderByOrderId(orderId)
+	order, err := dao.DefSagaApiDB.QueryOrderByOrderId(nil, orderId)
 	if err != nil {
 		return nil, err
 	}

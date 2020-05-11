@@ -100,8 +100,8 @@ func TestApiDB_TmpInsert(t *testing.T) {
 		info := &tables.ApiBasicInfo{
 			Icon:                "",
 			Title:               "mytestasd",
-			ApiProvider:         common.GenerateUUId(),
-			ApiSagaUrlKey:       common.GenerateUUId(),
+			ApiProvider:         common.GenerateUUId(1),
+			ApiSagaUrlKey:       common.GenerateUUId(1),
 			ApiUrl:              "",
 			Price:               "",
 			ApiDesc:             "",
@@ -110,10 +110,10 @@ func TestApiDB_TmpInsert(t *testing.T) {
 			Delay:               0,
 			SuccessRate:         0,
 			InvokeFrequency:     0,
-			ApplicationScenario: common.GenerateUUId(),
+			ApplicationScenario: common.GenerateUUId(1),
 		}
 
-		info.ApiProvider = common.GenerateUUId()
+		info.ApiProvider = common.GenerateUUId(1)
 		infos[i] = info
 	}
 	err = TestDB.InsertApiBasicInfo(nil, infos)
@@ -150,6 +150,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	paramResult, err := TestDB.QueryRequestParamByApiId(tx, infoResult.ApiId)
 	assert.Nil(t, err)
 	assert.Equal(t, params.ValueDesc, paramResult[0].ValueDesc)
+	assert.Equal(t, params.Required, paramResult[0].Required)
 
 	//TestDB.InsertTag
 

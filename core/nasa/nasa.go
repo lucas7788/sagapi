@@ -142,7 +142,7 @@ func (this *Nasa) FeedParams(params []tables.RequestParam) ([]byte, error) {
 func (this *Nasa) getApiIdFreqCounter(ApiId uint32) (*uint64, error) {
 	apiCounterP, ok := this.apiFreqCache.Load(ApiId)
 	if !ok || apiCounterP == nil {
-		freq, err := dao.DefSagaApiDB.QueryInvokeFreByApiId(ApiId)
+		freq, err := dao.DefSagaApiDB.QueryInvokeFreByApiId(nil, ApiId)
 		if err != nil {
 			return nil, err
 		}
@@ -156,7 +156,7 @@ func (this *Nasa) getApiIdFreqCounter(ApiId uint32) (*uint64, error) {
 func (this *Nasa) getApiKeyCache(apiKey string) (*tables.APIKey, error) {
 	keyIn, ok := this.apiKeyCache.Load(apiKey)
 	if !ok || keyIn == nil {
-		key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(apiKey)
+		key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(nil, apiKey)
 		if err != nil {
 			return nil, err
 		}
@@ -168,5 +168,5 @@ func (this *Nasa) getApiKeyCache(apiKey string) (*tables.APIKey, error) {
 }
 
 func (this *Nasa) updateApiKeyInvokeFre(key *tables.APIKey, freqCounter uint64) error {
-	return dao.DefSagaApiDB.UpdateApiKeyInvokeFre(key.ApiKey, key.ApiId, key.UsedNum, freqCounter)
+	return dao.DefSagaApiDB.UpdateApiKeyInvokeFre(nil, key.ApiKey, key.ApiId, key.UsedNum, freqCounter)
 }

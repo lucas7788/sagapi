@@ -2,48 +2,46 @@ package dao
 
 import (
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/sagaconfig"
 )
 
-func (this *SagaApiDB) InsertQrCode(code *tables.QrCode) error {
+func (this *SagaApiDB) InsertQrCode(tx *sqlx.Tx, code *tables.QrCode) error {
 	strSql := `insert into tbl_qr_code (QrCodeId,Ver, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,
 Chain,QrCodeDesc) values (?,?,?,?,?,?,?,?,?,?,?)`
 
-	_, err := this.DB.Exec(strSql, code.QrCodeId, code.Ver, code.OrderId, code.Requester, code.Signature, code.Signer,
+	err := this.Exec(tx, strSql, code.QrCodeId, code.Ver, code.OrderId, code.Requester, code.Signature, code.Signer,
 		code.QrCodeData, code.Callback, code.Exp, code.Chain, code.QrCodeDesc)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (this *SagaApiDB) DeleteQrCodeByOrderId(orderId string) error {
-	strSql := `delete from tbl_qr_code where OrderId=?`
-	_, err := this.DB.Exec(strSql, orderId)
 	return err
 }
 
-func (this *SagaApiDB) QueryOrderIdByQrCodeId(qrCodeId string) (string, error) {
-	code, err := this.QueryQrCodeByQrCodeId(qrCodeId)
+func (this *SagaApiDB) DeleteQrCodeByOrderId(tx *sqlx.Tx, orderId string) error {
+	strSql := `delete from tbl_qr_code where OrderId=?`
+	err := this.Exec(tx, strSql, orderId)
+	return err
+}
+
+func (this *SagaApiDB) QueryOrderIdByQrCodeId(tx *sqlx.Tx, qrCodeId string) (string, error) {
+	code, err := this.QueryQrCodeByQrCodeId(tx, qrCodeId)
 	if err != nil {
 		return "", err
 	}
 	return code.OrderId, nil
 }
 
-func (this *SagaApiDB) QueryQrCodeByOrderId(orderId string) (*tables.QrCode, error) {
-	return this.queryQrCodeById(orderId, "")
+func (this *SagaApiDB) QueryQrCodeByOrderId(tx *sqlx.Tx, orderId string) (*tables.QrCode, error) {
+	return this.queryQrCodeById(tx, orderId, "")
 }
 
-func (this *SagaApiDB) QueryQrCodeByQrCodeId(qrCodeId string) (*tables.QrCode, error) {
-	return this.queryQrCodeById("", qrCodeId)
+func (this *SagaApiDB) QueryQrCodeByQrCodeId(tx *sqlx.Tx, qrCodeId string) (*tables.QrCode, error) {
+	return this.queryQrCodeById(tx, "", qrCodeId)
 }
 
-func (this *SagaApiDB) QueryQrCodeResultByQrCodeId(qrCodeId string) (string, error) {
+func (this *SagaApiDB) QueryQrCodeResultByQrCodeId(tx *sqlx.Tx, qrCodeId string) (string, error) {
 	strSql := `select OrderStatus from tbl_order where OrderId=(select OrderId from tbl_qr_code where QrCodeId=?)`
 	var orderStatus uint8
-	err := this.DB.Get(&orderStatus, strSql, qrCodeId)
+	err := this.Get(tx, &orderStatus, strSql, qrCodeId)
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +60,7 @@ func (this *SagaApiDB) QueryQrCodeResultByQrCodeId(qrCodeId string) (string, err
 	return "", nil
 }
 
-func (this *SagaApiDB) queryQrCodeById(orderId, qrCodeId string) (*tables.QrCode, error) {
+func (this *SagaApiDB) queryQrCodeById(tx *sqlx.Tx, orderId, qrCodeId string) (*tables.QrCode, error) {
 	var strSql string
 	if orderId != "" {
 		strSql = `select QrCodeId,Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where OrderId=?`
@@ -77,7 +75,7 @@ func (this *SagaApiDB) queryQrCodeById(orderId, qrCodeId string) (*tables.QrCode
 		where = qrCodeId
 	}
 	qrCode := &tables.QrCode{}
-	err := this.DB.Get(qrCode, strSql, where)
+	err := this.Get(tx, qrCode, strSql, where)
 	if err != nil {
 		return nil, err
 	}

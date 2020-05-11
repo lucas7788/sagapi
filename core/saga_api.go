@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"errors"
 
 	"fmt"
@@ -28,31 +29,49 @@ func NewSagaApi() *SagaApi {
 }
 
 func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string) (*tables.APIKey, error) {
-	testKey, err := dao.DefSagaApiDB.QueryApiTestKeyByOntidAndApiId(ontid, apiId)
+	tx, errl := dao.DefSagaApiDB.DB.Beginx()
+	if errl != nil {
+		return nil, errl
+	}
+
+	defer func() {
+		if errl != nil {
+			tx.Rollback()
+		}
+	}()
+
+	testKey, err := dao.DefSagaApiDB.QueryApiTestKeyByOntidAndApiId(tx, ontid, apiId)
 	if err != nil {
+		errl = err
 		return nil, err
 	}
 
-	if err != nil && !dao.IsNoEltError(err) {
+	if err != nil && !dao.IsErrNoRows(err) {
+		errl = err
 		return nil, err
-	}
-	if testKey != nil {
+	} else if err != nil {
 		return testKey, nil
-	}
+	} else {
+		apiKey := &tables.APIKey{
+			ApiKey:       common.GenerateUUId(common.UUID_TYPE_TEST_API_KEY),
+			ApiId:        apiId,
+			RequestLimit: sagaconfig.DefRequestLimit,
+			UsedNum:      0,
+			OntId:        ontid,
+		}
+		err = dao.DefSagaApiDB.InsertApiTestKey(tx, apiKey)
+		if err != nil {
+			errl = err
+			return nil, err
+		}
 
-	key := "test_" + common.GenerateUUId()
-	apiKey := &tables.APIKey{
-		ApiKey:       key,
-		ApiId:        apiId,
-		RequestLimit: sagaconfig.DefRequestLimit,
-		UsedNum:      0,
-		OntId:        ontid,
+		err = tx.Commit()
+		if err != nil {
+			errl = err
+			return nil, err
+		}
+		return apiKey, nil
 	}
-	err = dao.DefSagaApiDB.InsertApiTestKey(apiKey)
-	if err != nil {
-		return nil, err
-	}
-	return apiKey, nil
 }
 
 func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
@@ -69,7 +88,7 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	}
 
 	apiTestKey := params[len(params)-1].ValueDesc
-	key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(apiTestKey)
+	key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(nil, apiTestKey)
 	if err != nil {
 		return nil, err
 	}
@@ -106,26 +125,26 @@ func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize uint32) (
 		pageSize = 10
 	}
 	start := (pageNum - 1) * pageSize
-	return dao.DefSagaApiDB.QueryApiBasicInfoByCategoryId(id, start, pageSize)
+	return dao.DefSagaApiDB.QueryApiBasicInfoByCategoryId(nil, id, start, pageSize)
 }
 
 func (this *SagaApi) QueryApiDetailInfoByApiId(apiId uint32) (*common.ApiDetailResponse, error) {
-	basicInfo, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(apiId)
+	basicInfo, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(nil, apiId)
 	if err != nil {
 		return nil, err
 	}
 
-	requestParam, err := dao.DefSagaApiDB.QueryRequestParamByApiDetailId(basicInfo.ApiId)
+	requestParam, err := dao.DefSagaApiDB.QueryRequestParamByApiId(nil, basicInfo.ApiId)
 	if err != nil {
 		return nil, err
 	}
 
-	errCode, err := dao.DefSagaApiDB.QueryErrorCodeByApiDetailId(basicInfo.ApiId)
+	errCode, err := dao.DefSagaApiDB.QueryErrorCode(nil)
 	if err != nil {
 		return nil, err
 	}
 
-	sp, err := dao.DefSagaApiDB.QuerySpecificationsByApiDetailId(basicInfo.ApiId)
+	sp, err := dao.DefSagaApiDB.QuerySpecificationsByApiId(nil, basicInfo.ApiId)
 	if err != nil {
 		return nil, err
 	}
@@ -151,9 +170,128 @@ func (this *SagaApi) SearchApiIdByCategoryId(categoryId, pageNum, pageSize uint3
 		pageNum = 1
 	}
 	start := (pageNum - 1) * pageSize
-	return dao.DefSagaApiDB.QueryApiBasicInfoByCategoryId(categoryId, start, pageSize)
+	return dao.DefSagaApiDB.QueryApiBasicInfoByCategoryId(nil, categoryId, start, pageSize)
 }
 
 func (this *SagaApi) SearchApi() (map[string][]*tables.ApiBasicInfo, error) {
-	return dao.DefSagaApiDB.SearchApi()
+	return dao.DefSagaApiDB.SearchApi(nil)
+}
+
+type PublishErrorCode struct {
+	Code int32  `json:"code"`
+	Desc string `json:"description"`
+}
+
+type PublishAPI struct {
+	Name            string                  `json:"name"`
+	Desc            string                  `json:"description"`
+	RequestType     string                  `json:"requestType"`
+	ApiProvider     string                  `json:"apiProvider"`
+	DataSource      string                  `json:"dataSource"`
+	ResponseExample string                  `json:"responseExample"`
+	Tags            []tables.Tag            `json:"tags"`
+	ErrorCodes      []PublishErrorCode      `json:"errorCodes"`
+	Params          []tables.RequestParam   `json:"params"`
+	Specs           []tables.Specifications `json:"specifications"`
+}
+
+func PublishAPIHandleCore(param *PublishAPI) error {
+	// handle error
+	errorDesc, err := json.Marshal(param.ErrorCodes)
+	if err != nil {
+		return err
+	}
+
+	if len(param.Tags) > 100 || len(param.Params) > 100 || len(param.Specs) > 100 || len(param.ErrorCodes) > 100 {
+		return err
+	}
+
+	tags := make([]*tables.Tag, 0)
+
+	for _, tag := range param.Tags {
+		t, err := dao.DefSagaApiDB.QueryTagByNameId(nil, tag.CategoryId, tag.Name)
+		if err != nil {
+			return err
+		}
+		tags = append(tags, t)
+	}
+
+	apibasic := &tables.ApiBasicInfo{
+		Coin:            "ONG",
+		Title:           param.Name,
+		ApiProvider:     param.ApiProvider,
+		ApiSagaUrlKey:   common.GenerateUUId(common.UUID_TYPE_SAGA_URL),
+		ApiDesc:         param.Desc,
+		ApiState:        tables.API_STATE_PUBLISH,
+		ErrorDesc:       string(errorDesc),
+		RequestType:     param.RequestType,
+		ResponseExample: param.ResponseExample,
+		DataSource:      param.DataSource,
+	}
+
+	tx, errl := dao.DefSagaApiDB.DB.Beginx()
+	if errl != nil {
+		return err
+	}
+
+	defer func() {
+		if errl != nil {
+			tx.Rollback()
+		}
+	}()
+
+	err = dao.DefSagaApiDB.InsertApiBasicInfo(tx, []*tables.ApiBasicInfo{apibasic})
+	if err != nil {
+		errl = err
+		return err
+	}
+
+	info, err := dao.DefSagaApiDB.QueryApiBasicInfoBySagaUrlKey(tx, apibasic.ApiSagaUrlKey)
+	if err != nil {
+		errl = err
+		return err
+	}
+	// tag handle
+
+	for _, apiTag := range tags {
+		tag := &tables.ApiTag{
+			ApiId: info.ApiId,
+			TagId: apiTag.Id,
+			State: byte(1),
+		}
+		err = dao.DefSagaApiDB.InsertApiTag(tx, tag)
+		if err != nil {
+			errl = err
+			//common.WriteResponse(c, common.ResponseFailed(common.SQL_ERROR, err))
+			return err
+		}
+	}
+
+	// handle param
+	for _, p := range param.Params {
+		p.ApiId = info.ApiId
+		err := dao.DefSagaApiDB.InsertRequestParam(tx, []*tables.RequestParam{&p})
+		if err != nil {
+			errl = err
+			return err
+		}
+	}
+
+	// spec handle.
+	for _, s := range param.Specs {
+		s.ApiId = info.ApiId
+		err := dao.DefSagaApiDB.InsertSpecifications(tx, []*tables.Specifications{&s})
+		if err != nil {
+			errl = err
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		errl = err
+		return err
+	}
+
+	return nil
 }

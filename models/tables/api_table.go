@@ -90,7 +90,6 @@ type RequestParam struct {
 
 type ErrorCode struct {
 	Id        uint32 `json:"id" db:"Id"`
-	ApiId     uint32 `json:"apiId" db:"ApiId"`
 	ErrorCode int32  `json:"errorCode" db:"ErrorCode"`
 	ErrorDesc string `json:"errorDesc" db:"ErrorDesc"`
 }

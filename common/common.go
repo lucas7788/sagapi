@@ -3,7 +3,6 @@ package common
 import (
 	"encoding/json"
 	"github.com/ontio/ontology/common"
-	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/sagaconfig"
@@ -13,13 +12,33 @@ import (
 	"time"
 )
 
-func GenerateUUId() string {
+const (
+	TEST_APIKEY_PREFIX string = "test"
+	SAGA_URL_PREFIX    string = "sagaurl"
+)
+
+const (
+	UUID_TYPE_RAW          int32 = 1
+	UUID_TYPE_TEST_API_KEY int32 = 2
+	UUID_TYPE_SAGA_URL     int32 = 3
+)
+
+func GenerateUUId(uuidType int32) string {
 	u1 := uuid.Must(uuid.NewV4())
+	switch uuidType {
+	case UUID_TYPE_RAW:
+		return u1.String()
+	case UUID_TYPE_TEST_API_KEY:
+		return TEST_APIKEY_PREFIX + u1.String()
+	case UUID_TYPE_SAGA_URL:
+		return SAGA_URL_PREFIX + u1.String()
+	}
+
 	return u1.String()
 }
 
 func IsTestKey(apiKey string) bool {
-	return strings.Contains(apiKey, "test")
+	return strings.Contains(apiKey, TEST_APIKEY_PREFIX)
 }
 
 func BuildQrCodeResponse(id string) *QrCodeResponse {
@@ -31,11 +50,11 @@ func BuildQrCodeResponse(id string) *QrCodeResponse {
 	}
 }
 
-func BuildQrCode(orderId, ontid, payer, from, to, value string) *tables.QrCode {
+func BuildQrCode(orderId, ontid, payer, from, to, value string) (*tables.QrCode, error) {
 	return buildQrCode(sagaconfig.DefSagaConfig.NetType, orderId, ontid, payer, from, to, value)
 }
 
-func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.QrCode {
+func buildQrCode(chain, orderId, ontid, payer, from, to, value string) (*tables.QrCode, error) {
 	exp := time.Now().Unix() + sagaconfig.QrCodeExp
 	amt := utils.ToIntByPrecise(value, sagaconfig.ONG_DECIMALS)
 	data := &models.QrCodeData{
@@ -70,13 +89,12 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 	}
 	databs, err := json.Marshal(data)
 	if err != nil {
-		//TODO
+		return nil, err
 	}
-	log.Errorf("qrdata length: %d", len(databs))
-	id := GenerateUUId()
+	id := GenerateUUId(UUID_TYPE_RAW)
 	sig, err := sagaconfig.DefSagaConfig.OntIdAccount.Sign(databs)
 	if err != nil {
-
+		return nil, err
 	}
 	return &tables.QrCode{
 		Ver:        "1.0.0",
@@ -90,5 +108,5 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) *tables.Q
 		Exp:        exp,
 		Chain:      chain,
 		QrCodeDesc: "",
-	}
+	}, nil
 }

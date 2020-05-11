@@ -106,14 +106,10 @@ create table tbl_request_param (
 
 create table tbl_error_code (
   Id INT NOT NULL AUTO_INCREMENT COMMENT '主键',
-  ApiId INT NOT NULL,
   ErrorCode INT NOT NULL,
-  ErrorDesc varchar(50) NOT NULL DEFAULT '',
-  PRIMARY KEY (Id),
-  CONSTRAINT FK_error_code_id FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId),
-  INDEX(ApiId)
+  ErrorDesc varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (Id)
 )DEFAULT charset=utf8;
-
 
 create table tbl_order (
   OrderId varchar(100) unique NOT NULL COMMENT '',
@@ -157,6 +153,7 @@ create table tbl_api_test_key (
   Id INT NOT NULL AUTO_INCREMENT COMMENT '主键',
   ApiKey varchar(50) unique NOT NULL  DEFAULT '',
   ApiId INT NOT NULL,
+  OrderId varchar(20) NOT NULL DEFAULT 'TST_ORDER' COMMENT '',
   RequestLimit BIGINT NOT NULL DEFAULT 0,
   UsedNum BIGINT NOT NULL DEFAULT 0,
   OntId varchar(50) NOT NULL DEFAULT '',
