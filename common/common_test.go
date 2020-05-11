@@ -18,7 +18,7 @@ func TestBuildApiBasicInfo(t *testing.T) {
 func TestGenerateOrderId(t *testing.T) {
 	orderId := make([]string, 0)
 	for i := 0; i < 10; i++ {
-		orderId = append(orderId, GenerateUUId())
+		orderId = append(orderId, GenerateUUId(UUID_TYPE_RAW))
 		fmt.Println(orderId)
 	}
 
@@ -34,14 +34,13 @@ func TestBuildQrCodeResult(t *testing.T) {
 		ApiId: 1,
 		RequestParams: []*tables.RequestParam{
 			&tables.RequestParam{
-				ApiDetailInfoId: 1,
-				ParamName:       "aa",
+				ApiId:     1,
+				ParamName: "aa",
 			},
 		},
 		ErrorCodes: []*tables.ErrorCode{
 			&tables.ErrorCode{
-				ApiDetailInfoId: 1,
-				ErrorCode:       2,
+				ErrorCode: 2,
 			},
 		},
 	}

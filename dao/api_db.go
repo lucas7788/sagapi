@@ -48,6 +48,32 @@ func (this *SagaApiDB) ClearApiKeyDB() error {
 	return err
 }
 
+func (this *SagaApiDB) ClearAll() error {
+	strSql := "delete from tbl_api_test_key"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_qr_code"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_api_key"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_order"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_error_code"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_request_param"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_specifications"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_api_tag"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_tag"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_category"
+	this.DB.Exec(strSql)
+	strSql = "delete from tbl_api_basic_info"
+	this.DB.Exec(strSql)
+	return nil
+}
+
 func (this *SagaApiDB) InsertApiBasicInfo(tx *sqlx.Tx, infos []*tables.ApiBasicInfo) error {
 	var err error
 	if len(infos) == 0 {

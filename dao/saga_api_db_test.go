@@ -15,6 +15,8 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	tx, err := TestDB.DB.Beginx()
 	assert.Nil(t, err)
 
+	TestDB.ClearAll()
+
 	Coin := "ONG"
 	ApiType := "ApiType"
 	Icon := "Icon"

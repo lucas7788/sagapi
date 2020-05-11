@@ -9,26 +9,28 @@ import (
 )
 
 func TestApiDB_InsertApiBasicInfo(t *testing.T) {
-	info := &tables.ApiBasicInfo{
-		Icon:            "",
-		Title:           "mytestasd",
-		ApiProvider:     common.GenerateUUId(),
-		ApiUrl:          "",
-		Price:           "",
-		ApiDesc:         "",
-		Specifications:  1,
-		Popularity:      0,
-		Delay:           0,
-		SuccessRate:     0,
-		InvokeFrequency: 0,
-	}
+	TestDB.ClearAll()
 	l := 11
 	infos := make([]*tables.ApiBasicInfo, l)
 	for i := 0; i < len(infos); i++ {
-		info.ApiProvider = common.GenerateUUId()
+		info := &tables.ApiBasicInfo{
+			Icon:            "",
+			Title:           "mytestasd",
+			ApiProvider:     common.GenerateUUId(common.UUID_TYPE_RAW),
+			ApiSagaUrlKey:   common.GenerateUUId(common.UUID_TYPE_RAW),
+			ApiUrl:          "",
+			Price:           "",
+			ApiDesc:         "",
+			Specifications:  1,
+			Popularity:      0,
+			Delay:           0,
+			SuccessRate:     0,
+			InvokeFrequency: 0,
+		}
+
 		infos[i] = info
 	}
-	assert.Nil(t, TestDB.InsertApiBasicInfo(infos))
+	assert.Nil(t, TestDB.InsertApiBasicInfo(nil, infos))
 
 	Coin := "ONG"
 	ApiType := "ApiType"
@@ -80,11 +82,11 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 		ApplicationScenario: ApplicationScenario,
 	}
 
-	assert.Nil(t, TestDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info2}))
+	assert.Nil(t, TestDB.InsertApiBasicInfo(nil, []*tables.ApiBasicInfo{info2}))
 
 	basic, err := TestDB.QueryApiBasicInfoByPage(1, 1)
 	assert.Nil(t, err)
-	info, err = TestDB.QueryApiBasicInfoByApiId(basic[0].ApiId)
+	info, err := TestDB.QueryApiBasicInfoByApiId(nil, basic[0].ApiId)
 	assert.Nil(t, err)
 	assert.Equal(t, info.ApiId, basic[0].ApiId)
 
@@ -99,13 +101,13 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 		ValueDesc:  "",
 	}
 
-	assert.Nil(t, TestDB.InsertRequestParam([]*tables.RequestParam{params}))
+	assert.Nil(t, TestDB.InsertRequestParam(nil, []*tables.RequestParam{params}))
 
-	requestParams, err := TestDB.QueryRequestParamByApiDetailId(detail.Id)
+	requestParams, err := TestDB.QueryRequestParamByApiId(nil, info.ApiId)
 	assert.Nil(t, err)
 	assert.Equal(t, len(requestParams), 1)
 
-	infos, err = TestDB.QueryApiBasicInfoByCategoryId(1, 0, 1)
+	infos, err = TestDB.QueryApiBasicInfoByCategoryId(nil, 1, 0, 1)
 	assert.Nil(t, err)
 
 	err = TestDB.ClearRequestParamDB()
@@ -114,14 +116,75 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestApiDB_InsertApiKey(t *testing.T) {
+func InsertTestApi() ([]*tables.ApiBasicInfo, error) {
+	Coin := "ONG"
+	ApiType := "ApiType"
+	Icon := "Icon"
+	Title := "Title"
+	ApiProvider := "ApiProvider"
+	ApiSagaUrlKey := "ApiSagaUrlKey"
+	ApiUrl := "ApiUrl"
+	Price := "Price"
+	ApiDesc := "ApiDesc"
+	ErrorDesc := "ErrorDesc"
+	Specifications := uint32(9)
+	Popularity := uint32(10)
+	Delay := uint32(11)
+	SuccessRate := uint32(100)
+	InvokeFrequency := uint64(12345)
+	ApiState := int32(99)
+	RequestType := "RequestType"
+	Mark := "Mark"
+	ResponseParam := "ResponseParam"
+	ResponseExample := "ResponseExample"
+	DataDesc := "DataDesc"
+	DataSource := "DataSource"
+	ApplicationScenario := "ApplicationScenario"
 
+	info2 := &tables.ApiBasicInfo{
+		Coin:                Coin,
+		ApiType:             ApiType,
+		Icon:                Icon,
+		Title:               Title,
+		ApiProvider:         ApiProvider,
+		ApiSagaUrlKey:       ApiSagaUrlKey,
+		ApiUrl:              ApiUrl,
+		Price:               Price,
+		ApiDesc:             ApiDesc,
+		ErrorDesc:           ErrorDesc,
+		Specifications:      Specifications,
+		Popularity:          Popularity,
+		Delay:               Delay,
+		SuccessRate:         SuccessRate,
+		InvokeFrequency:     InvokeFrequency,
+		ApiState:            ApiState,
+		RequestType:         RequestType,
+		Mark:                Mark,
+		ResponseParam:       ResponseParam,
+		ResponseExample:     ResponseExample,
+		DataDesc:            DataDesc,
+		DataSource:          DataSource,
+		ApplicationScenario: ApplicationScenario,
+	}
+
+	err := TestDB.InsertApiBasicInfo(nil, []*tables.ApiBasicInfo{info2})
+	if err != nil {
+		return nil, err
+	}
+
+	basic, err := TestDB.QueryApiBasicInfoByPage(0, 10)
+	if err != nil {
+		return nil, err
+	}
+	return basic, nil
+}
+
+func TestApiDB_InsertApiKey(t *testing.T) {
 	TestDB.ClearApiKeyDB()
 	TestDB.ClearOrderDB()
 	TestDB.ClearApiBasicDB()
-
-	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1)
-
+	basic, err := InsertTestApi()
+	assert.Nil(t, err)
 	orderId := "orderId"
 	tt := time.Now().Unix()
 	order := &tables.Order{
@@ -130,7 +193,7 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 		OntId:     "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 		OrderTime: tt,
 	}
-	err = TestDB.InsertOrder(order)
+	err = TestDB.InsertOrder(nil, order)
 	assert.Nil(t, err)
 	apikey := "apikey"
 	key := &tables.APIKey{
@@ -142,12 +205,12 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 		OntId:        "did:ont:APe4yT5B6KnvR7LenkZD6eQGhG52Qrdjuo",
 	}
 
-	err = TestDB.InsertApiKey(key)
+	err = TestDB.InsertApiKey(nil, key)
 	assert.Nil(t, err)
 
-	key, err = TestDB.QueryApiKeyByApiKey(apikey)
+	key, err = TestDB.QueryApiKeyByApiKey(nil, apikey)
 	assert.Nil(t, err)
-	assert.Equal(t, int32(1), key.UsedNum)
+	assert.Equal(t, uint64(1), key.UsedNum)
 
 	TestDB.ClearApiKeyDB()
 	TestDB.ClearOrderDB()
@@ -156,29 +219,28 @@ func TestApiDB_InsertApiKey(t *testing.T) {
 
 func TestApiDB_QuerySpecificationsByApiDetailId(t *testing.T) {
 	assert.Nil(t, TestDB.ClearSpecificationsDB())
-	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1)
-	detail, err := TestDB.QueryApiDetailInfoByApiId(basic[0].ApiId)
+	basic, err := InsertTestApi()
 	assert.Nil(t, err)
 	params := []*tables.Specifications{
 		&tables.Specifications{
-			ApiId:  detail.Id,
+			ApiId:  basic[0].ApiId,
 			Price:  "0",
 			Amount: 500,
 		},
 		&tables.Specifications{
-			ApiId:  detail.Id,
+			ApiId:  basic[0].ApiId,
 			Price:  "0.01",
 			Amount: 1000,
 		},
 	}
-	err = TestDB.InsertSpecifications(params)
+	err = TestDB.InsertSpecifications(nil, params)
 	assert.Nil(t, err)
 
-	specs, err := TestDB.QuerySpecificationsByApiDetailId(detail.Id)
+	specs, err := TestDB.QuerySpecificationsByApiId(nil, basic[0].ApiId)
 	assert.Nil(t, err)
-	assert.Equal(t, specs[0].ApiId, detail.Id)
+	assert.Equal(t, specs[0].ApiId, basic[0].ApiId)
 
-	spec, err := TestDB.QuerySpecificationsById(specs[0].Id)
+	spec, err := TestDB.QuerySpecificationsById(nil, specs[0].Id)
 	assert.Nil(t, err)
 
 	assert.Equal(t, spec.Id, specs[0].Id)
@@ -190,7 +252,7 @@ func TestApiDB_QueryApiBasicInfoBySagaUrlKey(t *testing.T) {
 	info := &tables.ApiBasicInfo{
 		Icon:            "",
 		Title:           "mytestasd",
-		ApiSagaUrlKey:   "sagaurl_" + common.GenerateUUId(),
+		ApiSagaUrlKey:   common.GenerateUUId(common.UUID_TYPE_SAGA_URL),
 		ApiProvider:     "",
 		ApiUrl:          "",
 		Price:           "",
@@ -202,7 +264,7 @@ func TestApiDB_QueryApiBasicInfoBySagaUrlKey(t *testing.T) {
 		InvokeFrequency: 0,
 	}
 
-	assert.Nil(t, TestDB.InsertApiBasicInfo([]*tables.ApiBasicInfo{info}))
-	_, err := TestDB.QueryApiBasicInfoBySagaUrlKey(info.ApiSagaUrlKey)
+	assert.Nil(t, TestDB.InsertApiBasicInfo(nil, []*tables.ApiBasicInfo{info}))
+	_, err := TestDB.QueryApiBasicInfoBySagaUrlKey(nil, info.ApiSagaUrlKey)
 	assert.Nil(t, err)
 }
