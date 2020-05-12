@@ -79,6 +79,8 @@ func VerifyAPIHandle(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
+
+	common.WriteResponse(c, common.ResponseSuccess(nil))
 }
 
 func GetApiDetailByApiIdApiState(c *gin.Context) {
