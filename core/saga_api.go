@@ -292,7 +292,7 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 		return err
 	}
 
-	info, err := dao.DefSagaApiDB.QueryApiBasicInfoBySagaUrlKey(tx, apibasic.ApiSagaUrlKey)
+	info, err := dao.DefSagaApiDB.QueryApiBasicInfoBySagaUrlKey(tx, apibasic.ApiSagaUrlKey, tables.API_STATE_PUBLISH)
 	if err != nil {
 		errl = err
 		log.Debugf("PublishAPIHandleCore.5. %s", err)

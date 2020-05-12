@@ -102,11 +102,11 @@ func (this *SagaApiDB) QueryApiBasicInfoByApiId(tx *sqlx.Tx, apiId uint32, apiSt
 	return info, nil
 }
 
-func (this *SagaApiDB) QueryApiBasicInfoBySagaUrlKey(tx *sqlx.Tx, urlkey string) (*tables.ApiBasicInfo, error) {
+func (this *SagaApiDB) QueryApiBasicInfoBySagaUrlKey(tx *sqlx.Tx, urlkey string, apiState int32) (*tables.ApiBasicInfo, error) {
 	var err error
 	strSql := `select * from tbl_api_basic_info where ApiSagaUrlKey=? and ApiState=?`
 	info := &tables.ApiBasicInfo{}
-	err = this.Get(tx, info, strSql, urlkey, tables.API_STATE_BUILTIN)
+	err = this.Get(tx, info, strSql, urlkey, apiState)
 	if err != nil {
 		return nil, err
 	}

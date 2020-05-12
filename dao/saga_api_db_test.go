@@ -72,7 +72,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	assert.Nil(t, err)
 
 	// try query with tx.
-	infoResult, err := TestDB.QueryApiBasicInfoBySagaUrlKey(tx, info2.ApiSagaUrlKey)
+	infoResult, err := TestDB.QueryApiBasicInfoBySagaUrlKey(tx, info2.ApiSagaUrlKey, info2.ApiState)
 	assert.Nil(t, err)
 	assert.Equal(t, infoResult.ApplicationScenario, info2.ApplicationScenario)
 
@@ -81,14 +81,14 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	assert.Equal(t, infoResult.ApplicationScenario, info2.ApplicationScenario)
 
 	// try query with db.
-	infoResult, err = TestDB.QueryApiBasicInfoBySagaUrlKey(nil, info2.ApiSagaUrlKey)
+	infoResult, err = TestDB.QueryApiBasicInfoBySagaUrlKey(nil, info2.ApiSagaUrlKey, info2.ApiState)
 	assert.Equal(t, err, sql.ErrNoRows)
 
 	err = tx.Commit()
 	assert.Nil(t, err)
 
 	// try query with db again.
-	infoResult, err = TestDB.QueryApiBasicInfoBySagaUrlKey(nil, info2.ApiSagaUrlKey)
+	infoResult, err = TestDB.QueryApiBasicInfoBySagaUrlKey(nil, info2.ApiSagaUrlKey, info2.ApiState)
 	assert.Nil(t, err)
 	assert.Equal(t, infoResult.ApplicationScenario, info2.ApplicationScenario)
 
@@ -123,7 +123,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	assert.Nil(t, err)
 
 	for i := 0; i < len(infos); i++ {
-		infoResult, err := TestDB.QueryApiBasicInfoBySagaUrlKey(nil, infos[i].ApiSagaUrlKey)
+		infoResult, err := TestDB.QueryApiBasicInfoBySagaUrlKey(nil, infos[i].ApiSagaUrlKey, infos[i].ApiState)
 		assert.Nil(t, err)
 		assert.Equal(t, infoResult.ApplicationScenario, infos[i].ApplicationScenario)
 	}
@@ -137,7 +137,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	assert.Equal(t, 10, len(res["hottest"]))
 
 	// test RequestParam
-	infoResult, err = TestDB.QueryApiBasicInfoBySagaUrlKey(tx, info2.ApiSagaUrlKey)
+	infoResult, err = TestDB.QueryApiBasicInfoBySagaUrlKey(tx, info2.ApiSagaUrlKey, info2.ApiState)
 	assert.Nil(t, err)
 	params := &tables.RequestParam{
 		ApiId:      infoResult.ApiId,

@@ -267,6 +267,6 @@ func TestApiDB_QueryApiBasicInfoBySagaUrlKey(t *testing.T) {
 	}
 
 	assert.Nil(t, TestDB.InsertApiBasicInfo(nil, []*tables.ApiBasicInfo{info}))
-	_, err := TestDB.QueryApiBasicInfoBySagaUrlKey(nil, info.ApiSagaUrlKey)
+	_, err := TestDB.QueryApiBasicInfoBySagaUrlKey(nil, info.ApiSagaUrlKey, info.ApiState)
 	assert.Nil(t, err)
 }

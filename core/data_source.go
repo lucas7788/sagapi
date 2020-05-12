@@ -12,7 +12,15 @@ import (
 
 func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.RequestParam, apiKey string, publishTestOnly bool) ([]byte, error) {
 	log.Debugf("HandleDataSourceReqCore : %v", params)
-	info, err := dao.DefSagaApiDB.QueryApiBasicInfoBySagaUrlKey(tx, sagaUrlKey)
+	var apiState int32
+
+	if publishTestOnly {
+		apiState = tables.API_STATE_PUBLISH
+	} else {
+		apiState = tables.API_STATE_BUILTIN
+	}
+
+	info, err := dao.DefSagaApiDB.QueryApiBasicInfoBySagaUrlKey(tx, sagaUrlKey, apiState)
 	if err != nil {
 		return nil, err
 	}
