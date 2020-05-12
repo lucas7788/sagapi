@@ -20,7 +20,7 @@ func NewSagaApiDB(dbConfig *sagaconfig.DBConfig) (*SagaApiDB, error) {
 			":"+dbConfig.ProjectDBPassword+
 			"@tcp("+dbConfig.ProjectDBUrl+
 			")/"+dbConfig.ProjectDBName+
-			"?charset=utf8&parseTime=true&loc=Asia%2FShanghai")
+			"?charset=utf8&parseTime=true")
 	if dberr != nil {
 		return nil, dberr
 	}
