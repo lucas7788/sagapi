@@ -108,6 +108,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 			Price:               "",
 			ApiDesc:             "",
 			Specifications:      1,
+			ApiState:            tables.API_STATE_BUILTIN,
 			Popularity:          0,
 			Delay:               0,
 			SuccessRate:         0,
@@ -132,8 +133,8 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	// test SearchApi
 	res, err := TestDB.SearchApi(tx)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(res["newest"]))
-	assert.Equal(t, 1, len(res["hottest"]))
+	assert.Equal(t, 10, len(res["newest"]))
+	assert.Equal(t, 10, len(res["hottest"]))
 
 	// test RequestParam
 	infoResult, err = TestDB.QueryApiBasicInfoBySagaUrlKey(tx, info2.ApiSagaUrlKey)

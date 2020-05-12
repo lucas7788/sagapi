@@ -35,7 +35,7 @@ func GetBasicApiInfoByPage(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	infos, err := core.DefSagaApi.QueryBasicApiInfoByPage(uint32(pageNum), uint32(pageSize))
+	infos, err := core.DefSagaApi.QueryBasicApiInfoByPage(uint32(pageNum), uint32(pageSize), tables.API_STATE_BUILTIN)
 	if err != nil {
 		log.Errorf("[GetBasicApiInfoByPage] QueryApiBasicInfoByPage error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
@@ -57,7 +57,7 @@ func GetApiDetailByApiId(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	info, err := core.DefSagaApi.QueryApiDetailInfoByApiId(uint32(apiId))
+	info, err := core.DefSagaApi.QueryApiDetailInfoByApiId(uint32(apiId), tables.API_STATE_BUILTIN)
 	if err != nil {
 		log.Errorf("[GetApiDetailByApiId] QueryApiDetailInfoByApiId error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))

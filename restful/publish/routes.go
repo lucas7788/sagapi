@@ -7,6 +7,6 @@ import (
 func RoutesPublish(parent *gin.Engine) {
 	publishG := parent.Group("/publish")
 	publishG.POST("/api", PublishAPIHandle)
-	publishG.POST("/verify", VerifyAPIHandle)
-	publishG.POST("/getallpublishapi", GetALLPublishPage)
+	publishG.POST("/publish", VerifyAPIHandle)
+	publishG.POST("/getallpublishapi/:pageNum/:pageSize", GetALLPublishPage)
 }

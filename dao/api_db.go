@@ -2,6 +2,7 @@ package dao
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -27,11 +28,7 @@ func (this *SagaApiDB) ClearRequestParamDB() error {
 	_, err := this.DB.Exec(strSql)
 	return err
 }
-func (this *SagaApiDB) ClearApiDetailDB() error {
-	strSql := "delete from tbl_api_detail_info"
-	_, err := this.DB.Exec(strSql)
-	return err
-}
+
 func (this *SagaApiDB) ClearSpecificationsDB() error {
 	strSql := "delete from tbl_specifications"
 	_, err := this.DB.Exec(strSql)
@@ -92,12 +89,12 @@ func (this *SagaApiDB) InsertApiBasicInfo(tx *sqlx.Tx, infos []*tables.ApiBasicI
 	return err
 }
 
-func (this *SagaApiDB) QueryApiBasicInfoByApiId(tx *sqlx.Tx, apiId uint32) (*tables.ApiBasicInfo, error) {
+func (this *SagaApiDB) QueryApiBasicInfoByApiId(tx *sqlx.Tx, apiId uint32, apiState int32) (*tables.ApiBasicInfo, error) {
 	var err error
 	strSql := `select * from tbl_api_basic_info where ApiId=? and ApiState=?`
 
 	info := &tables.ApiBasicInfo{}
-	err = this.Get(tx, info, strSql, apiId, tables.API_STATE_BUILTIN)
+	err = this.Get(tx, info, strSql, apiId, apiState)
 	if err != nil {
 		return nil, err
 	}
@@ -158,10 +155,10 @@ func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, st
 	return res, nil
 }
 
-func (this *SagaApiDB) QueryApiBasicInfoByPage(start, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApiDB) QueryApiBasicInfoByPage(start, pageSize uint32, apiState int32) ([]*tables.ApiBasicInfo, error) {
 	strSql := `select * from tbl_api_basic_info where ApiState=? and ApiId limit ?, ?`
 	var res []*tables.ApiBasicInfo
-	err := this.DB.Select(&res, strSql, tables.API_STATE_BUILTIN, start, pageSize)
+	err := this.DB.Select(&res, strSql, apiState, start, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -347,5 +344,14 @@ func (this *SagaApiDB) UpdateApiKeyInvokeFre(tx *sqlx.Tx, apiKey string, apiId u
 		err = this.Exec(tx, strSql, usedNum, invokeFre, apiKey, apiId)
 	}
 
+	return err
+}
+
+func (this *SagaApiDB) ApiBasicUpateApiState(tx *sqlx.Tx, apiState int32, apiId uint32, sagaUrlKey string) error {
+	strSql := "update tbl_api_basic_info set ApiState=? where ApiId=? and ApiSagaUrlKey=?"
+	if apiState >= tables.API_STATE_LAST {
+		return errors.New("wrong api state info.")
+	}
+	err := this.Exec(tx, strSql, apiState, apiId, sagaUrlKey)
 	return err
 }

@@ -35,7 +35,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 		}
 	}()
 
-	info, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(tx, param.ApiId)
+	info, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(tx, param.ApiId, tables.API_STATE_BUILTIN)
 	if err != nil {
 		errl = err
 		return nil, err

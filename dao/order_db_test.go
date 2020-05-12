@@ -28,6 +28,7 @@ func TestMain(m *testing.M) {
 		ApiUrl:          "",
 		Price:           "",
 		ApiDesc:         "",
+		ApiState:        tables.API_STATE_BUILTIN,
 		Specifications:  1,
 		Popularity:      0,
 		Delay:           0,
@@ -39,14 +40,9 @@ func TestMain(m *testing.M) {
 		fmt.Println("err:", err)
 		return
 	}
-	_, err = TestDB.QueryApiBasicInfoByPage(0, 1)
+	_, err = TestDB.QueryApiBasicInfoByPage(0, 1, tables.API_STATE_BUILTIN)
 	m.Run()
 	fmt.Println("end")
-	err = TestDB.ClearApiDetailDB()
-	if err != nil {
-		fmt.Println("err:", err)
-		return
-	}
 	err = TestDB.ClearApiBasicDB()
 	if err != nil {
 		fmt.Println("err:", err)
@@ -56,7 +52,7 @@ func TestMain(m *testing.M) {
 
 func TestOrderDB_InsertOrder(t *testing.T) {
 	tt := time.Now().Unix()
-	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1)
+	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
 	orderId := "abcedkfy"
 	order := &tables.Order{
@@ -116,7 +112,7 @@ func TestOrderDB_InsertOrder(t *testing.T) {
 func TestOrderDB_QueryOrderByOrderId(t *testing.T) {
 	TestDB.ClearOrderDB()
 	tt := time.Now().Unix()
-	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1)
+	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
 	orderId := "abcedkfy"
 	order := &tables.Order{
@@ -150,7 +146,7 @@ func TestOrderDB_QueryOrderByOrderId(t *testing.T) {
 
 func TestOrderDB_DeleteOrderByOrderId(t *testing.T) {
 	orderId := "abcedkfyfgtghj"
-	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1)
+	basic, err := TestDB.QueryApiBasicInfoByPage(0, 1, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
 	tt := time.Now().Unix()
 	order2 := &tables.Order{

@@ -20,6 +20,7 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 			ApiSagaUrlKey:   common.GenerateUUId(common.UUID_TYPE_RAW),
 			ApiUrl:          "",
 			Price:           "",
+			ApiState:        int32(1),
 			ApiDesc:         "",
 			Specifications:  1,
 			Popularity:      0,
@@ -47,7 +48,7 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 	Delay := uint32(11)
 	SuccessRate := uint32(100)
 	InvokeFrequency := uint64(12345)
-	ApiState := int32(99)
+	ApiState := int32(1)
 	RequestType := "RequestType"
 	Mark := "Mark"
 	ResponseParam := "ResponseParam"
@@ -84,7 +85,7 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 
 	assert.Nil(t, TestDB.InsertApiBasicInfo(nil, []*tables.ApiBasicInfo{info2}))
 
-	basic, err := TestDB.QueryApiBasicInfoByPage(1, 1)
+	basic, err := TestDB.QueryApiBasicInfoByPage(1, 1, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
 	info, err := TestDB.QueryApiBasicInfoByApiId(nil, basic[0].ApiId)
 	assert.Nil(t, err)
@@ -132,7 +133,7 @@ func InsertTestApi() ([]*tables.ApiBasicInfo, error) {
 	Delay := uint32(11)
 	SuccessRate := uint32(100)
 	InvokeFrequency := uint64(12345)
-	ApiState := int32(99)
+	ApiState := tables.API_STATE_BUILTIN
 	RequestType := "RequestType"
 	Mark := "Mark"
 	ResponseParam := "ResponseParam"
@@ -172,7 +173,7 @@ func InsertTestApi() ([]*tables.ApiBasicInfo, error) {
 		return nil, err
 	}
 
-	basic, err := TestDB.QueryApiBasicInfoByPage(0, 10)
+	basic, err := TestDB.QueryApiBasicInfoByPage(0, 10, tables.API_STATE_BUILTIN)
 	if err != nil {
 		return nil, err
 	}
@@ -256,6 +257,7 @@ func TestApiDB_QueryApiBasicInfoBySagaUrlKey(t *testing.T) {
 		ApiProvider:     "",
 		ApiUrl:          "",
 		Price:           "",
+		ApiState:        int32(1),
 		ApiDesc:         "",
 		Specifications:  1,
 		Popularity:      0,

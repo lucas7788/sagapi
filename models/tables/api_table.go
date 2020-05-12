@@ -9,6 +9,7 @@ const (
 	API_STATE_INVALID int32 = 0
 	API_STATE_BUILTIN int32 = 1
 	API_STATE_PUBLISH int32 = 2
+	API_STATE_LAST    int32 = 3
 )
 
 // for RequestParam.ParamWhere

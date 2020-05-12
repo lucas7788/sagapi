@@ -110,7 +110,7 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	return nil, fmt.Errorf("not support api, apiId:%d", key.ApiId)
 }
 
-func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize uint32, apiState int32) ([]*tables.ApiBasicInfo, error) {
 	if pageNum < 1 {
 		pageNum = 1
 	}
@@ -118,7 +118,7 @@ func (this *SagaApi) QueryBasicApiInfoByPage(pageNum, pageSize uint32) ([]*table
 		pageSize = 10
 	}
 	start := (pageNum - 1) * pageSize
-	return dao.DefSagaApiDB.QueryApiBasicInfoByPage(start, pageSize)
+	return dao.DefSagaApiDB.QueryApiBasicInfoByPage(start, pageSize, apiState)
 }
 
 func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
@@ -132,8 +132,8 @@ func (this *SagaApi) QueryBasicApiInfoByCategory(id, pageNum, pageSize uint32) (
 	return dao.DefSagaApiDB.QueryApiBasicInfoByCategoryId(nil, id, start, pageSize)
 }
 
-func (this *SagaApi) QueryApiDetailInfoByApiId(apiId uint32) (*common.ApiDetailResponse, error) {
-	basicInfo, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(nil, apiId)
+func (this *SagaApi) QueryApiDetailInfoByApiId(apiId uint32, apiState int32) (*common.ApiDetailResponse, error) {
+	basicInfo, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(nil, apiId, apiState)
 	if err != nil {
 		return nil, err
 	}
@@ -193,6 +193,7 @@ type PublishAPI struct {
 	ApiProvider     string                  `json:"apiProvider"`
 	DataSource      string                  `json:"dataSource"`
 	ResponseExample string                  `json:"responseExample"`
+	Coin            string                  `json:"coin"`
 	Tags            []tables.Tag            `json:"tags"`
 	ErrorCodes      []PublishErrorCode      `json:"errorCodes"`
 	Params          []tables.RequestParam   `json:"params"`
@@ -220,8 +221,16 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 		tags = append(tags, t)
 	}
 
+	if param.Coin != "ONG" && param.Coin != "ONT" {
+		return errors.New("wrong Coin type. only ONT/ONG")
+	}
+
+	if param.RequestType != "POST" && param.RequestType != "GET" {
+		return errors.New("wrong RequestType type. only POST/GET")
+	}
+
 	apibasic := &tables.ApiBasicInfo{
-		Coin:            "ONG",
+		Coin:            param.Coin,
 		Title:           param.Name,
 		ApiProvider:     param.ApiProvider,
 		ApiSagaUrlKey:   common.GenerateUUId(common.UUID_TYPE_SAGA_URL),
@@ -289,6 +298,17 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 			errl = err
 			return err
 		}
+	}
+
+	referParams, err := dao.DefSagaApiDB.QueryRequestParamByApiId(tx, info.ApiId)
+	if err != nil {
+		errl = err
+		return err
+	}
+	_, err = HandleDataSourceReqCore(tx, info.ApiSagaUrlKey, referParams, "", true)
+	if err != nil {
+		errl = err
+		return err
 	}
 
 	err = tx.Commit()
