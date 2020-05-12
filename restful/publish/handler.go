@@ -99,16 +99,30 @@ func GetApiDetailByApiIdApiState(c *gin.Context) {
 
 func AdminTestAPIKey(c *gin.Context) {
 	var params []*tables.RequestParam
-	err := common.ParsePostParam(c, &params)
+
+	apiId := c.Param("apiId")
+	if apiId == "" {
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("apiId can not empty.")))
+		return
+	}
+
+	id, err := strconv.Atoi(apiId)
 	if err != nil {
-		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
+		log.Errorf("[AdminTestAPIKey] ParseGetParam error: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
 
-	data, err := core.DefSagaApi.TestApiKey(params, true)
+	err = common.ParsePostParam(c, &params)
 	if err != nil {
-		log.Errorf("[TestAPIKey] TestApiKey failed: %s", err.Error())
+		log.Errorf("[AdminTestAPIKey] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+
+	data, err := core.DefSagaApi.AdminTestApi(params, uint32(id))
+	if err != nil {
+		log.Errorf("[AdminTestAPIKey] failed: %s", err.Error())
 		res := make(map[string]string)
 		res["errorDesc"] = err.Error()
 		bs, _ := json.Marshal(res)

@@ -106,7 +106,7 @@ func TestAPIKey(c *gin.Context) {
 		return
 	}
 
-	data, err := core.DefSagaApi.TestApiKey(params, false)
+	data, err := core.DefSagaApi.TestApiKey(params)
 	if err != nil {
 		log.Errorf("[TestAPIKey] TestApiKey failed: %s", err.Error())
 		res := make(map[string]string)
