@@ -51,7 +51,7 @@ func (this *SagaApiDB) QueryOrderByOrderId(tx *sqlx.Tx, orderId string) (*tables
 func (this *SagaApiDB) QueryOrderSum(tx *sqlx.Tx, ontId string) (int, error) {
 	strSql := `select count(*) from tbl_order where OntId=?`
 	var sum int
-	err := this.Select(tx, &sum, strSql, ontId)
+	err := this.Get(tx, &sum, strSql, ontId)
 	if err != nil {
 		return 0, nil
 	}
@@ -60,7 +60,7 @@ func (this *SagaApiDB) QueryOrderSum(tx *sqlx.Tx, ontId string) (int, error) {
 
 func (this *SagaApiDB) QueryOrderByPage(tx *sqlx.Tx, start, pageSize int, ontId string) ([]*tables.Order, error) {
 	strSql := `select * from tbl_order where OntId=? order by OrderTime desc limit ?, ?`
-	var res []*tables.Order
+	res := make([]*tables.Order, 0)
 	err := this.Select(tx, &res, strSql, ontId, start, pageSize)
 	if err != nil {
 		return nil, err

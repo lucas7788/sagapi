@@ -116,9 +116,9 @@ func (this *SagaApiDB) QueryApiBasicInfoBySagaUrlKey(tx *sqlx.Tx, urlkey string,
 
 func (this *SagaApiDB) SearchApi(tx *sqlx.Tx) (map[string][]*tables.ApiBasicInfo, error) {
 	res := make(map[string][]*tables.ApiBasicInfo)
-	var newestApi []*tables.ApiBasicInfo
-	var hottestApi []*tables.ApiBasicInfo
-	var freeApi []*tables.ApiBasicInfo
+	newestApi := make([]*tables.ApiBasicInfo, 0)
+	hottestApi := make([]*tables.ApiBasicInfo, 0)
+	freeApi := make([]*tables.ApiBasicInfo, 0)
 	strNew := "select * from tbl_api_basic_info where ApiState=? order by CreateTime desc limit ?"
 	strHot := "select * from tbl_api_basic_info where ApiState=? order by InvokeFrequency desc limit ?"
 	strFree := "select * from tbl_api_basic_info where Price='0' and ApiState=? limit ?"
@@ -146,7 +146,7 @@ func (this *SagaApiDB) SearchApi(tx *sqlx.Tx) (map[string][]*tables.ApiBasicInfo
 func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, start, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
 	strSql := `select * from tbl_api_basic_info where ApiState=? and ApiId in (select ApiId from tbl_api_tag where TagId=(select Id from tbl_tag where CategoryId=?)) limit ?, ?`
 
-	var res []*tables.ApiBasicInfo
+	res := make([]*tables.ApiBasicInfo, 0)
 	err := this.Select(tx, &res, strSql, tables.API_STATE_BUILTIN, categoryId, start, pageSize)
 	if err != nil {
 		return nil, err
@@ -157,7 +157,7 @@ func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, st
 
 func (this *SagaApiDB) QueryApiBasicInfoByPage(start, pageSize uint32, apiState int32) ([]*tables.ApiBasicInfo, error) {
 	strSql := `select * from tbl_api_basic_info where ApiState=? limit ?, ?`
-	var res []*tables.ApiBasicInfo
+	res := make([]*tables.ApiBasicInfo, 0)
 	err := this.DB.Select(&res, strSql, apiState, start, pageSize)
 	if err != nil {
 		return nil, err
@@ -179,7 +179,7 @@ func (this *SagaApiDB) SearchApiByKey(key string) ([]*tables.ApiBasicInfo, error
 	k := "%" + key + "%"
 	strSql := `select * from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select ApiId from tbl_api_tag where TagId=(select id from tbl_tag where Name=?)) limit 30`
 
-	var infos []*tables.ApiBasicInfo
+	infos := make([]*tables.ApiBasicInfo, 0)
 	err := this.DB.Select(&infos, strSql, k, k, key)
 	if err != nil {
 		return nil, err
@@ -209,7 +209,7 @@ func (this *SagaApiDB) InsertRequestParam(tx *sqlx.Tx, params []*tables.RequestP
 
 func (this *SagaApiDB) QueryRequestParamByApiId(tx *sqlx.Tx, apiId uint32) ([]*tables.RequestParam, error) {
 	strSql := `select * from tbl_request_param where ApiId=?`
-	var params []*tables.RequestParam
+	params := make([]*tables.RequestParam, 0)
 	err := this.Select(tx, &params, strSql, apiId)
 	if err != nil {
 		return nil, err
@@ -236,7 +236,7 @@ func (this *SagaApiDB) InsertErrorCode(tx *sqlx.Tx, params []*tables.ErrorCode) 
 // unit test none.
 func (this *SagaApiDB) QueryErrorCode(tx *sqlx.Tx) ([]*tables.ErrorCode, error) {
 	strSql := `select * from tbl_error_code`
-	var params []*tables.ErrorCode
+	params := make([]*tables.ErrorCode, 0)
 	err := this.Select(tx, &params, strSql)
 	return params, err
 }
@@ -268,7 +268,7 @@ func (this *SagaApiDB) QuerySpecificationsById(tx *sqlx.Tx, id uint32) (*tables.
 
 func (this *SagaApiDB) QuerySpecificationsByApiId(tx *sqlx.Tx, apiId uint32) ([]*tables.Specifications, error) {
 	strSql := `select * from tbl_specifications where ApiId=?`
-	var ss []*tables.Specifications
+	ss := make([]*tables.Specifications, 0)
 	err := this.Select(tx, &ss, strSql, apiId)
 	if err != nil {
 		return nil, err
