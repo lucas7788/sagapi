@@ -36,12 +36,16 @@ create table tbl_api_basic_info
  DataDesc varchar(255) NOT NULL DEFAULT '' COMMENT '',
  DataSource varchar(255) NOT NULL DEFAULT ''  COMMENT '',
  ApplicationScenario varchar(255) NOT NULL DEFAULT '' COMMENT '',
+ OntId varchar(50) NOT NULL DEFAULT '' COMMENT '',
+ Author varchar(50) NOT NULL DEFAULT '' COMMENT '',
  CreateTime TIMESTAMP DEFAULT current_timestamp,
  PRIMARY KEY (ApiId),
  INDEX(Price),
  INDEX(Title),
  INDEX(ApiDesc),
- INDEX(ApiState)
+ INDEX(ApiState),
+ INDEX(OntId),
+ INDEX(Author)
 )DEFAULT charset=utf8;
 
 create table tbl_category

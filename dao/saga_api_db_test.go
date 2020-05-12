@@ -65,6 +65,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 		DataDesc:            DataDesc,
 		DataSource:          DataSource,
 		ApplicationScenario: ApplicationScenario,
+		Author:              "steven",
 	}
 
 	// insert.
@@ -79,6 +80,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	infoResult, err = TestDB.QueryApiBasicInfoByApiId(tx, infoResult.ApiId, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
 	assert.Equal(t, infoResult.ApplicationScenario, info2.ApplicationScenario)
+	assert.Equal(t, infoResult.Author, info2.Author)
 
 	// try query with db.
 	infoResult, err = TestDB.QueryApiBasicInfoBySagaUrlKey(nil, info2.ApiSagaUrlKey, info2.ApiState)

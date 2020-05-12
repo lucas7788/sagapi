@@ -23,13 +23,27 @@ type UrlParams struct {
 }
 
 func PublishAPIHandle(c *gin.Context) {
+	ontid, ok := c.Get(sagaconfig.Key_OntId)
+	if !ok {
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("no ontid")))
+		return
+	}
+	OntId := ontid.(string)
+
+	author, ok := c.Get(sagaconfig.JWTAud)
+	if !ok {
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("no ontid")))
+		return
+	}
+	Author := author.(string)
+
 	param := &core.PublishAPI{}
 	err := common.ParsePostParam(c, param)
 	if err != nil {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	err = core.PublishAPIHandleCore(param)
+	err = core.PublishAPIHandleCore(param, OntId, Author)
 	if err != nil {
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return

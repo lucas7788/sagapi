@@ -49,6 +49,8 @@ type ApiBasicInfo struct {
 	DataDesc            string    `json:"dataDesc" db:"DataDesc"`
 	DataSource          string    `json:"dataSource" db:"DataSource"`
 	ApplicationScenario string    `json:"applicationScenario" db:"ApplicationScenario"`
+	OntId               string    `json:"ontId" db:"OntId"`
+	Author              string    `json:"author" db:"Author"`
 	CreateTime          time.Time `json:"createTime" db:"CreateTime"`
 }
 

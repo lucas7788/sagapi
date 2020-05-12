@@ -250,7 +250,7 @@ type PublishAPI struct {
 	Specs           []tables.Specifications `json:"specifications"`
 }
 
-func PublishAPIHandleCore(param *PublishAPI) error {
+func PublishAPIHandleCore(param *PublishAPI, ontId, author string) error {
 	// handle error
 	errorDesc, err := json.Marshal(param.ErrorCodes)
 	if err != nil {
@@ -305,6 +305,8 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 		RequestType:     param.RequestType,
 		ResponseExample: param.ResponseExample,
 		DataSource:      param.DataSource,
+		OntId:           ontId,
+		Author:          author,
 	}
 
 	tx, errl := dao.DefSagaApiDB.DB.Beginx()

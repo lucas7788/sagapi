@@ -79,11 +79,11 @@ func (this *SagaApiDB) InsertApiBasicInfo(tx *sqlx.Tx, infos []*tables.ApiBasicI
 
 	sqlStrArr := make([]string, len(infos))
 	for i, info := range infos {
-		sqlStrArr[i] = fmt.Sprintf("('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%d','%d','%d','%d','%d','%d','%s','%s','%s','%s','%s','%s','%s')",
+		sqlStrArr[i] = fmt.Sprintf("('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%d','%d','%d','%d','%d','%d','%s','%s','%s','%s','%s','%s','%s','%s','%s')",
 			info.Coin, info.ApiType, info.Icon, info.Title, info.ApiProvider, info.ApiSagaUrlKey, info.ApiUrl, info.Price,
-			info.ApiDesc, info.ErrorDesc, info.Specifications, info.Popularity, info.Delay, info.SuccessRate, info.InvokeFrequency, info.ApiState, info.RequestType, info.Mark, info.ResponseParam, info.ResponseExample, info.DataDesc, info.DataSource, info.ApplicationScenario)
+			info.ApiDesc, info.ErrorDesc, info.Specifications, info.Popularity, info.Delay, info.SuccessRate, info.InvokeFrequency, info.ApiState, info.RequestType, info.Mark, info.ResponseParam, info.ResponseExample, info.DataDesc, info.DataSource, info.ApplicationScenario, info.OntId, info.Author)
 	}
-	strSql := `insert into tbl_api_basic_info (Coin,ApiType,Icon,Title,ApiProvider,ApiSagaUrlKey,ApiUrl,Price,ApiDesc,ErrorDesc,Specifications,Popularity,Delay,SuccessRate,InvokeFrequency,ApiState,RequestType,Mark,ResponseParam,ResponseExample,DataDesc,DataSource,ApplicationScenario) values`
+	strSql := `insert into tbl_api_basic_info (Coin,ApiType,Icon,Title,ApiProvider,ApiSagaUrlKey,ApiUrl,Price,ApiDesc,ErrorDesc,Specifications,Popularity,Delay,SuccessRate,InvokeFrequency,ApiState,RequestType,Mark,ResponseParam,ResponseExample,DataDesc,DataSource,ApplicationScenario,OntId,Author) values`
 	strSql += strings.Join(sqlStrArr, ",")
 	err = this.Exec(tx, strSql)
 	return err
