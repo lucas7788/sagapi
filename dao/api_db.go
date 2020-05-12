@@ -156,7 +156,7 @@ func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, st
 }
 
 func (this *SagaApiDB) QueryApiBasicInfoByPage(start, pageSize uint32, apiState int32) ([]*tables.ApiBasicInfo, error) {
-	strSql := `select * from tbl_api_basic_info where ApiState=? and ApiId limit ?, ?`
+	strSql := `select * from tbl_api_basic_info where ApiState=? limit ?, ?`
 	var res []*tables.ApiBasicInfo
 	err := this.DB.Select(&res, strSql, apiState, start, pageSize)
 	if err != nil {
