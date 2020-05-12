@@ -97,6 +97,17 @@ func (this *SagaApiDB) InsertCategory(tx *sqlx.Tx, cat *tables.Category) error {
 	return err
 }
 
+func (this *SagaApiDB) QueryCategoryByName(tx *sqlx.Tx, NameEn string) (*tables.Category, error) {
+	var res tables.Category
+	sqlStr := `select * from tbl_category where NameEn=?`
+	err := this.Get(tx, &res, sqlStr, NameEn)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 func (this *SagaApiDB) Close() error {
 	return this.DB.Close()
 }

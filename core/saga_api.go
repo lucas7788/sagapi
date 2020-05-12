@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"fmt"
+	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core/freq"
 	"github.com/ontio/sagapi/core/http"
@@ -35,6 +36,7 @@ func NewSagaApi() *SagaApi {
 func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string, apiState int32) (*tables.APIKey, error) {
 	tx, errl := dao.DefSagaApiDB.DB.Beginx()
 	if errl != nil {
+		log.Debugf("GenerateApiTestKey.0. %s", errl)
 		return nil, errl
 	}
 
@@ -47,16 +49,19 @@ func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string, apiState int
 	testKey, err := dao.DefSagaApiDB.QueryApiTestKeyByOntidAndApiId(tx, ontid, apiId)
 	if err != nil {
 		errl = err
+		log.Debugf("GenerateApiTestKey.1. %s", err)
 		return nil, err
 	}
 	_, err = dao.DefSagaApiDB.QueryApiBasicInfoByApiId(tx, apiId, apiState)
 	if err != nil {
 		errl = err
+		log.Debugf("GenerateApiTestKey.2. %s", err)
 		return nil, err
 	}
 
 	if err != nil && !dao.IsErrNoRows(err) {
 		errl = err
+		log.Debugf("GenerateApiTestKey.3. %s", err)
 		return nil, err
 	} else if err != nil {
 		return testKey, nil
@@ -227,10 +232,12 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 	// handle error
 	errorDesc, err := json.Marshal(param.ErrorCodes)
 	if err != nil {
+		log.Debugf("PublishAPIHandleCore.0. %s", err)
 		return err
 	}
 
 	if len(param.Tags) > 100 || len(param.Params) > 100 || len(param.Specs) > 100 || len(param.ErrorCodes) > 100 {
+		log.Debugf("PublishAPIHandleCore.1. %s", err)
 		return err
 	}
 
@@ -239,6 +246,7 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 	for _, tag := range param.Tags {
 		t, err := dao.DefSagaApiDB.QueryTagByNameId(nil, tag.CategoryId, tag.Name)
 		if err != nil {
+			log.Debugf("PublishAPIHandleCore.2. %s", err)
 			return err
 		}
 		tags = append(tags, t)
@@ -267,6 +275,7 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 
 	tx, errl := dao.DefSagaApiDB.DB.Beginx()
 	if errl != nil {
+		log.Debugf("PublishAPIHandleCore.3. %s", err)
 		return err
 	}
 
@@ -279,12 +288,14 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 	err = dao.DefSagaApiDB.InsertApiBasicInfo(tx, []*tables.ApiBasicInfo{apibasic})
 	if err != nil {
 		errl = err
+		log.Debugf("PublishAPIHandleCore.4. %s", err)
 		return err
 	}
 
 	info, err := dao.DefSagaApiDB.QueryApiBasicInfoBySagaUrlKey(tx, apibasic.ApiSagaUrlKey)
 	if err != nil {
 		errl = err
+		log.Debugf("PublishAPIHandleCore.5. %s", err)
 		return err
 	}
 	// tag handle
@@ -298,6 +309,7 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 		err = dao.DefSagaApiDB.InsertApiTag(tx, tag)
 		if err != nil {
 			errl = err
+			log.Debugf("PublishAPIHandleCore.6. %s", err)
 			//common.WriteResponse(c, common.ResponseFailed(common.SQL_ERROR, err))
 			return err
 		}
@@ -309,6 +321,7 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 		err := dao.DefSagaApiDB.InsertRequestParam(tx, []*tables.RequestParam{&p})
 		if err != nil {
 			errl = err
+			log.Debugf("PublishAPIHandleCore.7. %s", err)
 			return err
 		}
 	}
@@ -319,6 +332,7 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 		err := dao.DefSagaApiDB.InsertSpecifications(tx, []*tables.Specifications{&s})
 		if err != nil {
 			errl = err
+			log.Debugf("PublishAPIHandleCore.8. %s", err)
 			return err
 		}
 	}
@@ -326,16 +340,19 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 	referParams, err := dao.DefSagaApiDB.QueryRequestParamByApiId(tx, info.ApiId)
 	if err != nil {
 		errl = err
+		log.Debugf("PublishAPIHandleCore.9. %s", err)
 		return err
 	}
 	_, err = HandleDataSourceReqCore(tx, info.ApiSagaUrlKey, referParams, "", true)
 	if err != nil {
 		errl = err
+		log.Debugf("PublishAPIHandleCore.10. %s", err)
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Debugf("PublishAPIHandleCore.11. %s", err)
 		errl = err
 		return err
 	}
