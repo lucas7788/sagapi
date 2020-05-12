@@ -293,7 +293,7 @@ func (this *SagaApiDB) InsertApiTestKey(tx *sqlx.Tx, key *tables.APIKey) error {
 func (this *SagaApiDB) QueryInvokeFreByApiId(tx *sqlx.Tx, apiId uint32) (uint64, error) {
 	var freq uint64
 	strSql := `select InvokeFrequency from tbl_api_basic_info where ApiId =?`
-	err := this.Get(tx, freq, strSql, apiId)
+	err := this.Get(tx, &freq, strSql, apiId)
 	if err != nil {
 		return 0, err
 	}
