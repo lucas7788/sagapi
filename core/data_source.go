@@ -58,6 +58,9 @@ func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.Re
 				baseUrl = baseUrl + "&" + params[i].ParamName + "=" + params[i].Note
 			}
 		case tables.URL_PARAM_BODY:
+			if info.RequestType == tables.API_REQUEST_GET {
+				return nil, fmt.Errorf("params error. can not set body param in get request.")
+			}
 			if bodyParamNum != 0 {
 				return nil, fmt.Errorf("params error. can not pass multi body param.")
 			}
