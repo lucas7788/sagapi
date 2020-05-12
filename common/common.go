@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	TEST_APIKEY_PREFIX   string = "test"
-	NORMAL_APIKEY_PREFIX string = "apikey"
-	SAGA_URL_PREFIX      string = "sagaurl"
-	ORDER_ID_PREFIX      string = "orderId"
-	QRCODE_ID_PREFIX     string = "qrcodeId"
+	TEST_APIKEY_PREFIX   string = "test_"
+	NORMAL_APIKEY_PREFIX string = "apikey_"
+	SAGA_URL_PREFIX      string = "sagaurl_"
+	ORDER_ID_PREFIX      string = "orderId_"
+	QRCODE_ID_PREFIX     string = "qrcodeId_"
 )
 
 const (

@@ -42,9 +42,16 @@ func GetBasicApiInfoByPage(c *gin.Context) {
 		return
 	}
 
+	count, err := dao.DefSagaApiDB.QueryApiBasicInfoCount(nil, tables.API_STATE_BUILTIN)
+	if err != nil {
+		log.Errorf("[GetBasicApiInfoByPage] QueryApiBasicInfoByPage error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+
 	res := common.PageResult{
 		List:  infos,
-		Count: uint32(len(infos)),
+		Count: count,
 	}
 
 	common.WriteResponse(c, common.ResponseSuccess(res))

@@ -165,6 +165,16 @@ func (this *SagaApiDB) QueryApiBasicInfoByPage(start, pageSize uint32, apiState 
 	return res, nil
 }
 
+func (this *SagaApiDB) QueryApiBasicInfoCount(tx *sqlx.Tx, apiState int32) (uint64, error) {
+	strSql := `select count(*) from tbl_api_basic_info where ApiState=?`
+	var count uint64
+	err := this.Get(tx, &count, strSql, apiState)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (this *SagaApiDB) SearchApiByKey(key string) ([]*tables.ApiBasicInfo, error) {
 	k := "%" + key + "%"
 	strSql := `select * from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where name=?)) limit 30`

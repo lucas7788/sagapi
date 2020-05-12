@@ -63,6 +63,7 @@ const (
 	QueryAmt     = 3
 	Key_OntId    = "OntId"
 	JWTAdmin     = "JWTAdmin"
+	JWTAud       = "JWTAud"
 	OntId        = "did:ont:AYCcjQuB6xgXm2vKku9Vb6bdTcEguXqbt1"
 	OntIdPrivate = "ae1bab4364ec7966ab8e8a1db43cf7162b6e619bcab9ce0af4d1763bc4a62186"
 )

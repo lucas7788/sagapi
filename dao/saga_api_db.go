@@ -108,6 +108,17 @@ func (this *SagaApiDB) QueryCategoryByName(tx *sqlx.Tx, NameEn string) (*tables.
 	return &res, nil
 }
 
+func (this *SagaApiDB) QueryCategoryById(tx *sqlx.Tx, categoryId uint32) (*tables.Category, error) {
+	var res tables.Category
+	sqlStr := `select * from tbl_category where Id=?`
+	err := this.Get(tx, &res, sqlStr, categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 func (this *SagaApiDB) Close() error {
 	return this.DB.Close()
 }

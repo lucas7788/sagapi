@@ -160,6 +160,10 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	err = tx.Commit()
 	assert.Nil(t, err)
 
+	count, err := TestDB.QueryApiBasicInfoCount(nil, tables.API_STATE_BUILTIN)
+	assert.Nil(t, err)
+	assert.Equal(t, uint64(12), count)
+
 	err = TestDB.ClearRequestParamDB()
 	err = TestDB.ClearApiBasicDB()
 	assert.Nil(t, err)

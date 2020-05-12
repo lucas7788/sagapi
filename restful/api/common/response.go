@@ -15,7 +15,7 @@ type ResponseResult struct {
 
 type PageResult struct {
 	List  interface{} `json:"list"`
-	Count uint32      `json:"count"`
+	Count uint64      `json:"count"`
 }
 
 func WriteResponse(c *gin.Context, response *ResponseResult) error {

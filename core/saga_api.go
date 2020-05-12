@@ -43,7 +43,7 @@ func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string, apiState int
 	_, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(tx, apiId, apiState)
 	if err != nil {
 		errl = err
-		log.Debugf("GenerateApiTestKey.2. %s", err)
+		log.Debugf("GenerateApiTestKey.1. %s", err)
 		return nil, err
 	}
 
@@ -54,12 +54,6 @@ func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string, apiState int
 	}()
 
 	testKey, err := dao.DefSagaApiDB.QueryApiTestKeyByOntidAndApiId(tx, ontid, apiId)
-	if err != nil {
-		errl = err
-		log.Debugf("GenerateApiTestKey.1. %s", err)
-		return nil, err
-	}
-
 	if err != nil && !dao.IsErrNoRows(err) {
 		errl = err
 		log.Debugf("GenerateApiTestKey.3. %s", err)
@@ -90,9 +84,11 @@ func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string, apiState int
 }
 
 func (this *SagaApi) TestApiKey(params []*tables.RequestParam, publishTestOnly bool) ([]byte, error) {
+	// must have a apiId and apiKey.
 	if len(params) == 0 {
 		return nil, errors.New("param is nil")
 	}
+
 	for i, _ := range params {
 		if (i != len(params)-1) && params[i].ApiId != params[i+1].ApiId {
 			return nil, errors.New("params should to the same api")
@@ -102,22 +98,29 @@ func (this *SagaApi) TestApiKey(params []*tables.RequestParam, publishTestOnly b
 		}
 	}
 
-	var apiTestKey string
 	var key *tables.APIKey
+	var apiId uint32
 	var err error
 	if !publishTestOnly {
-		apiTestKey = params[len(params)-1].ValueDesc
+		apiTestKey := params[len(params)-1].ValueDesc
 		key, err = dao.DefSagaApiDB.QueryApiKeyByApiKey(nil, apiTestKey)
 		if err != nil {
 			return nil, err
 		}
+
+		if key.ApiId != params[0].ApiId {
+			return nil, fmt.Errorf("apiKey:%s can not invoke this api", apiTestKey)
+		}
+		apiId = key.ApiId
+	} else {
+		// last apiId name is apiid
+		if params[len(params)-1].ParamName != "ApiId" {
+			return nil, fmt.Errorf("last ParamName must be ApiId")
+		}
+		apiId = params[len(params)-1].ApiId
 	}
 
-	if key.ApiId != params[0].ApiId {
-		return nil, fmt.Errorf("apiKey:%s can not invoke this api", apiTestKey)
-	}
-
-	switch key.ApiId {
+	switch apiId {
 	case 1:
 		return this.Nasa.ApodParams(params)
 	case 2:
@@ -125,12 +128,12 @@ func (this *SagaApi) TestApiKey(params []*tables.RequestParam, publishTestOnly b
 	}
 
 	if publishTestOnly {
-		info, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(nil, key.ApiId, tables.API_STATE_PUBLISH)
+		info, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(nil, apiId, tables.API_STATE_PUBLISH)
 		if err != nil {
 			return nil, err
 		}
 
-		_, err = HandleDataSourceReqCore(nil, info.ApiSagaUrlKey, params, "", true)
+		_, err = HandleDataSourceReqCore(nil, info.ApiSagaUrlKey, params[:len(params)-1], "", true)
 		if err != nil {
 			return nil, err
 		}
@@ -242,6 +245,11 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 		return err
 	}
 
+	if len(param.Tags) == 0 {
+		log.Debugf("PublishAPIHandleCore.1. tag can not empty")
+		return errors.New("PublishAPIHandleCore.1. tag can not empty")
+	}
+
 	tags := make([]*tables.Tag, 0)
 
 	for _, tag := range param.Tags {
@@ -251,6 +259,12 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 			return err
 		}
 		tags = append(tags, t)
+	}
+
+	cat, err := dao.DefSagaApiDB.QueryCategoryById(nil, tags[0].CategoryId)
+	if err != nil {
+		log.Debugf("PublishAPIHandleCore.2.0 %s", err)
+		return err
 	}
 
 	if param.Coin != "ONG" && param.Coin != "ONT" {
@@ -264,6 +278,7 @@ func PublishAPIHandleCore(param *PublishAPI) error {
 	apibasic := &tables.ApiBasicInfo{
 		Coin:            param.Coin,
 		Title:           param.Name,
+		Icon:            cat.Icon,
 		ApiProvider:     param.ApiProvider,
 		ApiSagaUrlKey:   common.GenerateUUId(common.UUID_TYPE_SAGA_URL),
 		ApiDesc:         param.Desc,

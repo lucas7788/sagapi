@@ -23,13 +23,13 @@ const (
 func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
+		var load *Payload
 		header := map[string][]string(c.Request.Header)
 		token := header["Authorization"]
-		var ontid string
 		if token == nil || token[0] == "" {
 			err = fmt.Errorf("token is nil")
 		} else {
-			ontid, err = validateToken(token[0], false)
+			load, err = validateToken(token[0], false)
 		}
 		if err != nil {
 			log.Errorf("token error:%s", err)
@@ -37,7 +37,8 @@ func JWT() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set(sagaconfig.Key_OntId, ontid)
+		c.Set(sagaconfig.Key_OntId, load.Content.OntId)
+		c.Set(sagaconfig.JWTAud, load.Aud)
 		c.Set(sagaconfig.JWTAdmin, false)
 		c.Next()
 	}
@@ -46,13 +47,13 @@ func JWT() gin.HandlerFunc {
 func JWTAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
+		var load *Payload
 		header := map[string][]string(c.Request.Header)
 		token := header["Authorization"]
-		var ontid string
 		if token == nil || token[0] == "" {
 			err = fmt.Errorf("token is nil")
 		} else {
-			ontid, err = validateToken(token[0], true)
+			load, err = validateToken(token[0], true)
 		}
 		if err != nil {
 			log.Errorf("token error:%s", err)
@@ -60,54 +61,55 @@ func JWTAdmin() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set(sagaconfig.Key_OntId, ontid)
+		c.Set(sagaconfig.Key_OntId, load.Content.OntId)
+		c.Set(sagaconfig.JWTAud, load.Aud)
 		c.Set(sagaconfig.JWTAdmin, true)
 		c.Next()
 	}
 }
 
-func validateToken(token string, admin bool) (string, error) {
+func validateToken(token string, admin bool) (*Payload, error) {
 	//header.payloadBs.sig
 	arr := strings.Split(token, ".")
 	if len(arr) != 3 {
-		return "", fmt.Errorf("wrong token: %s", token)
+		return nil, fmt.Errorf("wrong token: %s", token)
 	}
 	sig, err := base64.RawURLEncoding.DecodeString(arr[2])
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	pubKeyStr, _ := common2.HexToBytes(sagaconfig.DefSagaConfig.OperatorPublicKey)
 	pubKey, err := keypair.DeserializePublicKey(pubKeyStr)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	data := arr[0] + "." + arr[1]
 	sig, err = common2.HexToBytes(string(sig))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	err = signature.Verify(pubKey, []byte(data), sig)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	payloadBs, err := base64.RawURLEncoding.DecodeString(arr[1])
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	pl := &Payload{}
 	err = json.Unmarshal(payloadBs, pl)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	now := time.Now().Unix()
 	if pl.Exp < int(now) {
-		return "", fmt.Errorf("jwt token expired")
+		return nil, fmt.Errorf("jwt token expired")
 	}
 
 	if admin && pl.Content.Role != ROLE_ADMIN {
-		return "", fmt.Errorf("jwt token sould be admin")
+		return nil, fmt.Errorf("jwt token sould be admin")
 	}
 
-	return pl.Content.OntId, nil
+	return pl, nil
 }
