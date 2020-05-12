@@ -101,7 +101,7 @@ func validateToken(token string, admin bool) (string, error) {
 	}
 
 	now := time.Now().Unix()
-	if pl.Exp > int(now) {
+	if pl.Exp < int(now) {
 		return "", fmt.Errorf("jwt token expired")
 	}
 
