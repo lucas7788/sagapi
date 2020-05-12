@@ -15,6 +15,6 @@ func RoutesPublish(parent *gin.RouterGroup) {
 	publishGAmin.GET("/getallpublishapi/:pageNum/:pageSize", GetALLPublishPage)
 	publishGAmin.GET("/getapidetailinfo/:apiId/:apiState", GetApiDetailByApiIdApiState)
 
-	publishGAmin.POST("/admintest", AdminTestAPIKey)
+	publishGAmin.POST("/admintest/:apiId", AdminTestAPIKey)
 	publishGAmin.POST("/publish/:apiId/:sagaUrlKey", VerifyAPIHandle)
 }
