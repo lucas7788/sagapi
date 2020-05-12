@@ -51,7 +51,7 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 	specifications := new(big.Int).SetUint64(uint64(spec.Amount))
 	amount := new(big.Int).Mul(price, specifications)
 	amountStr := utils.ToStringByPrecise(amount, sagaconfig.ONG_DECIMALS)
-	orderId := common.GenerateUUId(common.UUID_TYPE_RAW)
+	orderId := common.GenerateUUId(common.UUID_TYPE_ORDER_ID)
 	order := &tables.Order{
 		OrderId:          orderId,
 		Title:            info.Title,

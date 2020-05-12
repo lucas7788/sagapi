@@ -16,11 +16,6 @@ type GetBasicApiInfoByPageParam struct {
 	PageSize int `json:"pageSize"`
 }
 
-type PageResult struct {
-	List  interface{} `json:"list"`
-	Count uint32      `json:"count"`
-}
-
 func GetBasicApiInfoByPage(c *gin.Context) {
 	arr, err := common.ParseGetParamByParamName(c, "pageNum", "pageSize")
 	if err != nil {
@@ -47,7 +42,7 @@ func GetBasicApiInfoByPage(c *gin.Context) {
 		return
 	}
 
-	res := PageResult{
+	res := common.PageResult{
 		List:  infos,
 		Count: uint32(len(infos)),
 	}

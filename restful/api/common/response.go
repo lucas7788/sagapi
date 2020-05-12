@@ -13,6 +13,11 @@ type ResponseResult struct {
 	Version string      `json:"version"`
 }
 
+type PageResult struct {
+	List  interface{} `json:"list"`
+	Count uint32      `json:"count"`
+}
+
 func WriteResponse(c *gin.Context, response *ResponseResult) error {
 	c.JSON(http.StatusOK, response)
 	return nil

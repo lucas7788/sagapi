@@ -139,7 +139,13 @@ func GetALLPublishPage(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
 	}
-	common.WriteResponse(c, common.ResponseSuccess(infos))
+
+	res := common.PageResult{
+		List:  infos,
+		Count: uint32(len(infos)),
+	}
+
+	common.WriteResponse(c, common.ResponseSuccess(res))
 }
 
 func AdminGenerateTestKey(c *gin.Context) {

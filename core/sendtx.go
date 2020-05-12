@@ -86,7 +86,7 @@ func generateApiKey(tx *sqlx.Tx, orderId, ontId string) error {
 		return err
 	}
 
-	id := common2.GenerateUUId(common2.UUID_TYPE_RAW)
+	id := common2.GenerateUUId(common2.UUID_TYPE_API_KEY)
 	apiKey := &tables.APIKey{
 		OrderId:      orderId,
 		ApiKey:       id,

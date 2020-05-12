@@ -13,14 +13,20 @@ import (
 )
 
 const (
-	TEST_APIKEY_PREFIX string = "test"
-	SAGA_URL_PREFIX    string = "sagaurl"
+	TEST_APIKEY_PREFIX   string = "test"
+	NORMAL_APIKEY_PREFIX string = "apikey"
+	SAGA_URL_PREFIX      string = "sagaurl"
+	ORDER_ID_PREFIX      string = "orderId"
+	QRCODE_ID_PREFIX     string = "qrcodeId"
 )
 
 const (
 	UUID_TYPE_RAW          int32 = 1
 	UUID_TYPE_TEST_API_KEY int32 = 2
-	UUID_TYPE_SAGA_URL     int32 = 3
+	UUID_TYPE_API_KEY      int32 = 3
+	UUID_TYPE_SAGA_URL     int32 = 4
+	UUID_TYPE_ORDER_ID     int32 = 5
+	UUID_TYPE_QRCODE_ID    int32 = 6
 )
 
 func GenerateUUId(uuidType int32) string {
@@ -32,6 +38,12 @@ func GenerateUUId(uuidType int32) string {
 		return TEST_APIKEY_PREFIX + u1.String()
 	case UUID_TYPE_SAGA_URL:
 		return SAGA_URL_PREFIX + u1.String()
+	case UUID_TYPE_API_KEY:
+		return NORMAL_APIKEY_PREFIX + u1.String()
+	case UUID_TYPE_ORDER_ID:
+		return ORDER_ID_PREFIX + u1.String()
+	case UUID_TYPE_QRCODE_ID:
+		return QRCODE_ID_PREFIX + u1.String()
 	}
 
 	return u1.String()
@@ -91,7 +103,7 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) (*tables.
 	if err != nil {
 		return nil, err
 	}
-	id := GenerateUUId(UUID_TYPE_RAW)
+	id := GenerateUUId(UUID_TYPE_QRCODE_ID)
 	sig, err := sagaconfig.DefSagaConfig.OntIdAccount.Sign(databs)
 	if err != nil {
 		return nil, err

@@ -40,6 +40,13 @@ func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string, apiState int
 		return nil, errl
 	}
 
+	_, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(tx, apiId, apiState)
+	if err != nil {
+		errl = err
+		log.Debugf("GenerateApiTestKey.2. %s", err)
+		return nil, err
+	}
+
 	defer func() {
 		if errl != nil {
 			tx.Rollback()
@@ -52,18 +59,12 @@ func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string, apiState int
 		log.Debugf("GenerateApiTestKey.1. %s", err)
 		return nil, err
 	}
-	_, err = dao.DefSagaApiDB.QueryApiBasicInfoByApiId(tx, apiId, apiState)
-	if err != nil {
-		errl = err
-		log.Debugf("GenerateApiTestKey.2. %s", err)
-		return nil, err
-	}
 
 	if err != nil && !dao.IsErrNoRows(err) {
 		errl = err
 		log.Debugf("GenerateApiTestKey.3. %s", err)
 		return nil, err
-	} else if err != nil {
+	} else if err == nil {
 		return testKey, nil
 	} else {
 		apiKey := &tables.APIKey{
