@@ -5,12 +5,16 @@ import (
 	"github.com/ontio/sagapi/middleware/jwt"
 )
 
-func RoutesPublish(parent *gin.Engine) {
+func RoutesPublish(parent *gin.RouterGroup) {
 	publishG := parent.Group("/publish")
+	publishG.Use(jwt.JWT())
 	publishG.POST("/api", PublishAPIHandle)
 
 	publishGAmin := publishG.Group("/admin")
 	publishGAmin.Use(jwt.JWTAdmin())
-	publishGAmin.POST("/publish", VerifyAPIHandle)
-	publishGAmin.POST("/getallpublishapi/:pageNum/:pageSize", GetALLPublishPage)
+	publishGAmin.GET("/getallpublishapi/:pageNum/:pageSize", GetALLPublishPage)
+	publishGAmin.GET("/getapidetailinfo/:apiId/:apiState", GetApiDetailByApiIdApiState)
+
+	publishGAmin.POST("/admintest", AdminTestAPIKey)
+	publishGAmin.POST("/publish/:apiId/:sagaUrlKey", VerifyAPIHandle)
 }
