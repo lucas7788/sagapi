@@ -2,6 +2,7 @@ package order
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology/common/log"
@@ -106,7 +107,13 @@ func TestAPIKey(c *gin.Context) {
 		return
 	}
 
-	data, err := core.DefSagaApi.TestApiKey(params)
+	apiKey := c.Param("apiKey")
+	if apiKey == "" {
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("apikey is nil")))
+		return
+	}
+
+	data, err := core.DefSagaApi.TestApiKey(params, apiKey)
 	if err != nil {
 		log.Errorf("[TestAPIKey] TestApiKey failed: %s", err.Error())
 		res := make(map[string]string)

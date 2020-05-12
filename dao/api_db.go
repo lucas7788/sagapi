@@ -119,8 +119,8 @@ func (this *SagaApiDB) SearchApi(tx *sqlx.Tx) (map[string][]*tables.ApiBasicInfo
 	var newestApi []*tables.ApiBasicInfo
 	var hottestApi []*tables.ApiBasicInfo
 	var freeApi []*tables.ApiBasicInfo
-	strNew := "select * from tbl_api_basic_info where ApiState=? order by CreateTime limit ?"
-	strHot := "select * from tbl_api_basic_info where ApiState=? order by InvokeFrequency limit ?"
+	strNew := "select * from tbl_api_basic_info where ApiState=? order by CreateTime desc limit ?"
+	strHot := "select * from tbl_api_basic_info where ApiState=? order by InvokeFrequency desc limit ?"
 	strFree := "select * from tbl_api_basic_info where Price='0' and ApiState=? limit ?"
 	err := this.Select(tx, &newestApi, strNew, tables.API_STATE_BUILTIN, 10)
 	if err != nil {
@@ -177,7 +177,7 @@ func (this *SagaApiDB) QueryApiBasicInfoCount(tx *sqlx.Tx, apiState int32) (uint
 
 func (this *SagaApiDB) SearchApiByKey(key string) ([]*tables.ApiBasicInfo, error) {
 	k := "%" + key + "%"
-	strSql := `select * from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select api_id from tbl_api_tag where tag_id=(select id from tbl_tag where name=?)) limit 30`
+	strSql := `select * from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select ApiId from tbl_api_tag where TagId=(select id from tbl_tag where Name=?)) limit 30`
 
 	var infos []*tables.ApiBasicInfo
 	err := this.DB.Select(&infos, strSql, k, k, key)

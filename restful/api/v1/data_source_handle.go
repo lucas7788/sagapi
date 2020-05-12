@@ -15,7 +15,7 @@ func HandleDataSourceReq(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("url key can not empty")))
 		return
 	}
-	apiKey := c.Param("apikey")
+	apiKey := c.Param("apiKey")
 	if apiKey == "" {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("apikey is nil")))
 		return

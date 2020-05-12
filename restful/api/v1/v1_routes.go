@@ -15,5 +15,5 @@ func RoutesV1(parent *gin.RouterGroup) {
 	order.RoutesOrder(v1Route)
 	api.RoutesApiList(v1Route)
 
-	v1Route.POST("/data_source/:sagaUrlKey/:apikey", HandleDataSourceReq)
+	v1Route.POST("/data_source/:sagaUrlKey/:apiKey", HandleDataSourceReq)
 }

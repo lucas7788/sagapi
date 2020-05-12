@@ -106,7 +106,7 @@ func (this *SagaApi) AdminTestApi(params []*tables.RequestParam, apiId uint32) (
 	return data, nil
 }
 
-func (this *SagaApi) TestApiKey(params []*tables.RequestParam) ([]byte, error) {
+func (this *SagaApi) TestApiKey(params []*tables.RequestParam, apiKey string) ([]byte, error) {
 	// must have a apiId and apiKey.
 	if len(params) == 0 {
 		return nil, errors.New("param is nil")
@@ -121,16 +121,9 @@ func (this *SagaApi) TestApiKey(params []*tables.RequestParam) ([]byte, error) {
 		}
 	}
 
-	var key *tables.APIKey
-	var apiId uint32
-	var err error
+	apiTestKey := apiKey
 
-	apiTestKey := params[len(params)-1].ValueDesc
-	if params[len(params)-1].ParamName != "apiKey" {
-		return nil, errors.New("last param must be ApiKey")
-	}
-
-	key, err = dao.DefSagaApiDB.QueryApiKeyByApiKey(nil, apiTestKey)
+	key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(nil, apiTestKey)
 	if err != nil {
 		return nil, err
 	}
@@ -138,21 +131,20 @@ func (this *SagaApi) TestApiKey(params []*tables.RequestParam) ([]byte, error) {
 	if key.ApiId != params[0].ApiId {
 		return nil, fmt.Errorf("apiKey:%s can not invoke this api", apiTestKey)
 	}
-	apiId = key.ApiId
 
+	apiId := key.ApiId
 	switch apiId {
 	case 1:
-		return this.Nasa.ApodParams(params)
+		return this.Nasa.ApodParams(apiTestKey)
 	case 2:
-		return this.Nasa.FeedParams(params)
+		return this.Nasa.FeedParams(params, apiTestKey)
 	default:
 		info, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(nil, apiId, tables.API_STATE_BUILTIN)
 		if err != nil {
 			return nil, err
 		}
 
-		// need remove apikey.
-		data, err := HandleDataSourceReqCore(nil, info.ApiSagaUrlKey, params[:len(params)-1], apiTestKey, false)
+		data, err := HandleDataSourceReqCore(nil, info.ApiSagaUrlKey, params, apiTestKey, false)
 		if err != nil {
 			return nil, err
 		}
@@ -308,6 +300,7 @@ func PublishAPIHandleCore(param *PublishAPI, ontId, author string) error {
 		OntId:           ontId,
 		Author:          author,
 	}
+	apibasic.ApiUrl = sagaconfig.DefSagaConfig.SagaHost + "/data_source/" + apibasic.ApiSagaUrlKey + "/:apikey"
 
 	tx, errl := dao.DefSagaApiDB.DB.Beginx()
 	if errl != nil {
