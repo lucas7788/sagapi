@@ -32,7 +32,7 @@ func NewSagaApi() *SagaApi {
 	}
 }
 
-func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string) (*tables.APIKey, error) {
+func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string, apiState int32) (*tables.APIKey, error) {
 	tx, errl := dao.DefSagaApiDB.DB.Beginx()
 	if errl != nil {
 		return nil, errl
@@ -45,6 +45,11 @@ func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string) (*tables.API
 	}()
 
 	testKey, err := dao.DefSagaApiDB.QueryApiTestKeyByOntidAndApiId(tx, ontid, apiId)
+	if err != nil {
+		errl = err
+		return nil, err
+	}
+	_, err = dao.DefSagaApiDB.QueryApiBasicInfoByApiId(tx, apiId, apiState)
 	if err != nil {
 		errl = err
 		return nil, err
@@ -78,7 +83,7 @@ func (this *SagaApi) GenerateApiTestKey(apiId uint32, ontid string) (*tables.API
 	}
 }
 
-func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
+func (this *SagaApi) TestApiKey(params []*tables.RequestParam, publishTestOnly bool) ([]byte, error) {
 	if len(params) == 0 {
 		return nil, errors.New("param is nil")
 	}
@@ -91,10 +96,15 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 		}
 	}
 
-	apiTestKey := params[len(params)-1].ValueDesc
-	key, err := dao.DefSagaApiDB.QueryApiKeyByApiKey(nil, apiTestKey)
-	if err != nil {
-		return nil, err
+	var apiTestKey string
+	var key *tables.APIKey
+	var err error
+	if !publishTestOnly {
+		apiTestKey = params[len(params)-1].ValueDesc
+		key, err = dao.DefSagaApiDB.QueryApiKeyByApiKey(nil, apiTestKey)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if key.ApiId != params[0].ApiId {
@@ -107,6 +117,19 @@ func (this *SagaApi) TestApiKey(params []tables.RequestParam) ([]byte, error) {
 	case 2:
 		return this.Nasa.FeedParams(params)
 	}
+
+	if publishTestOnly {
+		info, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(nil, key.ApiId, tables.API_STATE_PUBLISH)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = HandleDataSourceReqCore(nil, info.ApiSagaUrlKey, params, "", true)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return nil, fmt.Errorf("not support api, apiId:%d", key.ApiId)
 }
 

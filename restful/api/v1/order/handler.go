@@ -88,7 +88,7 @@ func GenerateTestKey(c *gin.Context) {
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	testKey, err := core.DefSagaApi.GenerateApiTestKey(params.ApiId, ontId.(string))
+	testKey, err := core.DefSagaApi.GenerateApiTestKey(params.ApiId, ontId.(string), tables.API_STATE_BUILTIN)
 	if err != nil || testKey == nil {
 		log.Errorf("[GenerateTestKey] GenerateApiTestKey failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
@@ -98,7 +98,7 @@ func GenerateTestKey(c *gin.Context) {
 }
 
 func TestAPIKey(c *gin.Context) {
-	var params []tables.RequestParam
+	var params []*tables.RequestParam
 	err := common.ParsePostParam(c, &params)
 	if err != nil {
 		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
@@ -106,7 +106,7 @@ func TestAPIKey(c *gin.Context) {
 		return
 	}
 
-	data, err := core.DefSagaApi.TestApiKey(params)
+	data, err := core.DefSagaApi.TestApiKey(params, false)
 	if err != nil {
 		log.Errorf("[TestAPIKey] TestApiKey failed: %s", err.Error())
 		res := make(map[string]string)

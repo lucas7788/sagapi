@@ -76,7 +76,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, infoResult.ApplicationScenario, info2.ApplicationScenario)
 
-	infoResult, err = TestDB.QueryApiBasicInfoByApiId(tx, infoResult.ApiId)
+	infoResult, err = TestDB.QueryApiBasicInfoByApiId(tx, infoResult.ApiId, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
 	assert.Equal(t, infoResult.ApplicationScenario, info2.ApplicationScenario)
 
@@ -92,7 +92,7 @@ func TestApiDB_TmpInsert(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, infoResult.ApplicationScenario, info2.ApplicationScenario)
 
-	infoResult, err = TestDB.QueryApiBasicInfoByApiId(nil, infoResult.ApiId)
+	infoResult, err = TestDB.QueryApiBasicInfoByApiId(nil, infoResult.ApiId, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
 	assert.Equal(t, infoResult.ApplicationScenario, info2.ApplicationScenario)
 

@@ -12,6 +12,11 @@ type GenerateTestKeyParam struct {
 	ApiId uint32 `json:"apiId"`
 }
 
+type AdminGenerateTestKeyParam struct {
+	ApiId    uint32 `json:"apiId"`
+	ApiState int32  `json:"apiState"`
+}
+
 type GetPayQrCode struct {
 	OrderId  string `json:"orderId"`
 	OntId    string `json:"ontId"`

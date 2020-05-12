@@ -1,14 +1,17 @@
 package publish
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology/common/log"
+	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/core"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/restful/api/common"
+	"github.com/ontio/sagapi/sagaconfig"
 	"strconv"
 	"strings"
 )
@@ -94,6 +97,27 @@ func GetApiDetailByApiIdApiState(c *gin.Context) {
 	common.WriteResponse(c, common.ResponseSuccess(info))
 }
 
+func AdminTestAPIKey(c *gin.Context) {
+	var params []*tables.RequestParam
+	err := common.ParsePostParam(c, &params)
+	if err != nil {
+		log.Errorf("[GenerateTestKey] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+
+	data, err := core.DefSagaApi.TestApiKey(params, true)
+	if err != nil {
+		log.Errorf("[TestAPIKey] TestApiKey failed: %s", err.Error())
+		res := make(map[string]string)
+		res["errorDesc"] = err.Error()
+		bs, _ := json.Marshal(res)
+		common.WriteResponse(c, common.ResponseSuccess(string(bs)))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(string(data)))
+}
+
 func GetALLPublishPage(c *gin.Context) {
 	arr, err := common.ParseGetParamByParamName(c, "pageNum", "pageSize")
 	pageNum, err := strconv.Atoi(arr[0])
@@ -116,6 +140,29 @@ func GetALLPublishPage(c *gin.Context) {
 		return
 	}
 	common.WriteResponse(c, common.ResponseSuccess(infos))
+}
+
+func AdminGenerateTestKey(c *gin.Context) {
+	params := &common2.AdminGenerateTestKeyParam{}
+	err := common.ParsePostParam(c, params)
+	if err != nil {
+		log.Errorf("[AdminGenerateTestKey] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	ontId, ok := c.Get(sagaconfig.Key_OntId)
+	if !ok {
+		log.Errorf("[AdminGenerateTestKey] ontId is nil: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	testKey, err := core.DefSagaApi.GenerateApiTestKey(params.ApiId, ontId.(string), tables.API_STATE_PUBLISH)
+	if err != nil || testKey == nil {
+		log.Errorf("[AdminGenerateTestKey] GenerateApiTestKey failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(testKey))
 }
 
 func ParseUrl(url string) ([]UrlParams, error) {

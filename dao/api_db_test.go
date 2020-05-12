@@ -87,7 +87,7 @@ func TestApiDB_InsertApiBasicInfo(t *testing.T) {
 
 	basic, err := TestDB.QueryApiBasicInfoByPage(1, 1, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
-	info, err := TestDB.QueryApiBasicInfoByApiId(nil, basic[0].ApiId)
+	info, err := TestDB.QueryApiBasicInfoByApiId(nil, basic[0].ApiId, tables.API_STATE_BUILTIN)
 	assert.Nil(t, err)
 	assert.Equal(t, info.ApiId, basic[0].ApiId)
 

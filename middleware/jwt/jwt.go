@@ -38,6 +38,7 @@ func JWT() gin.HandlerFunc {
 			return
 		}
 		c.Set(sagaconfig.Key_OntId, ontid)
+		c.Set(sagaconfig.JWTAdmin, false)
 		c.Next()
 	}
 }
@@ -60,6 +61,7 @@ func JWTAdmin() gin.HandlerFunc {
 			return
 		}
 		c.Set(sagaconfig.Key_OntId, ontid)
+		c.Set(sagaconfig.JWTAdmin, true)
 		c.Next()
 	}
 }
