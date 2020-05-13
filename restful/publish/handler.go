@@ -22,6 +22,49 @@ type UrlParams struct {
 	Index uint32
 }
 
+func GetPulishApi(c *gin.Context) {
+	arr, err := common.ParseGetParamByParamName(c, "pageNum", "pageSize")
+	pageNum, err := strconv.Atoi(arr[0])
+	if err != nil {
+		log.Errorf("[GetALLPublishPage] ParseGetParam error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	pageSize, err := strconv.Atoi(arr[1])
+	if err != nil {
+		log.Errorf("[GetALLPublishPage] ParseGetParam error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+
+	ontid, ok := c.Get(sagaconfig.Key_OntId)
+	if !ok {
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("no ontid")))
+		return
+	}
+	OntId := ontid.(string)
+	log.Debugf("GetPulishApi: %d, %d, %s", pageNum, pageSize, OntId)
+
+	infos, err := dao.DefSagaApiDB.QueryApiBasicInfoByOntId(nil, OntId, tables.API_STATE_PUBLISH, uint32(pageNum), uint32(pageSize))
+	if err != nil {
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+
+	count, err := dao.DefSagaApiDB.QueryApiBasicInfoOntIdCount(nil, OntId, tables.API_STATE_PUBLISH)
+	if err != nil {
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+
+	res := common.PageResult{
+		List:  infos,
+		Count: count,
+	}
+
+	common.WriteResponse(c, common.ResponseSuccess(res))
+}
+
 func PublishAPIHandle(c *gin.Context) {
 	ontid, ok := c.Get(sagaconfig.Key_OntId)
 	if !ok {

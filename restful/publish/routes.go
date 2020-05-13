@@ -9,6 +9,7 @@ func RoutesPublish(parent *gin.RouterGroup) {
 	publishG := parent.Group("/publish")
 	publishG.Use(jwt.JWT())
 	publishG.POST("/api", PublishAPIHandle)
+	publishG.GET("/getpublishapi/:pageNum/:pageSize", GetPulishApi)
 
 	publishGAmin := publishG.Group("/admin")
 	publishGAmin.Use(jwt.JWTAdmin())

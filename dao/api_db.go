@@ -102,6 +102,24 @@ func (this *SagaApiDB) QueryApiBasicInfoByApiId(tx *sqlx.Tx, apiId uint32, apiSt
 	return info, nil
 }
 
+func (this *SagaApiDB) QueryApiBasicInfoByOntId(tx *sqlx.Tx, ontId string, apiState int32, pageNum, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
+	var err error
+	strSql := `select * from tbl_api_basic_info where OntId=? and ApiState=? limit ?,?`
+
+	if pageNum < 1 {
+		pageNum = 1
+	}
+	start := (pageNum - 1) * pageSize
+
+	res := make([]*tables.ApiBasicInfo, 0)
+	err = this.Select(tx, &res, strSql, ontId, apiState, start, pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (this *SagaApiDB) QueryApiBasicInfoBySagaUrlKey(tx *sqlx.Tx, urlkey string, apiState int32) (*tables.ApiBasicInfo, error) {
 	var err error
 	strSql := `select * from tbl_api_basic_info where ApiSagaUrlKey=? and ApiState=?`
@@ -182,6 +200,16 @@ func (this *SagaApiDB) QueryApiBasicInfoCount(tx *sqlx.Tx, apiState int32) (uint
 	strSql := `select count(*) from tbl_api_basic_info where ApiState=?`
 	var count uint64
 	err := this.Get(tx, &count, strSql, apiState)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (this *SagaApiDB) QueryApiBasicInfoOntIdCount(tx *sqlx.Tx, OntId string, apiState int32) (uint64, error) {
+	strSql := `select count(*) from tbl_api_basic_info where OntId=? and ApiState=?`
+	var count uint64
+	err := this.Get(tx, &count, strSql, OntId, apiState)
 	if err != nil {
 		return 0, err
 	}
