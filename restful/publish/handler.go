@@ -51,7 +51,12 @@ func GetPulishApi(c *gin.Context) {
 		return
 	}
 
-	count, err := dao.DefSagaApiDB.QueryApiBasicInfoOntIdCount(nil, OntId, tables.API_STATE_PUBLISH)
+	count0, err := dao.DefSagaApiDB.QueryApiBasicInfoOntIdCount(nil, OntId, tables.API_STATE_PUBLISH)
+	if err != nil {
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	count1, err := dao.DefSagaApiDB.QueryApiBasicInfoOntIdCount(nil, OntId, tables.API_STATE_BUILTIN)
 	if err != nil {
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
@@ -59,7 +64,7 @@ func GetPulishApi(c *gin.Context) {
 
 	res := common.PageResult{
 		List:  infos,
-		Count: count,
+		Count: count0 + count1,
 	}
 
 	common.WriteResponse(c, common.ResponseSuccess(res))
