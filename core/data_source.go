@@ -47,15 +47,20 @@ func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.Re
 
 		switch p.ParamWhere {
 		case tables.URL_PARAM_RESTFUL:
-			if !firstQueryArg {
-				return nil, fmt.Errorf("params error. restful url after query.")
+			if p.Required {
+				if !firstQueryArg {
+					return nil, fmt.Errorf("params error. restful url after query.")
+				}
+				baseUrl = baseUrl + "/" + params[i].Note
 			}
-			baseUrl = baseUrl + "/" + params[i].Note
 		case tables.URL_PARAM_QUERY:
-			if firstQueryArg {
-				baseUrl = baseUrl + "?" + params[i].ParamName + "=" + params[i].Note
-			} else {
-				baseUrl = baseUrl + "&" + params[i].ParamName + "=" + params[i].Note
+			if p.Required {
+				if firstQueryArg {
+					baseUrl = baseUrl + "?" + params[i].ParamName + "=" + params[i].Note
+					firstQueryArg = false
+				} else {
+					baseUrl = baseUrl + "&" + params[i].ParamName + "=" + params[i].Note
+				}
 			}
 		case tables.URL_PARAM_BODY:
 			if info.RequestType == tables.API_REQUEST_GET {
@@ -66,7 +71,9 @@ func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.Re
 			}
 
 			bodyParamNum += 1
-			bodyParam = []byte(params[i].Note)
+			if p.Required {
+				bodyParam = []byte(params[i].Note)
+			}
 		}
 	}
 

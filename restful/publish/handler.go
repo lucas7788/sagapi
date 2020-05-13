@@ -163,6 +163,7 @@ func GetALLPublishPage(c *gin.Context) {
 		return
 	}
 
+	log.Debugf("pageNum:%d, pageSize %d", pageNum, pageSize)
 	infos, err := dao.DefSagaApiDB.QueryApiBasicInfoByPage(uint32(pageNum), uint32(pageSize), tables.API_STATE_PUBLISH)
 	if err != nil {
 		log.Errorf("[GetALLPublishPage] QueryApiBasicInfoByPage error: %s", err)

@@ -144,10 +144,17 @@ func (this *SagaApiDB) SearchApi(tx *sqlx.Tx) (map[string][]*tables.ApiBasicInfo
 }
 
 func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, start, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
-	strSql := `select * from tbl_api_basic_info where ApiState=? and ApiId in (select ApiId from tbl_api_tag where TagId=(select Id from tbl_tag where CategoryId=?)) limit ?, ?`
-
+	var strSql string
+	var err error
 	res := make([]*tables.ApiBasicInfo, 0)
-	err := this.Select(tx, &res, strSql, tables.API_STATE_BUILTIN, categoryId, start, pageSize)
+	if categoryId != 1 {
+		strSql = `select * from tbl_api_basic_info where ApiState=? and ApiId in (select ApiId from tbl_api_tag where TagId=(select Id from tbl_tag where CategoryId=?)) limit ?, ?`
+		err = this.Select(tx, &res, strSql, tables.API_STATE_BUILTIN, categoryId, start, pageSize)
+	} else {
+		strSql = `select * from tbl_api_basic_info where ApiState=? and ApiId in (select ApiId from tbl_api_tag where TagId in (select Id from tbl_tag)) limit ?, ?`
+		err = this.Select(tx, &res, strSql, tables.API_STATE_BUILTIN, start, pageSize)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -155,13 +162,19 @@ func (this *SagaApiDB) QueryApiBasicInfoByCategoryId(tx *sqlx.Tx, categoryId, st
 	return res, nil
 }
 
-func (this *SagaApiDB) QueryApiBasicInfoByPage(start, pageSize uint32, apiState int32) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApiDB) QueryApiBasicInfoByPage(pageNum, pageSize uint32, apiState int32) ([]*tables.ApiBasicInfo, error) {
+	if pageNum < 1 {
+		pageNum = 1
+	}
+	start := (pageNum - 1) * pageSize
+
 	strSql := `select * from tbl_api_basic_info where ApiState=? limit ?, ?`
 	res := make([]*tables.ApiBasicInfo, 0)
 	err := this.DB.Select(&res, strSql, apiState, start, pageSize)
 	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
@@ -175,12 +188,12 @@ func (this *SagaApiDB) QueryApiBasicInfoCount(tx *sqlx.Tx, apiState int32) (uint
 	return count, nil
 }
 
-func (this *SagaApiDB) SearchApiByKey(key string) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApiDB) SearchApiByKey(key string, apiState int32) ([]*tables.ApiBasicInfo, error) {
 	k := "%" + key + "%"
-	strSql := `select * from tbl_api_basic_info where ApiDesc like ? or Title like ? or ApiId in (select ApiId from tbl_api_tag where TagId=(select id from tbl_tag where Name=?)) limit 30`
+	strSql := `select * from tbl_api_basic_info where ApiState=? and ApiDesc like ? or Title like ? or ApiId in (select ApiId from tbl_api_tag where TagId=(select id from tbl_tag where Name=?)) limit 30`
 
 	infos := make([]*tables.ApiBasicInfo, 0)
-	err := this.DB.Select(&infos, strSql, k, k, key)
+	err := this.DB.Select(&infos, strSql, apiState, k, k, key)
 	if err != nil {
 		return nil, err
 	}
@@ -196,6 +209,9 @@ func (this *SagaApiDB) InsertRequestParam(tx *sqlx.Tx, params []*tables.RequestP
 		var require int32
 		if param.Required {
 			require = 1
+			if param.Note == "" {
+				return fmt.Errorf("%s param is requre. can not empty exzample value", param.ParamName)
+			}
 		} else {
 			require = 0
 		}

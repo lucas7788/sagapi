@@ -93,7 +93,7 @@ func SearchApiByKey(c *gin.Context) {
 	}
 	//todo key.Key should not have sql statement
 	var infonil []*tables.ApiBasicInfo
-	infos, err := dao.DefSagaApiDB.SearchApiByKey(key.Key)
+	infos, err := dao.DefSagaApiDB.SearchApiByKey(key.Key, tables.API_STATE_BUILTIN)
 	if err != nil && dao.IsErrNoRows(err) {
 		// empty
 		common.WriteResponse(c, common.ResponseSuccess(infonil))

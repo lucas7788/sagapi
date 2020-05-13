@@ -238,9 +238,10 @@ func (this *SagaOrder) CancelOrder(orderId string) error {
 		if errl != nil {
 			return errl
 		}
+	} else {
+		errl = fmt.Errorf("only processing order can be canceled")
 	}
 
-	errl = fmt.Errorf("only processing order can be canceled")
 	return errl
 }
 

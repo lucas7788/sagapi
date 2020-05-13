@@ -88,7 +88,7 @@ func (this *SagaApi) AdminTestApi(params []*tables.RequestParam, apiId uint32) (
 		if (i != len(params)-1) && params[i].ApiId != params[i+1].ApiId {
 			return nil, errors.New("params should to the same api")
 		}
-		if params[i].ValueDesc == "" {
+		if params[i].Required && params[i].ValueDesc == "" {
 			return nil, fmt.Errorf("param:%s is nil", params[i].ParamName)
 		}
 	}
@@ -107,16 +107,11 @@ func (this *SagaApi) AdminTestApi(params []*tables.RequestParam, apiId uint32) (
 }
 
 func (this *SagaApi) TestApiKey(params []*tables.RequestParam, apiKey string) ([]byte, error) {
-	// must have a apiId and apiKey.
-	if len(params) == 0 {
-		return nil, errors.New("param is nil")
-	}
-
 	for i, _ := range params {
 		if (i != len(params)-1) && params[i].ApiId != params[i+1].ApiId {
 			return nil, errors.New("params should to the same api")
 		}
-		if params[i].ValueDesc == "" {
+		if params[i].Required && params[i].ValueDesc == "" {
 			return nil, fmt.Errorf("param:%s is nil", params[i].ParamName)
 		}
 	}
@@ -128,13 +123,12 @@ func (this *SagaApi) TestApiKey(params []*tables.RequestParam, apiKey string) ([
 		return nil, err
 	}
 
-	if key.ApiId != params[0].ApiId {
-		return nil, fmt.Errorf("apiKey:%s can not invoke this api", apiTestKey)
-	}
-
 	apiId := key.ApiId
 	switch apiId {
 	case 1:
+		if len(params) != 0 {
+			return nil, fmt.Errorf("apod no need params")
+		}
 		return this.Nasa.ApodParams(apiTestKey)
 	case 2:
 		return this.Nasa.FeedParams(params, apiTestKey)
@@ -300,7 +294,8 @@ func PublishAPIHandleCore(param *PublishAPI, ontId, author string) error {
 		OntId:           ontId,
 		Author:          author,
 	}
-	apibasic.ApiUrl = sagaconfig.DefSagaConfig.SagaHost + "/data_source/" + apibasic.ApiSagaUrlKey + "/:apikey"
+	port := fmt.Sprintf("%d", sagaconfig.DefSagaConfig.RestPort)
+	apibasic.ApiUrl = sagaconfig.DefSagaConfig.SagaHost + ":" + port + "/api/v1/data_source/" + apibasic.ApiSagaUrlKey + "/:apikey"
 
 	tx, errl := dao.DefSagaApiDB.DB.Beginx()
 	if errl != nil {
@@ -339,7 +334,6 @@ func PublishAPIHandleCore(param *PublishAPI, ontId, author string) error {
 		if err != nil {
 			errl = err
 			log.Debugf("PublishAPIHandleCore.6. %s", err)
-			//common.WriteResponse(c, common.ResponseFailed(common.SQL_ERROR, err))
 			return err
 		}
 	}

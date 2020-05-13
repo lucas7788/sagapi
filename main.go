@@ -125,7 +125,9 @@ func initConfig(ctx *cli.Context) error {
 
 func startServer() {
 	router := restful.NewRouter()
-	go router.Run(":8080")
+	port := fmt.Sprintf("%d", sagaconfig.DefSagaConfig.RestPort)
+	log.Infof("list to port: %s", port)
+	go router.Run(":" + port)
 }
 
 func waitToExit() {
