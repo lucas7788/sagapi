@@ -102,9 +102,16 @@ func (this *SagaApiDB) QueryApiBasicInfoByApiId(tx *sqlx.Tx, apiId uint32, apiSt
 	return info, nil
 }
 
-func (this *SagaApiDB) QueryApiBasicInfoByOntId(tx *sqlx.Tx, ontId string, apiState int32, pageNum, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
+func (this *SagaApiDB) QueryApiBasicInfoByOntId(tx *sqlx.Tx, ontId string, apiState []int32, pageNum, pageSize uint32) ([]*tables.ApiBasicInfo, error) {
 	var err error
-	strSql := `select * from tbl_api_basic_info where OntId=? and ApiState=? limit ?,?`
+	sqlStrArr := make([]string, len(apiState))
+	for i, state := range apiState {
+		sqlStrArr[i] = fmt.Sprintf("%d", state)
+	}
+	strState := strings.Join(sqlStrArr, ",")
+
+	strSql := fmt.Sprintf("select * from tbl_api_basic_info where OntId=? and ApiState in (%s) limit ?,?", strState)
+	fmt.Printf("%s", strSql)
 
 	if pageNum < 1 {
 		pageNum = 1
@@ -112,7 +119,7 @@ func (this *SagaApiDB) QueryApiBasicInfoByOntId(tx *sqlx.Tx, ontId string, apiSt
 	start := (pageNum - 1) * pageSize
 
 	res := make([]*tables.ApiBasicInfo, 0)
-	err = this.Select(tx, &res, strSql, ontId, apiState, start, pageSize)
+	err = this.Select(tx, &res, strSql, ontId, start, pageSize)
 	if err != nil {
 		return nil, err
 	}

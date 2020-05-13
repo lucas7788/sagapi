@@ -45,7 +45,7 @@ func GetPulishApi(c *gin.Context) {
 	OntId := ontid.(string)
 	log.Debugf("GetPulishApi: %d, %d, %s", pageNum, pageSize, OntId)
 
-	infos, err := dao.DefSagaApiDB.QueryApiBasicInfoByOntId(nil, OntId, tables.API_STATE_PUBLISH, uint32(pageNum), uint32(pageSize))
+	infos, err := dao.DefSagaApiDB.QueryApiBasicInfoByOntId(nil, OntId, []int32{tables.API_STATE_PUBLISH, tables.API_STATE_BUILTIN}, uint32(pageNum), uint32(pageSize))
 	if err != nil {
 		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
 		return
