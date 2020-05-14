@@ -1,8 +1,16 @@
 package tables
 
 import (
+	"encoding/json"
 	"time"
 )
+
+type Time time.Time
+
+func (t Time) MarshalJSON() ([]byte, error) {
+	x := time.Time(t).Unix()
+	return json.Marshal(x)
+}
 
 // for ApiBasicInfo.ApiState
 const (
@@ -10,6 +18,12 @@ const (
 	API_STATE_BUILTIN int32 = 1
 	API_STATE_PUBLISH int32 = 2
 	API_STATE_LAST    int32 = 3
+)
+
+const (
+	API_KIND_INVALID      int32 = 0
+	API_KIND_DATA_NORMAL  int32 = 1
+	API_KIND_DATA_PROCESS int32 = 2
 )
 
 // for RequestParam.ParamWhere
@@ -25,49 +39,50 @@ const (
 )
 
 type ApiBasicInfo struct {
-	ApiId               uint32    `json:"apiId" db:"ApiId"`
-	Coin                string    `json:"coin" db:"Coin"`
-	ApiType             string    `json:"type" db:"ApiType"`
-	Icon                string    `json:"icon" db:"Icon"`
-	Title               string    `json:"title" db:"Title"`
-	ApiProvider         string    `json:"provider" db:"ApiProvider"`        //source url. join args can access.
-	ApiSagaUrlKey       string    `json:"apiSagaUrlKey" db:"ApiSagaUrlKey"` //sagaurlkey
-	ApiUrl              string    `json:"apiUrl" db:"ApiUrl"`               // sagaurl
-	Price               string    `json:"price" db:"Price"`
-	ApiDesc             string    `json:"description" db:"ApiDesc"`
-	ErrorDesc           string    `json:"errorDescription" db:"ErrorDesc"`
-	Specifications      uint32    `json:"specifications" db:"Specifications"`
-	Popularity          uint32    `json:"popularity" db:"Popularity"`
-	Delay               uint32    `json:"delay" db:"Delay"`
-	SuccessRate         uint32    `json:"successRate" db:"SuccessRate"`
-	InvokeFrequency     uint64    `json:"invokeFrequency" db:"InvokeFrequency"`
-	ApiState            int32     `json:"apiState" db:"ApiState"`
-	RequestType         string    `json:"requestType" db:"RequestType"`
-	Mark                string    `json:"mark" db:"Mark"`
-	ResponseParam       string    `json:"responseParam" db:"ResponseParam"`
-	ResponseExample     string    `json:"responseExample" db:"ResponseExample"`
-	DataDesc            string    `json:"dataDesc" db:"DataDesc"`
-	DataSource          string    `json:"dataSource" db:"DataSource"`
-	ApplicationScenario string    `json:"applicationScenario" db:"ApplicationScenario"`
-	OntId               string    `json:"ontId" db:"OntId"`
-	Author              string    `json:"author" db:"Author"`
-	CreateTime          time.Time `json:"createTime" db:"CreateTime"`
+	ApiId               uint32 `json:"apiId" db:"ApiId"`
+	Coin                string `json:"coin" db:"Coin"`
+	ApiType             string `json:"type" db:"ApiType"`
+	Icon                string `json:"icon" db:"Icon"`
+	Title               string `json:"title" db:"Title"`
+	ApiProvider         string `json:"provider" db:"ApiProvider"`        //source url. join args can access.
+	ApiSagaUrlKey       string `json:"apiSagaUrlKey" db:"ApiSagaUrlKey"` //sagaurlkey
+	ApiUrl              string `json:"apiUrl" db:"ApiUrl"`               // sagaurl
+	Price               string `json:"price" db:"Price"`
+	ApiDesc             string `json:"description" db:"ApiDesc"`
+	ErrorDesc           string `json:"errorDescription" db:"ErrorDesc"`
+	Specifications      uint32 `json:"specifications" db:"Specifications"`
+	Popularity          uint32 `json:"popularity" db:"Popularity"`
+	Delay               uint32 `json:"delay" db:"Delay"`
+	SuccessRate         uint32 `json:"successRate" db:"SuccessRate"`
+	InvokeFrequency     uint64 `json:"invokeFrequency" db:"InvokeFrequency"`
+	ApiState            int32  `json:"apiState" db:"ApiState"`
+	RequestType         string `json:"requestType" db:"RequestType"`
+	Mark                string `json:"mark" db:"Mark"`
+	ResponseParam       string `json:"responseParam" db:"ResponseParam"`
+	ResponseExample     string `json:"responseExample" db:"ResponseExample"`
+	DataDesc            string `json:"dataDesc" db:"DataDesc"`
+	DataSource          string `json:"dataSource" db:"DataSource"`
+	ApplicationScenario string `json:"applicationScenario" db:"ApplicationScenario"`
+	ApiKind             int32  `json:"apiKind" db:"ApiKind"`
+	OntId               string `json:"ontId" db:"OntId"`
+	Author              string `json:"author" db:"Author"`
+	CreateTime          Time   `json:"createTime" db:"CreateTime"`
 }
 
 type ApiTag struct {
-	Id         uint32    `json:"id" db:"Id"`
-	ApiId      uint32    `json:"apiId" db:"ApiId"`
-	TagId      uint32    `json:"tagId" db:"TagId"`
-	State      byte      `json:"state" db:"State"`
-	CreateTime time.Time `json:"createTime" db:"CreateTime"`
+	Id         uint32 `json:"id" db:"Id"`
+	ApiId      uint32 `json:"apiId" db:"ApiId"`
+	TagId      uint32 `json:"tagId" db:"TagId"`
+	State      byte   `json:"state" db:"State"`
+	CreateTime Time   `json:"createTime" db:"CreateTime"`
 }
 
 type Tag struct {
-	Id         uint32    `json:"id" db:"Id"`
-	Name       string    `json:"name" db:"Name"`
-	CategoryId uint32    `json:"categoryId" db:"CategoryId"`
-	State      byte      `json:"state" db:"State"`
-	CreateTime time.Time `json:"createTime" db:"CreateTime"`
+	Id         uint32 `json:"id" db:"Id"`
+	Name       string `json:"name" db:"Name"`
+	CategoryId uint32 `json:"categoryId" db:"CategoryId"`
+	State      byte   `json:"state" db:"State"`
+	CreateTime Time   `json:"createTime" db:"CreateTime"`
 }
 
 type Category struct {

@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS `tbl_country_city`;
+DROP TABLE IF EXISTS `tbl_algorithm_env`;
+DROP TABLE IF EXISTS `tbl_api_algorithm`;
+DROP TABLE IF EXISTS `tbl_env`;
+DROP TABLE IF EXISTS `tbl_algorithm`;
 DROP TABLE IF EXISTS `tbl_api_test_key`;
 DROP TABLE IF EXISTS `tbl_qr_code`;
 DROP TABLE IF EXISTS `tbl_api_key`;
@@ -14,7 +19,7 @@ create table tbl_api_basic_info
 (
  ApiId INT NOT NULL AUTO_INCREMENT COMMENT '主键',
  Coin  varchar(10) NOT NULL DEFAULT '' COMMENT '',
- ApiType varchar(10) NOT NULL DEFAULT '' COMMENT '',
+ ApiType varchar(255) NOT NULL DEFAULT '' COMMENT '',
  Icon text NOT NULL COMMENT '',
  Title varchar(100) NOT NULL  DEFAULT '' COMMENT '',
  ApiProvider varchar(255) unique NOT NULL DEFAULT '' COMMENT '',
@@ -36,6 +41,7 @@ create table tbl_api_basic_info
  DataDesc varchar(255) NOT NULL DEFAULT '' COMMENT '',
  DataSource varchar(255) NOT NULL DEFAULT ''  COMMENT '',
  ApplicationScenario varchar(255) NOT NULL DEFAULT '' COMMENT '',
+ ApiKind INT NOT NULL DEFAULT 1 COMMENT '',
  OntId varchar(50) NOT NULL DEFAULT '' COMMENT '',
  Author varchar(50) NOT NULL DEFAULT '' COMMENT '',
  CreateTime TIMESTAMP DEFAULT current_timestamp,
@@ -45,7 +51,8 @@ create table tbl_api_basic_info
  INDEX(ApiDesc),
  INDEX(ApiState),
  INDEX(OntId),
- INDEX(Author)
+ INDEX(Author),
+ INDEX(ApiKind)
 )DEFAULT charset=utf8;
 
 create table tbl_category
@@ -184,4 +191,59 @@ CREATE TABLE `tbl_qr_code` (
   PRIMARY KEY (Id),
   foreign key(OrderId) references tbl_order(OrderId),
   INDEX(QrCodeId)
+)DEFAULT charset=utf8;
+
+CREATE TABLE `tbl_country_city` (
+	Id INT NOT NULL AUTO_INCREMENT,
+	Country varchar(50) NOT NULL,
+	City varchar(50) UNIQUE NOT NULL,
+	Lat varchar(50) NOT NULL,
+	Lng varchar(50) NOT NULL,
+	PRIMARY KEY (Id)
+)DEFAULT charset=utf8;
+
+CREATE TABLE `tbl_algorithm` (
+	Id INT NOT NULL AUTO_INCREMENT,
+	AlgName varchar(255) UNIQUE NOT NULL,
+	Provider varchar(255) UNIQUE NOT NULL DEFAULT '',
+	Description varchar(255) UNIQUE NOT NULL DEFAULT '',
+	Price varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	Coin varchar(20) NOT NULL COMMENT '币种',
+	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
+	CreateTime TIMESTAMP DEFAULT current_timestamp,
+	PRIMARY KEY(Id)
+)DEFAULT charset=utf8;
+
+CREATE TABLE `tbl_env` (
+	Id INT NOT NULL AUTO_INCREMENT,
+	EnvName varchar(255) UNIQUE NOT NULL,
+	Provider varchar(255) UNIQUE NOT NULL DEFAULT '',
+	Description varchar(255) UNIQUE NOT NULL DEFAULT '',
+	Price varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	Coin varchar(20) NOT NULL COMMENT '币种',
+	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
+	CreateTime TIMESTAMP DEFAULT current_timestamp,
+	PRIMARY KEY(Id)
+)DEFAULT charset=utf8;
+
+CREATE TABLE `tbl_api_algorithm` (
+	Id INT NOT NULL AUTO_INCREMENT,
+	ApiId INT UNIQUE NOT NULL,
+	AlgorithmId INT NOT NULL,
+	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
+	CreateTime TIMESTAMP DEFAULT current_timestamp,
+	foreign key(ApiId) references tbl_api_basic_info(ApiId),
+	foreign key(AlgorithmId) references tbl_algorithm(Id),
+	PRIMARY KEY(Id)
+)DEFAULT charset=utf8;
+
+CREATE TABLE `tbl_algorithm_env` (
+	Id INT NOT NULL AUTO_INCREMENT,
+	AlgorithmId INT UNIQUE NOT NULL,
+	EnvId INT NOT NULL,
+	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
+	CreateTime TIMESTAMP DEFAULT current_timestamp,
+	foreign key(EnvId) references tbl_env(Id),
+	foreign key(AlgorithmId) references tbl_algorithm(Id),
+	PRIMARY KEY(Id)
 )DEFAULT charset=utf8;

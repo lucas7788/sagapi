@@ -6,6 +6,7 @@ import (
 	"github.com/ontio/sagapi/restful/api/v1/api"
 	"github.com/ontio/sagapi/restful/api/v1/nasa"
 	"github.com/ontio/sagapi/restful/api/v1/order"
+	"github.com/ontio/sagapi/restful/api/v1/process"
 )
 
 func RoutesV1(parent *gin.RouterGroup) {
@@ -14,6 +15,7 @@ func RoutesV1(parent *gin.RouterGroup) {
 	nasa.RoutesNasa(v1Route)
 	order.RoutesOrder(v1Route)
 	api.RoutesApiList(v1Route)
+	process.RoutesDataProcess(v1Route)
 
 	v1Route.POST("/data_source/:sagaUrlKey/:apiKey", HandleDataSourceReq)
 }
