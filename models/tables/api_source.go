@@ -9,25 +9,31 @@ type Location struct {
 }
 
 type Algorithm struct {
-	Id          uint32 `json:"id" db:"Id"`
-	AlgName     string `json:"algName" db:"AlgName"`
-	Provider    string `json:"provider" db:"Provider"`
-	Description string `json:"description" db:"Description"`
-	Price       string `json:"price" db:"Price"`
-	Coin        string `json:"coin" db:"Coin"`
-	State       byte   `json:"state" db:"State"`
-	CreateTime  Time   `json:"createTime" db:"CreateTime"`
+	Id           uint32 `json:"id" db:"Id"`
+	AlgName      string `json:"algName" db:"AlgName"`
+	Provider     string `json:"provider" db:"Provider"`
+	Description  string `json:"description" db:"Description"`
+	Price        string `json:"price" db:"Price"`
+	Coin         string `json:"coin" db:"Coin"`
+	ResourceId   string `json:"resourceId" db:"ResourceId"`
+	TokenHash    string `json:"tokenHash" db:"TokenHash"`
+	OwnerAddress string `json:"ownerAddress" db:"OwnerAddress"`
+	State        byte   `json:"state" db:"State"`
+	CreateTime   Time   `json:"createTime" db:"CreateTime"`
 }
 
 type Env struct {
-	Id          uint32 `json:"id" db:"Id"`
-	EnvName     string `json:"envName" db:"EnvName"`
-	Provider    string `json:"provider" db:"Provider"`
-	Description string `json:"description" db:"Description"`
-	Price       string `json:"price" db:"Price"`
-	Coin        string `json:"coin" db:"Coin"`
-	State       byte   `json:"state" db:"State"`
-	CreateTime  Time   `json:"createTime" db:"CreateTime"`
+	Id           uint32 `json:"id" db:"Id"`
+	EnvName      string `json:"envName" db:"EnvName"`
+	Provider     string `json:"provider" db:"Provider"`
+	Description  string `json:"description" db:"Description"`
+	Price        string `json:"price" db:"Price"`
+	Coin         string `json:"coin" db:"Coin"`
+	ResourceId   string `json:"resourceId" db:"ResourceId"`
+	TokenHash    string `json:"tokenHash" db:"TokenHash"`
+	OwnerAddress string `json:"ownerAddress" db:"OwnerAddress"`
+	State        byte   `json:"state" db:"State"`
+	CreateTime   Time   `json:"createTime" db:"CreateTime"`
 }
 
 type ApiAlgorithm struct {

@@ -35,6 +35,9 @@ type WetherForcastResponse struct {
 }
 
 type WetherForcastRequest struct {
+	TargetDate string
+	Location   City
+	ApiSource  tables.ApiBasicInfo
 }
 
 func GetLocation(c *gin.Context) {
@@ -64,6 +67,11 @@ func GetWetherForcastInfo(c *gin.Context) {
 	if err != nil {
 		log.Errorf("[GetWetherForcastInfo]: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+
+	if apiType == "ALL" {
+		common.WriteResponse(c, common.ResponseSuccess(apis))
 		return
 	}
 

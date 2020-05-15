@@ -205,10 +205,13 @@ CREATE TABLE `tbl_country_city` (
 CREATE TABLE `tbl_algorithm` (
 	Id INT NOT NULL AUTO_INCREMENT,
 	AlgName varchar(255) UNIQUE NOT NULL,
-	Provider varchar(255) UNIQUE NOT NULL DEFAULT '',
-	Description varchar(255) UNIQUE NOT NULL DEFAULT '',
+	Provider varchar(255) NOT NULL DEFAULT '',
+	Description varchar(255) NOT NULL DEFAULT '',
 	Price varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	Coin varchar(20) NOT NULL COMMENT '币种',
+	ResourceId varchar(255) UNIQUE NOT NULL,
+	TokenHash char(255) UNIQUE NOT NULL,
+	OwnerAddress varchar(255) UNIQUE NOT NULL,
 	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
 	CreateTime TIMESTAMP DEFAULT current_timestamp,
 	PRIMARY KEY(Id)
@@ -217,10 +220,13 @@ CREATE TABLE `tbl_algorithm` (
 CREATE TABLE `tbl_env` (
 	Id INT NOT NULL AUTO_INCREMENT,
 	EnvName varchar(255) UNIQUE NOT NULL,
-	Provider varchar(255) UNIQUE NOT NULL DEFAULT '',
-	Description varchar(255) UNIQUE NOT NULL DEFAULT '',
-	Price varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	Provider varchar(255) NOT NULL DEFAULT '',
+	Description varchar(255) NOT NULL DEFAULT '',
+	Price varchar(255) NOT NULL DEFAULT '0' COMMENT '',
 	Coin varchar(20) NOT NULL COMMENT '币种',
+	ResourceId varchar(255) UNIQUE NOT NULL,
+	TokenHash char(255) UNIQUE NOT NULL,
+	OwnerAddress varchar(255) UNIQUE NOT NULL,
 	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
 	CreateTime TIMESTAMP DEFAULT current_timestamp,
 	PRIMARY KEY(Id)
@@ -228,7 +234,7 @@ CREATE TABLE `tbl_env` (
 
 CREATE TABLE `tbl_api_algorithm` (
 	Id INT NOT NULL AUTO_INCREMENT,
-	ApiId INT UNIQUE NOT NULL,
+	ApiId INT NOT NULL,
 	AlgorithmId INT NOT NULL,
 	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
 	CreateTime TIMESTAMP DEFAULT current_timestamp,
@@ -239,7 +245,7 @@ CREATE TABLE `tbl_api_algorithm` (
 
 CREATE TABLE `tbl_algorithm_env` (
 	Id INT NOT NULL AUTO_INCREMENT,
-	AlgorithmId INT UNIQUE NOT NULL,
+	AlgorithmId INT NOT NULL,
 	EnvId INT NOT NULL,
 	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
 	CreateTime TIMESTAMP DEFAULT current_timestamp,

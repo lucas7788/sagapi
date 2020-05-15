@@ -32,9 +32,15 @@ func (this *SagaApiDB) QueryLocationOfCountryCity(tx *sqlx.Tx, country string) (
 
 func (this *SagaApiDB) QueryApiBasicInfoByApiTypeKind(tx *sqlx.Tx, apiType string, apiKind int32, apiState int32) ([]*tables.ApiBasicInfo, error) {
 	var err error
-	StrSql := `select * from tbl_api_basic_info where ApiType=? and ApiKind=? and ApiState=?`
 	res := make([]*tables.ApiBasicInfo, 0)
-	err = this.Select(tx, &res, StrSql, apiType, apiKind, apiState)
+	if apiType == "ALL" {
+		StrSql := `select * from tbl_api_basic_info where ApiKind=? and ApiState=?`
+		err = this.Select(tx, &res, StrSql, apiKind, apiState)
+	} else {
+		StrSql := `select * from tbl_api_basic_info where ApiType=? and ApiKind=? and ApiState=?`
+		err = this.Select(tx, &res, StrSql, apiType, apiKind, apiState)
+	}
+
 	if err != nil {
 		return nil, err
 	}
