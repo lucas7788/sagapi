@@ -51,3 +51,12 @@ type AlgorithmEnv struct {
 	State       byte   `json:"state" db:"State"`
 	CreateTime  Time   `json:"createTime" db:"CreateTime"`
 }
+
+type ToolBox struct {
+	Id          uint32 `json:"id" db:"Id"`
+	Title       string `json:"title" db:"Title"`
+	ToolBoxDesc string `json:"toolBoxDesc" db:"ToolBoxDesc"`
+	Icon        string `json:"icon" db:"Icon"`
+	State       byte   `json:"state" db:"State"`
+	CreateTime  Time   `json:"createTime" db:"CreateTime"`
+}

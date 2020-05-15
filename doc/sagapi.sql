@@ -253,3 +253,14 @@ CREATE TABLE `tbl_algorithm_env` (
 	foreign key(AlgorithmId) references tbl_algorithm(Id),
 	PRIMARY KEY(Id)
 )DEFAULT charset=utf8;
+
+CREATE TABLE `tbl_tool_box` (
+	Id INT NOT NULL AUTO_INCREMENT,
+	Title varchar(255) UNIQUE NOT NULL COMMENT 'comresponse to api_basic_info.ApiType',
+	ToolBoxDesc  varchar(255) NOT NULL,
+	Icon varchar(255),
+	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
+	CreateTime TIMESTAMP DEFAULT current_timestamp,
+	PRIMARY KEY(Id)
+)DEFAULT charset=utf8;
+

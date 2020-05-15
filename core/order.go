@@ -23,6 +23,10 @@ func NewSagaOrder() *SagaOrder {
 	}
 }
 
+func (this *SagaOrder) TakeWetherForcastApiOrder(param *common.WetherForcastRequest) (*common.QrCodeResponse, error) {
+	return nil, nil
+}
+
 func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResponse, error) {
 	tx, errl := dao.DefSagaApiDB.DB.Beginx()
 	if errl != nil {

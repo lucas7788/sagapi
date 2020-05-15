@@ -33,14 +33,8 @@ func (this *SagaApiDB) QueryLocationOfCountryCity(tx *sqlx.Tx, country string) (
 func (this *SagaApiDB) QueryApiBasicInfoByApiTypeKind(tx *sqlx.Tx, apiType string, apiKind int32, apiState int32) ([]*tables.ApiBasicInfo, error) {
 	var err error
 	res := make([]*tables.ApiBasicInfo, 0)
-	if apiType == "ALL" {
-		StrSql := `select * from tbl_api_basic_info where ApiKind=? and ApiState=?`
-		err = this.Select(tx, &res, StrSql, apiKind, apiState)
-	} else {
-		StrSql := `select * from tbl_api_basic_info where ApiType=? and ApiKind=? and ApiState=?`
-		err = this.Select(tx, &res, StrSql, apiType, apiKind, apiState)
-	}
-
+	StrSql := `select * from tbl_api_basic_info where ApiType=? and ApiKind=? and ApiState=?`
+	err = this.Select(tx, &res, StrSql, apiType, apiKind, apiState)
 	if err != nil {
 		return nil, err
 	}
@@ -76,42 +70,49 @@ func (this *SagaApiDB) QueryAlgorithmEnvByAlgorithmId(tx *sqlx.Tx, algorithmId u
 
 }
 
-func (this *SagaApiDB) QueryAlgorithmsById(tx *sqlx.Tx, id uint32) ([]*tables.Algorithm, error) {
+func (this *SagaApiDB) QueryAlgorithmById(tx *sqlx.Tx, id uint32) (*tables.Algorithm, error) {
 	var err error
-	res := make([]*tables.Algorithm, 0)
-	if id != 0 {
-		StrSql := `select * from tbl_algorithm where Id=? and State=1`
-		err = this.Select(tx, &res, StrSql, id)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		StrSql := `select * from tbl_algorithm where State=1`
-		err = this.Select(tx, &res, StrSql)
-		if err != nil {
-			return nil, err
-		}
+	var res tables.Algorithm
+	StrSql := `select * from tbl_algorithm where Id=? and State=1`
+	err = this.Get(tx, &res, StrSql, id)
+	if err != nil {
+		return nil, err
 	}
-	return res, nil
+	return &res, nil
 }
 
-func (this *SagaApiDB) QueryEnvsById(tx *sqlx.Tx, id uint32) ([]*tables.Env, error) {
+func (this *SagaApiDB) QueryEnvById(tx *sqlx.Tx, id uint32) (*tables.Env, error) {
 	var err error
-	res := make([]*tables.Env, 0)
-	if id != 0 {
-		StrSql := `select * from tbl_env where Id=? and State=1`
-		err = this.Select(tx, &res, StrSql, id)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		StrSql := `select * from tbl_env where State=1`
-		err = this.Select(tx, &res, StrSql)
-		if err != nil {
-			return nil, err
-		}
+	var res tables.Env
+	StrSql := `select * from tbl_env where Id=? and State=1`
+	err = this.Get(tx, &res, StrSql, id)
+	if err != nil {
+		return nil, err
 	}
 
-	log.Debugf("env id : %d, len(res): %d", id, len(res))
+	return &res, nil
+}
+
+func (this *SagaApiDB) QueryToolBoxById(tx *sqlx.Tx, id uint32) (*tables.ToolBox, error) {
+	var err error
+	var res tables.ToolBox
+	StrSql := `select * from tbl_tool_box where Id=? and State=1`
+	err = this.Get(tx, &res, StrSql, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (this *SagaApiDB) QueryToolBoxAll(tx *sqlx.Tx) ([]*tables.ToolBox, error) {
+	var err error
+	res := make([]*tables.ToolBox, 0)
+	StrSql := `select * from tbl_tool_box where State=1`
+	err = this.Select(tx, &res, StrSql)
+	if err != nil {
+		return nil, err
+	}
+
 	return res, nil
 }

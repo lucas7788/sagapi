@@ -1,5 +1,9 @@
 package common
 
+import (
+	"github.com/ontio/sagapi/models/tables"
+)
+
 type TakeOrderParam struct {
 	ProductName      string `json:"productName"`
 	OntId            string `json:"ontId"`
@@ -54,4 +58,12 @@ type GetApiByCategoryId struct {
 	CategoryId uint32 `json:"categoryId"`
 	PageNum    uint32 `json:"pageNum"`
 	PageSize   uint32 `json:"pageSize"`
+}
+
+type WetherForcastRequest struct {
+	TargetDate  string          `json:"targetDate"`
+	Location    tables.Location `json:"location"`
+	ApiSourceId uint32          `json:"apiSourceId"`
+	AlgorithmId uint32          `json:"algorithmId"`
+	EnvId       uint32          `json:"envId"`
 }

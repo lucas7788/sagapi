@@ -7,15 +7,8 @@ import (
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/restful/api/common"
+	"strconv"
 )
-
-type City struct {
-	Id      uint32 `json:"id" db:"Id"`
-	Country string `json:"Country" db:"Country"`
-	City    string `json:"City" db:"City"`
-	Lat     string `json:"Lat" db:"Lat"`
-	Lng     string `json:"Lng" db:"Lng"`
-}
 
 type AlgorithmObj struct {
 	Algorithm *tables.Algorithm `json:"algorithm"`
@@ -28,16 +21,11 @@ type ApiSourceObj struct {
 }
 
 type WetherForcastResponse struct {
+	ToolBox      *tables.ToolBox
 	ApiSourceObj []*ApiSourceObj        `json:"apiSourceObj"`
 	ApiALL       []*tables.ApiBasicInfo `json:"apiALL"`
 	AlgorithmALL []*tables.Algorithm    `json:"algorithmALL"`
 	EnvAll       []*tables.Env          `json:"envAll"`
-}
-
-type WetherForcastRequest struct {
-	TargetDate string
-	Location   City
-	ApiSource  tables.ApiBasicInfo
 }
 
 func GetLocation(c *gin.Context) {
@@ -52,29 +40,47 @@ func GetLocation(c *gin.Context) {
 	common.WriteResponse(c, common.ResponseSuccess(res))
 }
 
-func GetWetherForcastInfo(c *gin.Context) {
-	apiType := c.Param("preditype")
-	if apiType == "" {
-		log.Errorf("[GetWetherForcastInfo]: %s", errors.New("preditype can not empty."))
-		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("apiType can not empty.")))
+func GetAllToolBox(c *gin.Context) {
+	res, err := dao.DefSagaApiDB.QueryToolBoxAll(nil)
+	if err != nil {
+		log.Errorf("[GetAllToolBox]: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
-	algsresp := make([]*AlgorithmObj, 0)
-	apisourceresp := make([]*ApiSourceObj, 0)
-	envsresp := make([]*tables.Env, 0)
+	common.WriteResponse(c, common.ResponseSuccess(res))
+}
 
-	apis, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiTypeKind(nil, apiType, tables.API_KIND_DATA_PROCESS, tables.API_STATE_BUILTIN)
+func GetWetherForcastInfo(c *gin.Context) {
+	toolid := c.Param("toolid")
+	if toolid == "" {
+		log.Errorf("[GetWetherForcastInfo]: %s", errors.New("toolid can not empty."))
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("toolid can not empty.")))
+		return
+	}
+	toolboxid, err := strconv.Atoi(toolid)
+	if err != nil {
+		log.Errorf("[GetWetherForcastInfo]: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	toolbox, err := dao.DefSagaApiDB.QueryToolBoxById(nil, uint32(toolboxid))
 	if err != nil {
 		log.Errorf("[GetWetherForcastInfo]: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
 
-	if apiType == "ALL" {
-		common.WriteResponse(c, common.ResponseSuccess(apis))
+	algAll := make([]*tables.Algorithm, 0)
+	envAll := make([]*tables.Env, 0)
+
+	apis, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiTypeKind(nil, toolbox.Title, tables.API_KIND_DATA_PROCESS, tables.API_STATE_BUILTIN)
+	if err != nil {
+		log.Errorf("[GetWetherForcastInfo]: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}
 
+	apisourceresp := make([]*ApiSourceObj, 0)
 	for _, api := range apis {
 		apialgs, err := dao.DefSagaApiDB.QueryApiAlgorithmsByApiId(nil, api.ApiId)
 		if err != nil {
@@ -82,53 +88,50 @@ func GetWetherForcastInfo(c *gin.Context) {
 			common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 			return
 		}
+		algsresp := make([]*AlgorithmObj, 0)
 		for _, apialg := range apialgs {
-			algs, err := dao.DefSagaApiDB.QueryAlgorithmsById(nil, apialg.AlgorithmId)
+			alg, err := dao.DefSagaApiDB.QueryAlgorithmById(nil, apialg.AlgorithmId)
 			if err != nil {
 				log.Errorf("[GetWetherForcastInfo]: %s", err)
 				common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 				return
 			}
 
-			for _, alg := range algs {
-				algenvs, err := dao.DefSagaApiDB.QueryAlgorithmEnvByAlgorithmId(nil, alg.Id)
+			algenvs, err := dao.DefSagaApiDB.QueryAlgorithmEnvByAlgorithmId(nil, alg.Id)
+			if err != nil {
+				log.Errorf("[GetWetherForcastInfo]: %s", err)
+				common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+				return
+			}
+			envsresp := make([]*tables.Env, 0)
+			for _, env := range algenvs {
+				env, err := dao.DefSagaApiDB.QueryEnvById(nil, env.Id)
 				if err != nil {
 					log.Errorf("[GetWetherForcastInfo]: %s", err)
 					common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 					return
 				}
-				for _, env := range algenvs {
-					envs, err := dao.DefSagaApiDB.QueryEnvsById(nil, env.Id)
-					if err != nil {
-						log.Errorf("[GetWetherForcastInfo]: %s", err)
-						common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
-						return
-					}
-					envsresp = envs
-				}
-				algsresp = append(algsresp, &AlgorithmObj{
-					Algorithm: alg,
-					Env:       envsresp,
-				})
+				envsresp = append(envsresp, env)
+				envAll = append(envAll, env)
 			}
+			algsresp = append(algsresp, &AlgorithmObj{
+				Algorithm: alg,
+				Env:       envsresp,
+			})
+			algAll = append(algAll, alg)
 		}
 		apisourceresp = append(apisourceresp, &ApiSourceObj{
 			ApiSource:  api,
 			Algorithms: algsresp,
 		})
 	}
-	envxs, err0 := dao.DefSagaApiDB.QueryEnvsById(nil, 0)
-	algxs, err1 := dao.DefSagaApiDB.QueryAlgorithmsById(nil, 0)
-	if err0 != nil || err1 != nil {
-		log.Errorf("[GetWetherForcastInfo]: %s, %s", err0, err1)
-		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err1))
-		return
-	}
+
 	res := WetherForcastResponse{
+		ToolBox:      toolbox,
 		ApiSourceObj: apisourceresp,
 		ApiALL:       apis,
-		EnvAll:       envxs,
-		AlgorithmALL: algxs,
+		EnvAll:       envAll,
+		AlgorithmALL: algAll,
 	}
 	common.WriteResponse(c, common.ResponseSuccess(res))
 }

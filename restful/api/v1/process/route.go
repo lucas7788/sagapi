@@ -7,6 +7,7 @@ import (
 func RoutesDataProcess(parent *gin.RouterGroup) {
 	publishG := parent.Group("/dataprocess")
 	//publishG.Use(jwt.JWT())
-	publishG.GET("/GetWetherForcastInfo/:preditype", GetWetherForcastInfo)
+	publishG.GET("/GetWetherForcastInfo/:toolid", GetWetherForcastInfo)
 	publishG.GET("/GetLocation/:country", GetLocation)
+	publishG.GET("/GetAllToolBox", GetAllToolBox)
 }
