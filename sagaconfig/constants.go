@@ -40,10 +40,11 @@ const (
 )
 
 const (
-	Api     = "api"
-	Data    = "data"
-	TestNet = "Testnet"
-	MainNet = "Mainnet"
+	Api        = "api"
+	ApiProcess = "apiprocess"
+	Data       = "data"
+	TestNet    = "Testnet"
+	MainNet    = "Mainnet"
 )
 
 //api token type

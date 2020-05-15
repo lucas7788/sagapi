@@ -9,10 +9,10 @@ import (
 
 func (this *SagaApiDB) InsertQrCode(tx *sqlx.Tx, code *tables.QrCode) error {
 	strSql := `insert into tbl_qr_code (QrCodeId,Ver, OrderId, Requester, Signature,Signer,QrCodeData,Callback,Exp,
-Chain,QrCodeDesc) values (?,?,?,?,?,?,?,?,?,?,?)`
+Chain,QrCodeDesc,ContractType) values (?,?,?,?,?,?,?,?,?,?,?,?)`
 
 	err := this.Exec(tx, strSql, code.QrCodeId, code.Ver, code.OrderId, code.Requester, code.Signature, code.Signer,
-		code.QrCodeData, code.Callback, code.Exp, code.Chain, code.QrCodeDesc)
+		code.QrCodeData, code.Callback, code.Exp, code.Chain, code.QrCodeDesc, code.ContractType)
 	return err
 }
 
@@ -63,9 +63,9 @@ func (this *SagaApiDB) QueryQrCodeResultByQrCodeId(tx *sqlx.Tx, qrCodeId string)
 func (this *SagaApiDB) queryQrCodeById(tx *sqlx.Tx, orderId, qrCodeId string) (*tables.QrCode, error) {
 	var strSql string
 	if orderId != "" {
-		strSql = `select QrCodeId,Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where OrderId=?`
+		strSql = `select QrCodeId,Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc,ContractType  from tbl_qr_code where OrderId=?`
 	} else if qrCodeId != "" {
-		strSql = `select QrCodeId,Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc from tbl_qr_code where QrCodeId=?`
+		strSql = `select QrCodeId,Ver,OrderId,Requester,Signature,Signer,QrCodeData,Callback,Exp,Chain,QrCodeDesc,ContractType  from tbl_qr_code where QrCodeId=?`
 	}
 
 	var where string

@@ -22,6 +22,14 @@ OntId,UserName,Price,ApiId,ApiUrl,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?
 	return err
 }
 
+func (this *SagaApiDB) InsertApiProcessOrder(tx *sqlx.Tx, order *tables.ApiProcessOrder) error {
+	// use NameExec better.
+	strSql := `insert into tbl_order (OrderId,Title,OrderType,OrderTime,PayTime,OrderStatus,OntId,TxHash,Price,Coin,Result) values (?,?,?,?,?,?,?,?,?,?,?)`
+	err := this.Exec(tx, strSql, order.OrderId, order.Title, order.OrderType, order.OrderTime, order.PayTime, order.OrderStatus,
+		order.OntId, order.TxHash, order.Price, order.Coin, order.Result)
+	return err
+}
+
 func (this *SagaApiDB) UpdateTxInfoByOrderId(tx *sqlx.Tx, orderId string, txHash string, status sagaconfig.OrderStatus) error {
 	strSql := "update tbl_order set TxHash=?,OrderStatus=? where OrderId=?"
 	err := this.Exec(tx, strSql, txHash, status, orderId)

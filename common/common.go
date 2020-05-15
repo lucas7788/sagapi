@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/sagapi/models"
@@ -123,59 +124,81 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) (*tables.
 	}, nil
 }
 
-//func buildWetherForcastQrCode(resourceidApi string, resourceidalgenv string, ontid, payer, from, to, value string) (*tables.QrCode, error) {
-//	exp := time.Now().Unix() + sagaconfig.QrCodeExp
-//	amt := utils.ToIntByPrecise(value, sagaconfig.ONG_DECIMALS)
-//	data := &models.QrCodeData{
-//		Action: "signTransaction",
-//		Params: models.QrCodeParam{
-//			InvokeConfig: models.InvokeConfig{
-//				ContractHash: sagaconfig.ONG_CONTRACT_ADDRESS,
-//				Functions: []models.Function{
-//					models.Function{
-//						Operation: "buyDtokensAndSetAgents",
-//						Args: []models.Arg{
-//							models.Arg{
-//								Name:  "from",
-//								Value: "Address:" + from,
-//							},
-//							models.Arg{
-//								Name:  "to",
-//								Value: "Address:" + to,
-//							},
-//							models.Arg{
-//								Name:  "value",
-//								Value: amt.Uint64(),
-//							},
-//						},
-//					},
-//				},
-//				Payer:    payer,
-//				GasLimit: 20000,
-//				GasPrice: 500,
-//			},
-//		},
-//	}
-//	databs, err := json.Marshal(data)
-//	if err != nil {
-//		return nil, err
-//	}
-//	id := GenerateUUId(UUID_TYPE_QRCODE_ID)
-//	sig, err := sagaconfig.DefSagaConfig.OntIdAccount.Sign(databs)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &tables.QrCode{
-//		Ver:        "1.0.0",
-//		QrCodeId:   id,
-//		OrderId:    orderId,
-//		Requester:  sagaconfig.DefSagaConfig.OntId,
-//		Signature:  common.ToHexString(sig),
-//		Signer:     ontid,
-//		QrCodeData: string(databs),
-//		Callback:   sagaconfig.DefSagaConfig.QrCodeCallback,
-//		Exp:        exp,
-//		Chain:      chain,
-//		QrCodeDesc: "",
-//	}, nil
-//}
+func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string, resourceidalgenv string, auth_token_templatehex string, use_token_templatehex string, payer, agent string) (*tables.QrCode, error) {
+	resourceidApihex := hex.EncodeToString([]byte(resourceidApi))
+	resourceidalgenvhex := hex.EncodeToString([]byte(resourceidalgenv))
+	exp := time.Now().Unix() + sagaconfig.QrCodeExp
+	data := &models.QrCodeData{
+		Action: "signTransaction",
+		Params: models.QrCodeParam{
+			InvokeConfig: models.InvokeConfig{
+				ContractHash: sagaconfig.ONG_CONTRACT_ADDRESS,
+				Functions: []models.Function{
+					models.Function{
+						Operation: "buyDtokensAndSetAgents",
+						Args: []models.Arg{
+							models.Arg{
+								Name:  "resourceids",
+								Value: "[" + "ByteArray:" + resourceidApihex + "," + "ByteArray:" + resourceidalgenvhex + "]",
+							},
+							models.Arg{
+								Name:  "ns",
+								Value: "[1,1]",
+							},
+							models.Arg{
+								Name:  "use_index",
+								Value: uint32(1), // use env/alg
+							},
+							models.Arg{
+								Name:  "authorized_index",
+								Value: uint32(0), // auth api
+							},
+							models.Arg{
+								Name:  "authorized_token_template",
+								Value: "ByteArray:" + "00" + "26" + auth_token_templatehex, // auth api
+							},
+							models.Arg{
+								Name:  "use_token_template",
+								Value: "ByteArray:" + "00" + "26" + use_token_templatehex, // auth api
+							},
+							models.Arg{
+								Name:  "buyer",
+								Value: "Address:" + payer,
+							},
+							models.Arg{
+								Name:  "agent",
+								Value: "Address:" + agent,
+							},
+						},
+					},
+				},
+				Payer:    payer,
+				GasLimit: 20000,
+				GasPrice: 500,
+			},
+		},
+	}
+	databs, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	id := GenerateUUId(UUID_TYPE_QRCODE_ID)
+	sig, err := sagaconfig.DefSagaConfig.OntIdAccount.Sign(databs)
+	if err != nil {
+		return nil, err
+	}
+	return &tables.QrCode{
+		Ver:          "1.0.0",
+		QrCodeId:     id,
+		OrderId:      orderId,
+		Requester:    sagaconfig.DefSagaConfig.OntId,
+		Signature:    common.ToHexString(sig),
+		Signer:       ontid,
+		QrCodeData:   string(databs),
+		Callback:     sagaconfig.DefSagaConfig.QrCodeCallback,
+		Exp:          exp,
+		Chain:        chain,
+		ContractType: "wasm",
+		QrCodeDesc:   "",
+	}, nil
+}

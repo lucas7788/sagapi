@@ -63,7 +63,9 @@ type GetApiByCategoryId struct {
 type WetherForcastRequest struct {
 	TargetDate  string          `json:"targetDate"`
 	Location    tables.Location `json:"location"`
+	ToolBoxId   uint32          `json:"toolBoxId"`
 	ApiSourceId uint32          `json:"apiSourceId"`
 	AlgorithmId uint32          `json:"algorithmId"`
 	EnvId       uint32          `json:"envId"`
+	Result      string          `json:"result"`
 }

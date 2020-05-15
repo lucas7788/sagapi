@@ -21,6 +21,20 @@ type Order struct {
 	Coin             string                 `json:"coin" db:"Coin"`
 }
 
+type ApiProcessOrder struct {
+	OrderId     string                 `json:"orderId" db:"OrderId"`
+	Title       string                 `json:"title" db:"Title"`
+	OrderType   string                 `json:"orderType" db:"OrderType"`
+	OrderTime   int64                  `json:"orderTime" db:"OrderTime"`
+	PayTime     int64                  `json:"payTime" db:"PayTime"`
+	OrderStatus sagaconfig.OrderStatus `json:"orderStatus" db:"OrderStatus"`
+	OntId       string                 `json:"ontId" db:"OntId"`
+	TxHash      string                 `json:"txHash" db:"TxHash"`
+	Price       string                 `json:"price" db:"Price"`
+	Coin        string                 `json:"coin" db:"Coin"`
+	Result      string                 `json:"result" db:"Result"` // this fill
+}
+
 type APIKey struct {
 	Id           uint32 `json:"id" db:"Id"`
 	ApiKey       string `json:"apiKey" db:"ApiKey"`
@@ -32,15 +46,16 @@ type APIKey struct {
 }
 
 type QrCode struct {
-	QrCodeId   string `json:"id" db:"QrCodeId"`
-	Ver        string `json:"ver" db:"Ver"`
-	OrderId    string `json:"orderId" db:"OrderId"`
-	Requester  string `json:"requester" db:"Requester"`
-	Signature  string `json:"signature" db:"Signature"`
-	Signer     string `json:"signer" db:"Signer"`
-	QrCodeData string `json:"data" db:"QrCodeData"`
-	Callback   string `json:"callback" db:"Callback"`
-	Exp        int64  `json:"exp" db:"Exp"`
-	Chain      string `json:"chain" db:"Chain"`
-	QrCodeDesc string `json:"desc" db:"QrCodeDesc"`
+	QrCodeId     string `json:"id" db:"QrCodeId"`
+	Ver          string `json:"ver" db:"Ver"`
+	OrderId      string `json:"orderId" db:"OrderId"`
+	Requester    string `json:"requester" db:"Requester"`
+	Signature    string `json:"signature" db:"Signature"`
+	Signer       string `json:"signer" db:"Signer"`
+	QrCodeData   string `json:"data" db:"QrCodeData"`
+	Callback     string `json:"callback" db:"Callback"`
+	Exp          int64  `json:"exp" db:"Exp"`
+	Chain        string `json:"chain" db:"Chain"`
+	QrCodeDesc   string `json:"desc" db:"QrCodeDesc"`
+	ContractType string `json:"contractType" db:"ContractType"`
 }

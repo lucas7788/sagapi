@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/dao"
@@ -23,8 +24,94 @@ func NewSagaOrder() *SagaOrder {
 	}
 }
 
-func (this *SagaOrder) TakeWetherForcastApiOrder(param *common.WetherForcastRequest) (*common.QrCodeResponse, error) {
-	return nil, nil
+func (this *SagaOrder) TakeWetherForcastApiOrder(param *common.WetherForcastRequest, ontId string, userName string) (*common.QrCodeResponse, error) {
+	toolbox, err := dao.DefSagaApiDB.QueryToolBoxById(nil, uint32(param.ToolBoxId))
+	if err != nil {
+		return nil, err
+	}
+	api, err := dao.DefSagaApiDB.QueryApiBasicInfoByApiId(nil, param.ApiSourceId, tables.API_STATE_BUILTIN)
+	if err != nil {
+		return nil, err
+	}
+	if api.ApiType != toolbox.Title || api.ApiKind != tables.API_KIND_DATA_PROCESS {
+		return nil, errors.New("wrong api type or kind")
+	}
+
+	// to do check the conrespond.
+	alg, err := dao.DefSagaApiDB.QueryAlgorithmById(nil, param.AlgorithmId)
+	if err != nil {
+		return nil, err
+	}
+	env, err := dao.DefSagaApiDB.QueryEnvById(nil, param.EnvId)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, errl := dao.DefSagaApiDB.DB.Beginx()
+	if errl != nil {
+		return nil, errl
+	}
+
+	defer func() {
+		if errl != nil {
+			tx.Rollback()
+		}
+	}()
+
+	apiprice := utils.ToIntByPrecise(api.Price, sagaconfig.ONG_DECIMALS)
+	algprice := utils.ToIntByPrecise(alg.Price, sagaconfig.ONG_DECIMALS)
+	envprice := utils.ToIntByPrecise(env.Price, sagaconfig.ONG_DECIMALS)
+	//all = apiprice + algprice + envprice
+	t0 := big.NewInt(0)
+	t1 := t0.Add(apiprice, algprice)
+	t2 := big.NewInt(0)
+	allAmount := t2.Add(t1, envprice)
+	amountStr := utils.ToStringByPrecise(allAmount, sagaconfig.ONG_DECIMALS)
+
+	orderId := common.GenerateUUId(common.UUID_TYPE_ORDER_ID)
+	order := &tables.ApiProcessOrder{
+		OrderId:     orderId,
+		Title:       toolbox.Title,
+		OrderType:   sagaconfig.ApiProcess,
+		OrderTime:   time.Now().Unix(),
+		OrderStatus: sagaconfig.Processing,
+		OntId:       ontId,
+		Price:       amountStr,
+		Coin:        api.Coin,
+		Result:      "", // leave it empty fill later.
+	}
+
+	err = dao.DefSagaApiDB.InsertApiProcessOrder(tx, order)
+	if err != nil {
+		errl = err
+		return nil, err
+	}
+	arr := strings.Split(ontId, ":")
+	if len(arr) < 3 {
+		errl = fmt.Errorf("error ontid: %s", ontId)
+		return nil, errl
+	}
+	payer := arr[2]
+
+	code, err := common.BuildWetherForcastQrCode(sagaconfig.DefSagaConfig.NetType, orderId, ontId, api.ResourceId, alg.ResourceId, api.TokenHash, env.TokenHash, payer, env.OwnerAddress)
+	if err != nil {
+		errl = err
+		return nil, err
+	}
+
+	err = dao.DefSagaApiDB.InsertQrCode(tx, code)
+	if err != nil {
+		errl = err
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		errl = err
+		return nil, err
+	}
+
+	return common.BuildQrCodeResponse(code.QrCodeId), nil
 }
 
 func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeResponse, error) {
@@ -87,7 +174,6 @@ func (this *SagaOrder) TakeOrder(param *common.TakeOrderParam) (*common.QrCodeRe
 		errl = err
 		return nil, err
 	}
-	//this.qrCodeCache.Store(code.QrCodeId, code)
 	err = dao.DefSagaApiDB.InsertQrCode(tx, code)
 	if err != nil {
 		errl = err

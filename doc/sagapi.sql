@@ -192,6 +192,7 @@ CREATE TABLE `tbl_qr_code` (
   Exp BIGINT NOT NULL DEFAULT 0,
   Chain varchar(50) NOT NULL DEFAULT '',
   QrCodeDesc varchar(100) NOT NULL DEFAULT '',
+  ContractType varchar(10) NOT NULL DEFAULT '',
   PRIMARY KEY (Id),
   foreign key(OrderId) references tbl_order(OrderId),
   INDEX(QrCodeId)
