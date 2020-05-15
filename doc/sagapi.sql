@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `tbl_tool_box`;
 DROP TABLE IF EXISTS `tbl_country_city`;
 DROP TABLE IF EXISTS `tbl_algorithm_env`;
 DROP TABLE IF EXISTS `tbl_api_algorithm`;
@@ -44,6 +45,9 @@ create table tbl_api_basic_info
  ApiKind INT NOT NULL DEFAULT 1 COMMENT '',
  OntId varchar(50) NOT NULL DEFAULT '' COMMENT '',
  Author varchar(50) NOT NULL DEFAULT '' COMMENT '',
+ ResourceId varchar(255) NOT NULL DEFAULT '',
+ TokenHash char(255) NOT NULL DEFAULT '',
+ OwnerAddress varchar(255) NOT NULL DEFAULT '',
  CreateTime TIMESTAMP DEFAULT current_timestamp,
  PRIMARY KEY (ApiId),
  INDEX(Price),

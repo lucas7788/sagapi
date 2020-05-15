@@ -66,6 +66,9 @@ type ApiBasicInfo struct {
 	ApiKind             int32  `json:"apiKind" db:"ApiKind"`
 	OntId               string `json:"ontId" db:"OntId"`
 	Author              string `json:"author" db:"Author"`
+	ResourceId          string `json:"resourceId" db:"ResourceId"`
+	TokenHash           string `json:"tokenHash" db:"TokenHash"`
+	OwnerAddress        string `json:"ownerAddress" db:"OwnerAddress"`
 	CreateTime          Time   `json:"createTime" db:"CreateTime"`
 }
 
