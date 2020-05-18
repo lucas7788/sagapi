@@ -33,6 +33,7 @@ const (
 	Canceled
 	Failed
 	Completed
+	TxHandled
 )
 
 const (

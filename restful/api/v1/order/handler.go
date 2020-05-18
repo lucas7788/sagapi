@@ -16,6 +16,30 @@ import (
 	"strconv"
 )
 
+func TakeWetherForcastApiOrder(c *gin.Context) {
+	param := &common2.WetherForcastRequest{}
+	err := common.ParsePostParam(c, param)
+	if err != nil {
+		log.Errorf("[TakeWetherForcastApiOrder] ParsePostParam failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	ontid, ok := c.Get(sagaconfig.Key_OntId)
+	if !ok {
+		log.Errorf("[TakeWetherForcastApiOrder] ontid is nil: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("ontid is nil")))
+		return
+	}
+	OntId := ontid.(string)
+	res, err := core.DefSagaApi.SagaOrder.TakeWetherForcastApiOrder(param, OntId)
+	if err != nil {
+		log.Errorf("[TakeWetherForcastApiOrder] TakeOrder failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(res))
+}
+
 func TakeOrder(c *gin.Context) {
 	param := &common2.TakeOrderParam{}
 	err := common.ParsePostParam(c, param)
@@ -69,6 +93,57 @@ func QueryOrderByPage(c *gin.Context) {
 	orders, err := core.DefSagaApi.SagaOrder.QueryOrderByPage(pageNum, paseSize, ontId.(string))
 	if err != nil {
 		log.Errorf("[QueryOrderByPage] QueryOrderByPage failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(orders))
+}
+
+func QueryDataProcessOrderByPage(c *gin.Context) {
+	params, err := common.ParseGetParamByParamName(c, "pageNum", "pageSize")
+	if err != nil {
+		log.Errorf("[QueryDataProcessOrderByPage] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	ontId, ok := c.Get(sagaconfig.Key_OntId)
+	if !ok || ontId == "" {
+		log.Errorf("[QueryDataProcessOrderByPage] ParseGetParamByParamName failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, fmt.Errorf("ontid is nil")))
+		return
+	}
+	log.Infof("[QueryDataProcessOrderByPage] ontid:%s", ontId)
+	pageNum, err := strconv.Atoi(params[0])
+	if err != nil {
+		log.Errorf("[QueryDataProcessOrderByPage] Atoi failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	paseSize, err := strconv.Atoi(params[1])
+	if err != nil {
+		log.Errorf("[QueryDataProcessOrderByPage] Atoi failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	orders, err := core.DefSagaApi.SagaOrder.QueryDataProcessOrderByPage(pageNum, paseSize, ontId.(string))
+	if err != nil {
+		log.Errorf("[QueryDataProcessOrderByPage] QueryDataProcessOrderByPage failed: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(orders))
+}
+
+func GetOrderDetailById(c *gin.Context) {
+	orderId := c.Param("orderId")
+	if orderId == "" {
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, errors.New("orderId can no empty")))
+		return
+
+	}
+	orders, err := core.DefSagaApi.SagaOrder.GetOrderDetailById(orderId)
+	if err != nil {
+		log.Errorf("[GetOrderDetailById] failed: %s", err)
 		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
 		return
 	}

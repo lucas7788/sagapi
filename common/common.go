@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/models"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/sagaconfig"
@@ -11,6 +12,10 @@ import (
 	"github.com/satori/go.uuid"
 	"strings"
 	"time"
+)
+
+const (
+	WETHER_DATA_PROCESS string = "Weather Forecast"
 )
 
 const (
@@ -127,23 +132,29 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) (*tables.
 func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string, resourceidalgenv string, auth_token_templatehex string, use_token_templatehex string, payer, agent string) (*tables.QrCode, error) {
 	resourceidApihex := hex.EncodeToString([]byte(resourceidApi))
 	resourceidalgenvhex := hex.EncodeToString([]byte(resourceidalgenv))
+	resourceids := make([]string, 2, 2)
+	resourceids[0] = "ByteArray:" + resourceidApihex
+	resourceids[1] = "ByteArray:" + resourceidalgenvhex
+	ns := make([]int, 2, 2)
+	ns[0] = 1
+	ns[1] = 1
 	exp := time.Now().Unix() + sagaconfig.QrCodeExp
 	data := &models.QrCodeData{
 		Action: "signTransaction",
 		Params: models.QrCodeParam{
 			InvokeConfig: models.InvokeConfig{
-				ContractHash: sagaconfig.ONG_CONTRACT_ADDRESS,
+				ContractHash: "844648a43e90c641f74255ccc2191b191c4e99a8",
 				Functions: []models.Function{
 					models.Function{
 						Operation: "buyDtokensAndSetAgents",
 						Args: []models.Arg{
 							models.Arg{
 								Name:  "resourceids",
-								Value: "[" + "ByteArray:" + resourceidApihex + "," + "ByteArray:" + resourceidalgenvhex + "]",
+								Value: resourceids,
 							},
 							models.Arg{
 								Name:  "ns",
-								Value: "[1,1]",
+								Value: ns,
 							},
 							models.Arg{
 								Name:  "use_index",
@@ -155,11 +166,11 @@ func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string
 							},
 							models.Arg{
 								Name:  "authorized_token_template",
-								Value: "ByteArray:" + "00" + "26" + auth_token_templatehex, // auth api
+								Value: "ByteArray:" + "00" + "20" + auth_token_templatehex, // auth api
 							},
 							models.Arg{
 								Name:  "use_token_template",
-								Value: "ByteArray:" + "00" + "26" + use_token_templatehex, // auth api
+								Value: "ByteArray:" + "00" + "20" + use_token_templatehex, // auth api
 							},
 							models.Arg{
 								Name:  "buyer",
@@ -173,7 +184,7 @@ func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string
 					},
 				},
 				Payer:    payer,
-				GasLimit: 20000,
+				GasLimit: 100000,
 				GasPrice: 500,
 			},
 		},
@@ -182,6 +193,8 @@ func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string
 	if err != nil {
 		return nil, err
 	}
+	log.Debugf("BuildWetherForcastQrCode: %s", string(databs))
+
 	id := GenerateUUId(UUID_TYPE_QRCODE_ID)
 	sig, err := sagaconfig.DefSagaConfig.OntIdAccount.Sign(databs)
 	if err != nil {

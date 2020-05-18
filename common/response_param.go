@@ -51,3 +51,31 @@ type OrderResult struct {
 	Price        string                 `json:"price"`
 	Coin         string                 `json:"coin"`
 }
+
+type DataProcessOrderResult struct {
+	Title     string                 `json:"title"`
+	OrderId   string                 `json:"orderId"`
+	OrderTime int64                  `json:"orderTime"`
+	TxHash    string                 `json:"txHash"`
+	ApiId     uint32                 `json:"apiId"`
+	Status    sagaconfig.OrderStatus `json:"status"`
+	Price     string                 `json:"price"`
+	Coin      string                 `json:"coin"`
+	OrderKind uint32                 `json:"orderKind"`
+	Request   string                 `json:"request"`
+	Result    string                 `json:"result"`
+}
+
+type OrderDetailResponse struct {
+	Res interface{}
+}
+
+type WetherOrderDetail struct {
+	TargetDate int64                `json:"targetDate"`
+	Location   *tables.Location     `json:"location"`
+	ToolBox    *tables.ToolBox      `json:"toolBoxId"`
+	ApiSource  *tables.ApiBasicInfo `json:"apiSourceId"`
+	Algorithm  *tables.Algorithm    `json:"algorithmId"`
+	Env        *tables.Env          `json:"envId"`
+	Result     string               `json:"result"`
+}

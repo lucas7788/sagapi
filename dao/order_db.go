@@ -16,23 +16,15 @@ func (this *SagaApiDB) ClearOrderDB() error {
 func (this *SagaApiDB) InsertOrder(tx *sqlx.Tx, order *tables.Order) error {
 	// use NameExec better.
 	strSql := `insert into tbl_order (OrderId,Title, ProductName, OrderType, OrderTime, OrderStatus,Amount, 
-OntId,UserName,Price,ApiId,ApiUrl,SpecificationsId,Coin) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+OntId,UserName,Price,ApiId,ApiUrl,SpecificationsId,Coin,OrderKind,Request,Result) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 	err := this.Exec(tx, strSql, order.OrderId, order.Title, order.ProductName, order.OrderType, order.OrderTime, order.OrderStatus,
-		order.Amount, order.OntId, order.UserName, order.Price, order.ApiId, order.ApiUrl, order.SpecificationsId, order.Coin)
+		order.Amount, order.OntId, order.UserName, order.Price, order.ApiId, order.ApiUrl, order.SpecificationsId, order.Coin, order.OrderKind, order.Request, order.Result)
 	return err
 }
 
-func (this *SagaApiDB) InsertApiProcessOrder(tx *sqlx.Tx, order *tables.ApiProcessOrder) error {
-	// use NameExec better.
-	strSql := `insert into tbl_order (OrderId,Title,OrderType,OrderTime,PayTime,OrderStatus,OntId,TxHash,Price,Coin,Result) values (?,?,?,?,?,?,?,?,?,?,?)`
-	err := this.Exec(tx, strSql, order.OrderId, order.Title, order.OrderType, order.OrderTime, order.PayTime, order.OrderStatus,
-		order.OntId, order.TxHash, order.Price, order.Coin, order.Result)
-	return err
-}
-
-func (this *SagaApiDB) UpdateTxInfoByOrderId(tx *sqlx.Tx, orderId string, txHash string, status sagaconfig.OrderStatus) error {
-	strSql := "update tbl_order set TxHash=?,OrderStatus=? where OrderId=?"
-	err := this.Exec(tx, strSql, txHash, status, orderId)
+func (this *SagaApiDB) UpdateTxInfoByOrderId(tx *sqlx.Tx, orderId string, result string, txHash string, status sagaconfig.OrderStatus) error {
+	strSql := "update tbl_order set Result=?,TxHash=?,OrderStatus=? where OrderId=?"
+	err := this.Exec(tx, strSql, result, txHash, status, orderId)
 	return err
 }
 
@@ -50,6 +42,16 @@ func (this *SagaApiDB) QueryOrderByOrderId(tx *sqlx.Tx, orderId string) (*tables
 	strSql := `select * from tbl_order where OrderId=?`
 	order := &tables.Order{}
 	err := this.Get(tx, order, strSql, orderId)
+	if err != nil {
+		return nil, err
+	}
+	return order, nil
+}
+
+func (this *SagaApiDB) QueryOrderByQrCodeId(tx *sqlx.Tx, qrCodeId string) (*tables.Order, error) {
+	strSql := `select * from tbl_order where OrderId=(select OrderId from tbl_qr_code where  QrCodeId=?)`
+	order := &tables.Order{}
+	err := this.Get(tx, order, strSql, qrCodeId)
 	if err != nil {
 		return nil, err
 	}

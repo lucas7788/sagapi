@@ -61,11 +61,32 @@ type GetApiByCategoryId struct {
 }
 
 type WetherForcastRequest struct {
-	TargetDate  string          `json:"targetDate"`
+	TargetDate  int64           `json:"targetDate"`
 	Location    tables.Location `json:"location"`
 	ToolBoxId   uint32          `json:"toolBoxId"`
 	ApiSourceId uint32          `json:"apiSourceId"`
 	AlgorithmId uint32          `json:"algorithmId"`
 	EnvId       uint32          `json:"envId"`
 	Result      string          `json:"result"`
+}
+
+type TokenTemplate struct {
+	DataIds   string `json:"dataIds"`
+	TokenHash string `json:"tokenHash"`
+}
+
+type Dtoken struct {
+	ResourceId    string        `json:"resourceId"`
+	Account       string        `json:"account"`
+	TokenTemplate TokenTemplate `json:"tokenTemplate"`
+	Number        uint32        `json:"number"`
+}
+
+type WetherForcastServiceRequest struct {
+	DataUrl       string                 `json:"dataUrl"`
+	Header        map[string]interface{} `json:"header"`
+	Param         map[string]interface{} `json:"param"`
+	RequestMethod string                 `json:"requestMethod"`
+	AlgorithmName string                 `json:"algorithmName"`
+	Dtoken        Dtoken                 `json:"dtoken"`
 }

@@ -29,6 +29,7 @@ type Env struct {
 	Description  string `json:"description" db:"Description"`
 	Price        string `json:"price" db:"Price"`
 	Coin         string `json:"coin" db:"Coin"`
+	ServiceUrl   string `json:"ServiceUrl" db:"ServiceUrl"`
 	ResourceId   string `json:"resourceId" db:"ResourceId"`
 	TokenHash    string `json:"tokenHash" db:"TokenHash"`
 	OwnerAddress string `json:"ownerAddress" db:"OwnerAddress"`

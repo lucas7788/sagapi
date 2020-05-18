@@ -143,6 +143,9 @@ create table tbl_order (
   ApiUrl varchar(255) NOT NULL  DEFAULT '' COMMENT '',
   SpecificationsId INT NOT NULL COMMENT '规格',
   Coin varchar(20) NOT NULL COMMENT '币种',
+  OrderKind INT NOT NULL COMMENT '',
+  Request varchar(4095) NOT NULL COMMENT '币种',
+  Result varchar(4095) NOT NULL COMMENT '币种',
   PRIMARY KEY (OrderId),
   CONSTRAINT FK_tbl_order_id FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId),
   INDEX(OntId)
@@ -229,6 +232,7 @@ CREATE TABLE `tbl_env` (
 	Description varchar(255) NOT NULL DEFAULT '',
 	Price varchar(255) NOT NULL DEFAULT '0' COMMENT '',
 	Coin varchar(20) NOT NULL COMMENT '币种',
+	ServiceUrl varchar(255) NOT NULL,
 	ResourceId varchar(255) UNIQUE NOT NULL,
 	TokenHash char(255) UNIQUE NOT NULL,
 	OwnerAddress varchar(255) UNIQUE NOT NULL,
