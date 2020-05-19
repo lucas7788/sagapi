@@ -217,7 +217,7 @@ func (this *SagaOrder) QueryOrderByPage(pageNum, pageSize int, ontid string) (ma
 	if pageSize < 0 {
 		pageSize = 0
 	}
-	total, err := dao.DefSagaApiDB.QueryOrderSum(nil, ontid)
+	total, err := dao.DefSagaApiDB.QueryOrderSum(nil, ontid, sagaconfig.Api)
 	if err != nil {
 		return nil, err
 	}
@@ -280,7 +280,7 @@ func (this *SagaOrder) QueryDataProcessOrderByPage(pageNum, pageSize int, ontid 
 	if pageSize < 0 {
 		pageSize = 0
 	}
-	total, err := dao.DefSagaApiDB.QueryOrderSum(nil, ontid)
+	total, err := dao.DefSagaApiDB.QueryOrderSum(nil, ontid, sagaconfig.ApiProcess)
 	if err != nil {
 		return nil, err
 	}

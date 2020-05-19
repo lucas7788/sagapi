@@ -58,10 +58,10 @@ func (this *SagaApiDB) QueryOrderByQrCodeId(tx *sqlx.Tx, qrCodeId string) (*tabl
 	return order, nil
 }
 
-func (this *SagaApiDB) QueryOrderSum(tx *sqlx.Tx, ontId string) (int, error) {
-	strSql := `select count(*) from tbl_order where OntId=?`
+func (this *SagaApiDB) QueryOrderSum(tx *sqlx.Tx, ontId string, orderType string) (int, error) {
+	strSql := `select count(*) from tbl_order where OntId=? and OrderType=?`
 	var sum int
-	err := this.Get(tx, &sum, strSql, ontId)
+	err := this.Get(tx, &sum, strSql, ontId, orderType)
 	if err != nil {
 		return 0, nil
 	}
