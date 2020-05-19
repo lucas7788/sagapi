@@ -54,7 +54,7 @@ insert into tbl_specifications (ApiId,Price,Amount) values (2,'0.01',1000);
 insert into tbl_specifications (ApiId,Price,Amount) values (2,'0.0075',2000);
 insert into tbl_specifications (ApiId,Price,Amount) values (3,'0.0075',2000);
 insert into tbl_algorithm (AlgName, Provider, Description, Price, Coin,ResourceId,TokenHash,OwnerAddress) values ('Storm Glass Weather Forecast', 'Ontology','Ontology weather forecast','2','ONG','8f1bbb94-239e-4033-a6c5-b8ce817333ab','3ace95ae291a2b15a66c823c9e284e4bc22c2a408a9df8ed03afda1e34053726','ALBoDa6bkA3WPPSTSaGogRuxNYgHPLveee');
-insert into tbl_env (EnvName, Provider, Description, Price, Coin,ServiceUrl,ResourceId,TokenHash,OwnerAddress) values ('normal server', 'Ontology', 'Ontology weather forecast', '2', 'ONG','https://dev1.sagamarket.io/api/v1/algorithm','8f1bbb94-239e-4033-a6c5-b8ce817333ab','3ace95ae291a2b15a66c823c9e284e4bc22c2a408a9df8ed03afda1e34053726','ALBoDa6bkA3WPPSTSaGogRuxNYgHPLveee');
+insert into tbl_env (EnvName, Provider, Description, Price, Coin,ServiceUrl,ResourceId,TokenHash,OwnerAddress) values ('normal server', 'Ontology', 'Ontology weather forecast', '0', 'ONG','https://dev1.sagamarket.io/api/v1/algorithm','8f1bbb94-239e-4033-a6c5-b8ce817333ab','3ace95ae291a2b15a66c823c9e284e4bc22c2a408a9df8ed03afda1e34053726','ALBoDa6bkA3WPPSTSaGogRuxNYgHPLveee');
 insert into tbl_api_algorithm (ApiId, AlgorithmId) values (3,1);
 insert into tbl_algorithm_env (AlgorithmId, EnvId) values (1,1);
 insert into tbl_tool_box (Title,ToolBoxDesc,Icon) values ('Weather Forecast','Get weather forecast for a city by analyzing historical data collected from worldwide weather stations','https://dev4.sagamarket.io/img/icons/tianqi.svg')
