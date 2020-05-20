@@ -293,6 +293,11 @@ func PublishAPIHandleCore(param *PublishAPI, ontId, author string) error {
 		DataSource:      param.DataSource,
 		OntId:           ontId,
 		Author:          author,
+		Price:           "0",
+		Popularity:      100,
+		Delay:           0,
+		SuccessRate:     100,
+		InvokeFrequency: 0,
 	}
 	port := fmt.Sprintf("%d", sagaconfig.DefSagaConfig.RestPort)
 	apibasic.ApiUrl = sagaconfig.DefSagaConfig.SagaHost + ":" + port + "/api/v1/data_source/" + apibasic.ApiSagaUrlKey + "/:apikey"
@@ -350,6 +355,10 @@ func PublishAPIHandleCore(param *PublishAPI, ontId, author string) error {
 	}
 
 	// spec handle.
+	if len(param.Specs) == 0 {
+		return errors.New("must fill a spec")
+	}
+
 	for _, s := range param.Specs {
 		s.ApiId = info.ApiId
 		err := dao.DefSagaApiDB.InsertSpecifications(tx, []*tables.Specifications{&s})

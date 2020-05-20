@@ -58,6 +58,16 @@ type ToolBox struct {
 	Title       string `json:"title" db:"Title"`
 	ToolBoxDesc string `json:"toolBoxDesc" db:"ToolBoxDesc"`
 	Icon        string `json:"icon" db:"Icon"`
+	Coin        string `json:"coin" db:"Coin"`
+	Price       string `json:"price" db:"Price"`
+	ToolBoxType string `json:"type" db:"ToolBoxType"`
 	State       byte   `json:"state" db:"State"`
 	CreateTime  Time   `json:"createTime" db:"CreateTime"`
+}
+
+type ApiHeadValues struct {
+	Id          uint32 `json:"id" db:"Id"`
+	ApiId       uint32 `json:"apiId" db:"ApiId"`
+	HeaderKey   string `json:"headerKey" db:"HeaderKey"`
+	HeaderValue string `json:"headerValue" db:"HeaderValue"`
 }

@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `tbl_api_header_values`;
+DROP TABLE IF EXISTS `tbl_tool_box_tag`;
 DROP TABLE IF EXISTS `tbl_tool_box`;
 DROP TABLE IF EXISTS `tbl_country_city`;
 DROP TABLE IF EXISTS `tbl_algorithm_env`;
@@ -88,7 +90,7 @@ create table tbl_api_tag
  TagId INT NOT NULL COMMENT '',
  State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
  CreateTime TIMESTAMP DEFAULT current_timestamp,
- PRIMARY KEY (id),
+ PRIMARY KEY (Id),
  INDEX(TagId),
  INDEX(ApiId),
  CONSTRAINT FK_ApiId FOREIGN KEY (ApiId) REFERENCES tbl_api_basic_info(ApiId),
@@ -267,9 +269,35 @@ CREATE TABLE `tbl_tool_box` (
 	Id INT NOT NULL AUTO_INCREMENT,
 	Title varchar(255) UNIQUE NOT NULL COMMENT 'comresponse to api_basic_info.ApiType',
 	ToolBoxDesc  varchar(255) NOT NULL,
+	ToolBoxType varchar(255) NOT NULL,
+	Coin varchar(255) NOT NULL,
+	Price varchar(255) NOT NULL,
 	Icon varchar(255),
 	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
 	CreateTime TIMESTAMP DEFAULT current_timestamp,
 	PRIMARY KEY(Id)
+)DEFAULT charset=utf8;
+
+CREATE TABLE `tbl_tool_box_tag` (
+	Id INT NOT NULL AUTO_INCREMENT,
+	ToolBoxId INT NOT NULL COMMENT '',
+	TagId INT NOT NULL COMMENT '',
+	State TINYINT NOT NULL DEFAULT 1 COMMENT '0:delete, 1:active',
+	CreateTime TIMESTAMP DEFAULT current_timestamp,
+	PRIMARY KEY (Id),
+	INDEX(ToolBoxId),
+	INDEX(TagId),
+	foreign key(ToolBoxId) references tbl_tool_box(Id),
+	foreign key(TagId) references tbl_tag(Id)
+)DEFAULT charset=utf8;
+
+CREATE TABLE `tbl_api_header_values` (
+	Id INT NOT NULL AUTO_INCREMENT,
+	ApiId INT NOT NULL COMMENT '',
+	HeaderKey varchar(255) NOT NULL,
+	HeaderValue varchar(255) NOT NULL,
+	PRIMARY KEY (Id),
+	INDEX(ApiId),
+	foreign key(ApiId) references tbl_api_basic_info(ApiId)
 )DEFAULT charset=utf8;
 

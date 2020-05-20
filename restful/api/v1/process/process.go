@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/ontio/ontology/common/log"
+	common2 "github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
 	"github.com/ontio/sagapi/restful/api/common"
@@ -134,4 +135,46 @@ func GetWetherForcastInfo(c *gin.Context) {
 		AlgorithmALL: algAll,
 	}
 	common.WriteResponse(c, common.ResponseSuccess(res))
+}
+
+func searchToolBoxByKey(c *gin.Context) {
+	key := &common2.SearchApiByKey{}
+	err := common.ParsePostParam(c, key)
+	if err != nil {
+		log.Errorf("[SearchApiByKey] ParsePostParam error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+	if key == nil || key.Key == "" {
+		common.WriteResponse(c, common.ResponseSuccess(nil))
+		return
+	}
+	//todo key.Key should not have sql statement
+	infos, err := dao.DefSagaApiDB.SearchToolBoxByKey(nil, key.Key)
+	if err != nil {
+		log.Errorf("[GetApiDetailByApiId] SearchApiByKey error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+	common.WriteResponse(c, common.ResponseSuccess(infos))
+}
+
+func searchToolBoxByCategory(c *gin.Context) {
+	param := &common2.GetApiByCategoryId{}
+	err := common.ParsePostParam(c, param)
+	if err != nil {
+		log.Errorf("[SearchApiByCategoryId] ParseGetParam error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.PARA_ERROR, err))
+		return
+	}
+
+	infos, err := dao.DefSagaApiDB.QueryToolBoxByCategoryId(nil, param.CategoryId, param.PageNum, param.PageSize)
+	if err != nil {
+		log.Errorf("[SearchApiByCategoryId] SearchApiByKey error: %s", err)
+		common.WriteResponse(c, common.ResponseFailed(common.INTER_ERROR, err))
+		return
+	}
+
+	log.Debugf("SearchApiByCategoryId: num %d", len(infos))
+	common.WriteResponse(c, common.ResponseSuccess(infos))
 }

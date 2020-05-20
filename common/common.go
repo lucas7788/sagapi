@@ -35,6 +35,12 @@ const (
 	UUID_TYPE_QRCODE_ID    int32 = 6
 )
 
+type qrCodeDesc struct {
+	Type   string `json:"type"`
+	Detail string `json:"detail"`
+	Price  string `json:"price"`
+}
+
 func GenerateUUId(uuidType int32) string {
 	u1 := uuid.Must(uuid.NewV4())
 	switch uuidType {
@@ -114,6 +120,18 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) (*tables.
 	if err != nil {
 		return nil, err
 	}
+
+	qrDesc := qrCodeDesc{
+		Type:   "invoke neovm type",
+		Detail: "transfer",
+		Price:  value + "ONG",
+	}
+
+	qrDescIn, err := json.Marshal(qrDesc)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tables.QrCode{
 		Ver:        "1.0.0",
 		QrCodeId:   id,
@@ -125,11 +143,11 @@ func buildQrCode(chain, orderId, ontid, payer, from, to, value string) (*tables.
 		Callback:   sagaconfig.DefSagaConfig.QrCodeCallback,
 		Exp:        exp,
 		Chain:      chain,
-		QrCodeDesc: "",
+		QrCodeDesc: string(qrDescIn),
 	}, nil
 }
 
-func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string, resourceidalgenv string, auth_token_templatehex string, use_token_templatehex string, payer, agent string) (*tables.QrCode, error) {
+func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string, resourceidalgenv string, auth_token_templatehex string, use_token_templatehex string, payer, agent string, value string) (*tables.QrCode, error) {
 	resourceidApihex := hex.EncodeToString([]byte(resourceidApi))
 	resourceidalgenvhex := hex.EncodeToString([]byte(resourceidalgenv))
 	resourceids := make([]string, 2, 2)
@@ -200,6 +218,18 @@ func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string
 	if err != nil {
 		return nil, err
 	}
+
+	qrDesc := qrCodeDesc{
+		Type:   "invoke wasm type.",
+		Detail: "WetherForcast api process transaction.",
+		Price:  value + "ONG",
+	}
+
+	qrDescIn, err := json.Marshal(qrDesc)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tables.QrCode{
 		Ver:          "1.0.0",
 		QrCodeId:     id,
@@ -212,6 +242,6 @@ func BuildWetherForcastQrCode(chain, orderId, ontid string, resourceidApi string
 		Exp:          exp,
 		Chain:        chain,
 		ContractType: "wasm",
-		QrCodeDesc:   "",
+		QrCodeDesc:   string(qrDescIn),
 	}, nil
 }

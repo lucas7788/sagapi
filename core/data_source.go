@@ -7,6 +7,7 @@ import (
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
+	"strings"
 	"sync/atomic"
 )
 
@@ -37,7 +38,8 @@ func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.Re
 	var firstQueryArg bool
 	var bodyParam []byte
 	baseUrl := info.ApiProvider
-	firstQueryArg = true
+	firstQueryArg = !strings.Contains(baseUrl, "?")
+
 	bodyParamNum := uint32(0)
 	for i, p := range referParams {
 		log.Debugf("publish param[%d]: %v", i, p)
@@ -82,7 +84,7 @@ func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.Re
 	var key *tables.APIKey
 	var apiCounterP *uint64
 	if !publishTestOnly {
-		key, apiCounterP, err = DefSagaApi.Cache.BeforeCheckApiKey(apiKey, 0)
+		key, apiCounterP, err = DefSagaApi.Cache.BeforeCheckApiKey(apiKey, info.ApiId)
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +92,11 @@ func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.Re
 
 	switch info.RequestType {
 	case tables.API_REQUEST_GET:
-		res, err := http.DefClient.Get(baseUrl)
+		headers, err := dao.DefSagaApiDB.QueryHeaderValueByApiId(nil, info.ApiId)
+		if err != nil {
+			return nil, err
+		}
+		res, err := http.DefClient.GetWithHeader(baseUrl, headers)
 		if err != nil {
 			if !publishTestOnly {
 				atomic.AddUint64(&key.UsedNum, ^uint64(0))

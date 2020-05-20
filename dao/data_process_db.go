@@ -11,20 +11,19 @@ func (this *SagaApiDB) QueryLocationOfCountryCity(tx *sqlx.Tx, country string) (
 	var err error
 	res := make([]*tables.Location, 0)
 	if country != "ALL" {
-		strSql := `select * from tbl_country_city where Country=?`
+		strSql := `select * from tbl_country_city where Country=? order by City`
 
 		err = this.Select(tx, &res, strSql, country)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		strSql := `select DISTINCT Country from tbl_country_city`
+		strSql := `select DISTINCT Country from tbl_country_city order by Country`
 
 		err = this.Select(tx, &res, strSql)
 		if err != nil {
 			return nil, err
 		}
-
 	}
 
 	return res, nil
@@ -105,6 +104,42 @@ func (this *SagaApiDB) QueryToolBoxById(tx *sqlx.Tx, id uint32) (*tables.ToolBox
 	return &res, nil
 }
 
+func (this *SagaApiDB) SearchToolBoxByKey(tx *sqlx.Tx, key string) ([]*tables.ToolBox, error) {
+	k := "%" + key + "%"
+	strSql := `select * from tbl_tool_box where ToolBoxDesc like ? or Title like ? or Id in (select ToolBoxId from tbl_tool_box_tag where TagId=(select id from tbl_tag where Name=?)) limit 30`
+	infos := make([]*tables.ToolBox, 0)
+	err := this.DB.Select(&infos, strSql, k, k, key)
+	if err != nil {
+		return nil, err
+	}
+	return infos, nil
+}
+
+func (this *SagaApiDB) QueryToolBoxByCategoryId(tx *sqlx.Tx, categoryId, pageNum, pageSize uint32) ([]*tables.ToolBox, error) {
+	if pageNum < 1 {
+		pageNum = 1
+	}
+	start := (pageNum - 1) * pageSize
+	log.Debugf("QueryToolBoxByCategoryId %d, %d, %d", categoryId, start, pageSize)
+
+	var strSql string
+	var err error
+	res := make([]*tables.ToolBox, 0)
+	if categoryId != 1 {
+		strSql = `select * from tbl_tool_box where Id in (select ToolBoxId from tbl_tool_box_tag where TagId=(select Id from tbl_tag where CategoryId=?)) limit ?, ?`
+		err = this.Select(tx, &res, strSql, categoryId, start, pageSize)
+	} else {
+		strSql = `select * from tbl_tool_box where Id in (select ToolBoxId from tbl_tool_box_tag where TagId in (select Id from tbl_tag)) limit ?, ?`
+		err = this.Select(tx, &res, strSql, start, pageSize)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (this *SagaApiDB) QueryToolBoxAll(tx *sqlx.Tx) ([]*tables.ToolBox, error) {
 	var err error
 	res := make([]*tables.ToolBox, 0)
@@ -114,5 +149,16 @@ func (this *SagaApiDB) QueryToolBoxAll(tx *sqlx.Tx) ([]*tables.ToolBox, error) {
 		return nil, err
 	}
 
+	return res, nil
+}
+
+func (this *SagaApiDB) QueryHeaderValueByApiId(tx *sqlx.Tx, apiId uint32) ([]*tables.ApiHeadValues, error) {
+	var err error
+	res := make([]*tables.ApiHeadValues, 0)
+	StrSql := `select * from tbl_api_header_values where ApiId=?`
+	err = this.Select(tx, &res, StrSql, apiId)
+	if err != nil {
+		return nil, err
+	}
 	return res, nil
 }

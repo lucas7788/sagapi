@@ -111,7 +111,7 @@ func (this *SagaOrder) TakeWetherForcastApiOrder(param *common.WetherForcastRequ
 	}
 	payer := arr[2]
 
-	code, err := common.BuildWetherForcastQrCode(sagaconfig.DefSagaConfig.NetType, orderId, ontId, api.ResourceId, alg.ResourceId, api.TokenHash, env.TokenHash, payer, env.OwnerAddress)
+	code, err := common.BuildWetherForcastQrCode(sagaconfig.DefSagaConfig.NetType, orderId, ontId, api.ResourceId, alg.ResourceId, api.TokenHash, env.TokenHash, payer, env.OwnerAddress, amountStr)
 	if err != nil {
 		errl = err
 		log.Debugf("TakeWethe2ForcastApiOrder. 6 : %s", err)
@@ -426,7 +426,7 @@ func (this *SagaOrder) GetQrCodeByOrderId(ontId, orderId string) (*common.QrCode
 				return nil, err
 			}
 
-			code, err = common.BuildWetherForcastQrCode(sagaconfig.DefSagaConfig.NetType, orderId, ontId, api.ResourceId, alg.ResourceId, api.TokenHash, env.TokenHash, arr[2], env.OwnerAddress)
+			code, err = common.BuildWetherForcastQrCode(sagaconfig.DefSagaConfig.NetType, orderId, ontId, api.ResourceId, alg.ResourceId, api.TokenHash, env.TokenHash, arr[2], env.OwnerAddress, order.Price)
 		default:
 			return nil, errors.New("wrong order type title.")
 		}
