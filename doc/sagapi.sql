@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS `tbl_api_header_values`;
 DROP TABLE IF EXISTS `tbl_tool_box_tag`;
 DROP TABLE IF EXISTS `tbl_tool_box`;
-DROP TABLE IF EXISTS `tbl_country_city`;
 DROP TABLE IF EXISTS `tbl_algorithm_env`;
 DROP TABLE IF EXISTS `tbl_api_algorithm`;
 DROP TABLE IF EXISTS `tbl_env`;
@@ -203,7 +202,7 @@ CREATE TABLE `tbl_qr_code` (
   INDEX(QrCodeId)
 )DEFAULT charset=utf8;
 
-CREATE TABLE `tbl_country_city` (
+CREATE TABLE IF NOT EXISTS `tbl_country_city` (
 	Id INT NOT NULL AUTO_INCREMENT,
 	Country varchar(50) NOT NULL,
 	City varchar(50) UNIQUE NOT NULL,

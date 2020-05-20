@@ -32,6 +32,9 @@ func NewSagaApiDB(dbConfig *sagaconfig.DBConfig) (*SagaApiDB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	dbx.SetMaxIdleConns(256)
+
 	return &SagaApiDB{
 		DB: dbx,
 	}, nil

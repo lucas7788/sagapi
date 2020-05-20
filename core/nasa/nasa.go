@@ -3,6 +3,7 @@ package nasa
 import (
 	"errors"
 	"fmt"
+	"github.com/ontio/ontology/common/log"
 	"github.com/ontio/sagapi/core/freq"
 	"github.com/ontio/sagapi/core/http"
 	"github.com/ontio/sagapi/models/tables"
@@ -39,6 +40,8 @@ func (this *Nasa) Apod(apiKey string) ([]byte, error) {
 		atomic.AddUint64(apiCounterP, ^uint64(0))
 		return nil, err
 	}
+	counter := atomic.LoadUint64(apiCounterP)
+	log.Debugf("UpdateFreqDataBase: apiId: %d, counterP: %v,counter: %d, usedNum:%d, apiKey: %s", 1, apiCounterP, counter, key.UsedNum, apiKey)
 
 	this.Cache.UpdateFreq <- apiKey
 
@@ -59,6 +62,8 @@ func (this *Nasa) Feed(startDate, endDate string, apiKey string) ([]byte, error)
 		return nil, err
 	}
 
+	counter := atomic.LoadUint64(apiCounterP)
+	log.Debugf("UpdateFreqDataBase: apiId: %d, counterP: %v,counter: %d, usedNum:%d, apiKey: %s", 1, apiCounterP, counter, key.UsedNum, apiKey)
 	this.Cache.UpdateFreq <- apiKey
 	return res, nil
 }

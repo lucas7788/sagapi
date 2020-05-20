@@ -108,7 +108,7 @@ func (this *SagaApiDB) SearchToolBoxByKey(tx *sqlx.Tx, key string) ([]*tables.To
 	k := "%" + key + "%"
 	strSql := `select * from tbl_tool_box where ToolBoxDesc like ? or Title like ? or Id in (select ToolBoxId from tbl_tool_box_tag where TagId=(select id from tbl_tag where Name=?)) limit 30`
 	infos := make([]*tables.ToolBox, 0)
-	err := this.DB.Select(&infos, strSql, k, k, key)
+	err := this.Select(tx, &infos, strSql, k, k, key)
 	if err != nil {
 		return nil, err
 	}

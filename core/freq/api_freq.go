@@ -3,6 +3,7 @@ package freq
 import (
 	"fmt"
 	"github.com/ontio/ontology/common/log"
+	"github.com/ontio/sagapi/common"
 	"github.com/ontio/sagapi/dao"
 	"github.com/ontio/sagapi/models/tables"
 	"sync"
@@ -48,6 +49,7 @@ func (this *DBCache) UpdateFreqDataBase() {
 			}
 
 			counter := atomic.LoadUint64(apiCounterP.(*uint64))
+			log.Debugf("UpdateFreqDataBase: apiId: %d, counterP: %v,counter: %d, usedNum:%d, apiKey: %s", apiId, apiCounterP, counter, key.UsedNum, apiKey)
 			this.updateApiKeyInvokeFre(key, counter)
 		}
 	}
@@ -92,7 +94,9 @@ func (this *DBCache) BeforeCheckApiKey(apiKey string, apiId uint32) (*tables.API
 	}
 
 	key.UsedNum += 1
-	atomic.AddUint64(apiCounterP, 1)
+	if !common.IsTestKey(apiKey) {
+		atomic.AddUint64(apiCounterP, 1)
+	}
 
 	return key, apiCounterP, nil
 }
