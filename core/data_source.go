@@ -53,15 +53,27 @@ func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.Re
 				if !firstQueryArg {
 					return nil, fmt.Errorf("params error. restful url after query.")
 				}
-				baseUrl = baseUrl + "/" + params[i].Note
+				if publishTestOnly {
+					baseUrl = baseUrl + "/" + params[i].Note
+				} else {
+					baseUrl = baseUrl + "/" + params[i].ValueDesc
+				}
 			}
 		case tables.URL_PARAM_QUERY:
 			if p.Required {
 				if firstQueryArg {
-					baseUrl = baseUrl + "?" + params[i].ParamName + "=" + params[i].Note
+					if publishTestOnly {
+						baseUrl = baseUrl + "?" + params[i].ParamName + "=" + params[i].Note
+					} else {
+						baseUrl = baseUrl + "?" + params[i].ParamName + "=" + params[i].ValueDesc
+					}
 					firstQueryArg = false
 				} else {
-					baseUrl = baseUrl + "&" + params[i].ParamName + "=" + params[i].Note
+					if publishTestOnly {
+						baseUrl = baseUrl + "&" + params[i].ParamName + "=" + params[i].Note
+					} else {
+						baseUrl = baseUrl + "&" + params[i].ParamName + "=" + params[i].ValueDesc
+					}
 				}
 			}
 		case tables.URL_PARAM_BODY:
@@ -74,7 +86,11 @@ func HandleDataSourceReqCore(tx *sqlx.Tx, sagaUrlKey string, params []*tables.Re
 
 			bodyParamNum += 1
 			if p.Required {
-				bodyParam = []byte(params[i].Note)
+				if publishTestOnly {
+					bodyParam = []byte(params[i].Note)
+				} else {
+					bodyParam = []byte(params[i].ValueDesc)
+				}
 			}
 		}
 	}
